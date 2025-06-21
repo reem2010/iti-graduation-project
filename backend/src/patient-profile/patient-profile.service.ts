@@ -14,11 +14,11 @@ export class PatientService {
   constructor(private prisma: PrismaService) {}
 
   async getPatientProfile(user: any) {
-    const { userId, role } = user;
+    const { userId /*,role*/ } = user;
 
-    if (role !== 'patient') {
-      throw new ForbiddenException('Only patients can access their profile');
-    }
+    // if (role !== 'patient') {
+    //   throw new ForbiddenException('Only patients can access their profile');
+    // }
 
     const patient = await this.prisma.patient.findUnique({
       where: { userId },
@@ -28,11 +28,11 @@ export class PatientService {
       throw new NotFoundException('Patient profile does not exist');
     }
 
-    if (patient.userId !== userId) {
-      throw new UnauthorizedException(
-        'You are not authorized to access this profile',
-      );
-    }
+    // if (patient.userId !== userId) {
+    //   throw new UnauthorizedException(
+    //     'You are not authorized to access this profile',
+    //   );
+    // }
 
     return {
       message: 'Patient profile fetched successfully',
