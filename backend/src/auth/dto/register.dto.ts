@@ -1,9 +1,14 @@
-import { IsEmail, IsEnum, IsNotEmpty, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  MinLength,
+} from '@nestjs/class-validator';
 
 export enum Role {
   patient = 'patient',
   doctor = 'doctor',
-  admin = 'admin'
+  admin = 'admin',
 }
 
 export class RegisterDto {
