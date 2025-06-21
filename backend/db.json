@@ -1,0 +1,56 @@
+{
+  "users": [
+    {
+      "id": "1750348986141",
+      "email": "test1@example.com",
+      "passwordHash": "$2b$10$zgPRyb9.lFvzcR8xzel25uUvTjnTLfDzeCRzLRZSA3CtQH.kRcnBe",
+      "role": "patient",
+      "createdAt": "2025-06-19T16:03:06.141Z",
+      "updatedAt": "2025-06-19T16:03:06.141Z"
+    },
+    {
+      "id": "1750348996987",
+      "email": "test@example.com",
+      "passwordHash": "$2b$10$His2Ap4WPdgxLcbRk.V00OceXLLffxpttBhWpewgkaT.R40D4fQYO",
+      "role": "doctor",
+      "createdAt": "2025-06-19T16:03:16.987Z",
+      "updatedAt": "2025-06-19T16:03:16.987Z"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "4dfc",
+      "phone": "123456789",
+      "avatarUrl": "",
+      "dateOfBirth": "",
+      "gender": "male",
+      "preferredLanguage": "ar",
+      "timezone": "",
+      "bio": "Therapist",
+      "isVerified": false,
+      "isActive": true,
+      "lastLogin": null,
+      "userId": 1750348986141,
+      "createdAt": "2025-06-20T10:18:45.668Z",
+      "updatedAt": "2025-06-20T10:18:45.668Z"
+    },
+    {
+      "id": "b2e6",
+      "phone": "123456789",
+      "avatarUrl": "",
+      "dateOfBirth": null,
+      "gender": "male",
+      "preferredLanguage": "ar",
+      "timezone": "",
+      "bio": "Therapist",
+      "isVerified": false,
+      "isActive": true,
+      "lastLogin": null,
+      "userId": "1750348996987",
+      "createdAt": "2025-06-20T18:35:35.552Z",
+      "updatedAt": "2025-06-20T18:35:35.552Z"
+    }
+  ],
+  "patients": [],
+  "doctors": []
+}
