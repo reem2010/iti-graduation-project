@@ -38,7 +38,7 @@ export class ArticlesController {
     @Body() createArticleDto: CreateArticleDto,
     @Request() req: any,
   ) {
-    if (req.role == 'patient') {
+    if (req.user.role == 'patient') {
       return { message: 'Only Doctor can write articles' };
     }
     const doctorId = req.user.userId;
@@ -51,7 +51,7 @@ export class ArticlesController {
     @Body() updateArticleDto: UpdateArticleDto,
     @Request() req: any,
   ) {
-    if (req.role == 'patient') {
+    if (req.user.role == 'patient') {
       return { message: 'Only Doctor can write articles' };
     }
     const doctorId = req.user.userId;
@@ -60,7 +60,7 @@ export class ArticlesController {
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   async remove(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
-    if (req.role == 'patient') {
+    if (req.user.role == 'patient') {
       return { message: 'Only Doctor can write and delete articles' };
     }
     const doctorId = req.user.userId;
