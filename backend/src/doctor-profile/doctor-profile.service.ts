@@ -13,12 +13,9 @@ import { PrismaService } from 'prisma/prisma.service';
 export class DoctorProfileService {
   constructor(private prisma: PrismaService) {}
 
+  //   anyone can access doctor profile, but only doctors can create or update their own profiles
   async getDoctorProfile(user: any) {
-    const { userId, role } = user;
-
-    if (role !== 'doctor') {
-      throw new ForbiddenException('Access denied: only doctors allowed.');
-    }
+    const { userId } = user;
 
     const profile = await this.prisma.doctorProfile.findUnique({
       where: { userId },

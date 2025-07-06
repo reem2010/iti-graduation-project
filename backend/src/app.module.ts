@@ -7,15 +7,24 @@ import { DoctorProfileModule } from './doctor-profile/doctor-profile.module';
 import { PrismaModule } from 'prisma/prisma.module';
 import { ArticlesModel } from './article/article.module';
 import { ReviewModule } from './review/review.module';
+import { DoctorVerificationModule } from './doctor-verification/doctor-verification.module';
+import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
 
 @Module({
   imports: [
+    
     PrismaModule,
+   
     AuthModule,
+   
     PatientModule,
+   
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
+  ,
+    DoctorVerificationModule,
+    DoctorAvailabilityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
