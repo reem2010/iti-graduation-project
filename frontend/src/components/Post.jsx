@@ -1,33 +1,36 @@
 import React from "react";
 import Image from "next/image";
 
-export default function Post({ doctor, content, media, createdAt, updatedAt }) {
+export default function Post({
+  doctorProfile,
+  content,
+  media,
+  createdAt,
+  updatedAt,
+}) {
   return (
     <article className="prose prose-lg prose-neutral dark:prose-invert mx-auto max-w-3xl px-4 py-8">
       {/* Author Info */}
       <div className="flex items-center gap-4 mb-6">
-        {doctor.photo ? (
-          <Image
-            src={doctor.photo}
-            alt={doctor.name}
-            width={56}
-            height={56}
-            className="rounded-full object-cover"
-          />
-        ) : (
-          <Image
-            src="/image.png"
-            alt={doctor.name}
-            width={56}
-            height={56}
-            className="rounded-full object-cover"
-          />
-        )}
+        <Image
+          src={
+            doctorProfile.user.avatarUrl
+              ? doctorProfile.user.avatarUrl
+              : "/image.png"
+          }
+          alt={doctorProfile.user.firstName}
+          width={56}
+          height={56}
+          className="rounded-full object-cover"
+        />
 
         <div>
-          <p className="text-base font-medium">{doctor.name}</p>
+          <p className="text-base font-medium">
+            {doctorProfile.user.firstName} {doctorProfile.user.lastName}
+          </p>
           <p className="text-sm text-gray-500">
-            {doctor.specialization} • {doctor.yearsOfExperience} yrs experience
+            {doctorProfile.specialization} • {doctorProfile.yearsOfExperience}{" "}
+            yrs experience
           </p>
         </div>
       </div>
