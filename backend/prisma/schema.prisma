@@ -190,6 +190,8 @@ model Appointment {
 
   patient         Patient       @relation("PatientAppointments", fields: [patientId], references: [userId], onDelete: Cascade)
   doctorProfile   DoctorProfile @relation("DoctorProfileAppointments", fields: [doctorId], references: [userId], onDelete: Cascade)
+
+  Transaction Transaction[]
 }
 
 model DoctorAvailability {
@@ -247,6 +249,7 @@ model Wallet {
 model Transaction {
   id          Int               @id @default(autoincrement())
   userId      Int
+  appointmentId Int?  
   amount      Decimal
   type        TransactionType
   status      TransactionStatus @default(pending)
@@ -256,6 +259,7 @@ model Transaction {
   updatedAt   DateTime @updatedAt
 
   user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointment   Appointment?      @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
 }
 
 
