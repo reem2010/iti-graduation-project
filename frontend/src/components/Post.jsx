@@ -1,13 +1,48 @@
 import React from "react";
 import Image from "next/image";
-
+import Link from "next/link";
+import { log } from "node:console";
 export default function Post({
   doctorProfile,
   content,
   media,
   createdAt,
   updatedAt,
+  id,
 }) {
+  const ImageExtensions = [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "bmp",
+    "tiff",
+    "webp",
+    "heif",
+    "raw",
+  ];
+  const videoExtensions = [
+    "mp4",
+    "mov",
+    "avi",
+    "mkv",
+    "flv",
+    "wmv",
+    "webm",
+    "m4v",
+    "3gp",
+  ];
+  const fileType = (file) => {
+    const ext = file.split(".").pop().toLowerCase();
+    const fileType = ImageExtensions.includes(ext)
+      ? "image"
+      : videoExtensions.includes(ext)
+      ? "video"
+      : undefined;
+    return fileType;
+  };
+  console.log(media);
+
   return (
     <article className="prose prose-lg prose-neutral dark:prose-invert mx-auto max-w-3xl px-4 py-8">
       {/* Author Info */}
@@ -41,9 +76,9 @@ export default function Post({
       {/* Optional Media */}
       {media && (
         <div className="my-6">
-          {media.type === "image" ? (
+          {fileType(media) === "image" ? (
             <Image
-              src={media.url}
+              src={media}
               alt="post media"
               width={800}
               height={500}
@@ -54,11 +89,12 @@ export default function Post({
               controls
               className="rounded-lg mx-auto w-full max-h-[500px] object-cover"
             >
-              <source src={media.url} />
+              <source src={media} />
             </video>
           )}
         </div>
       )}
+      <Link href={`/articles/${id}/edit`}>Edit</Link>
 
       {/* Footer */}
       <footer className="mt-8 text-sm text-gray-500 border-t pt-4">

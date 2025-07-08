@@ -4,9 +4,14 @@ import { useState } from "react";
 import UploaderInputPreview from "./UploaderInputPreview";
 import { BASE_URL } from "../lib/config";
 
-export default function ArticleForm() {
-  const [content, setContent] = useState("");
+export default function ArticleForm({
+  initialContent = "",
+  initialMediaUrl = "",
+  onSubmit,
+}) {
+  const [content, setContent] = useState(initialContent);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [existingMediaUrl, setExistingMediaUrl] = useState(initialMediaUrl);
 
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
@@ -30,8 +35,7 @@ export default function ArticleForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let mediaUrl = "";
-
+    let mediaUrl = existingMediaUrl;
     if (selectedFile) {
       mediaUrl = await uploadToCloudinary(selectedFile);
     }
@@ -40,23 +44,9 @@ export default function ArticleForm() {
       content,
       mediaUrl,
     };
-    console.log(articleData);
+    // await onSubmit(articleData);
 
-    // const res = await fetch(`${BASE_URL}/article`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(articleData),
-    // });
-
-    // if (res.ok) {
-    //   alert("Article submitted!");
-    //   setContent("");
-    //   setSelectedFile(null);
-    // } else {
-    //   alert("Error submitting article.");
-    // }
+    console.log("Data:", articleData);
   };
 
   return (
@@ -68,7 +58,10 @@ export default function ArticleForm() {
         rows={6}
         className="w-full p-2 border rounded"
       />
-      <UploaderInputPreview onFileSelect={setSelectedFile} />
+      <UploaderInputPreview
+        onFileSelect={setSelectedFile}
+        defurl={existingMediaUrl}
+      />
       <button
         type="submit"
         className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { paperClip } from "../lib/svgs";
-export default function UploaderInputPreview({ onFileSelect }) {
-  const [preview, setPreview] = useState(null);
+export default function UploaderInputPreview({ onFileSelect, defurl = "" }) {
+  const [preview, setPreview] = useState(defurl);
   const [file, setFile] = useState(null);
 
   const handleChange = (e) => {
