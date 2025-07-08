@@ -12,17 +12,15 @@ import { DoctorAvailabilityModule } from './doctor-availability/doctor-availabli
 
 @Module({
   imports: [
-    
     PrismaModule,
-   
+
     AuthModule,
-   
+
     PatientModule,
-   
+
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
-  ,
     DoctorVerificationModule,
     DoctorAvailabilityModule,
   ],

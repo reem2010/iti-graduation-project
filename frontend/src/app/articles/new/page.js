@@ -1,4 +1,9 @@
 //new article
+import ArticleForm from "../../../components/ArticleForm";
 export default function NewArticle() {
-  return <div>page</div>;
+  return (
+    <>
+      <ArticleForm></ArticleForm>
+    </>
+  );
 }
