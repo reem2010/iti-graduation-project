@@ -9,11 +9,14 @@ import { ArticlesModel } from './article/article.module';
 import { ReviewModule } from './review/review.module';
 import { DoctorVerificationModule } from './doctor-verification/doctor-verification.module';
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
+import { MessagesModule } from './messages/messages.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
     
     PrismaModule,
+    RedisModule,
    
     AuthModule,
    
@@ -22,9 +25,13 @@ import { DoctorAvailabilityModule } from './doctor-availability/doctor-availabli
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
-  ,
+
     DoctorVerificationModule,
     DoctorAvailabilityModule,
+
+    MessagesModule,
+
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
