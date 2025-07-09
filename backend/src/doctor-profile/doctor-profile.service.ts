@@ -89,7 +89,7 @@ export class DoctorProfileService {
 
     return {
       message: 'Doctor profile updated successfully',
-      updatedProfile,
+      data: updatedProfile,
     };
   }
 

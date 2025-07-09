@@ -40,6 +40,21 @@ export class PatientService {
     };
   }
 
+  async getPatientProfileById(userId: number) {
+    const patient = await this.prisma.patient.findUnique({
+      where: { userId },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Patient profile does not exist');
+    }
+
+    return {
+      message: 'Patient profile fetched successfully',
+      data: patient,
+    };
+  }
+
   async createPatientProfile(user: any, dto: CreatePatientDto) {
     const { userId, role } = user;
 
