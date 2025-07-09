@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import DoctorProfileDetails from "@/components/doctor/DoctorProfileDetails";
 import DoctorVerificationDetails from "@/components/doctor/DoctorVerificationDetails";
@@ -59,17 +60,17 @@ export default function DoctorProfilePage() {
 
         {!loading && !error && userInfo?.role === "doctor" && (
           <>
-            <PersonalInfo />
-            <DoctorProfileDetails />
-            <DoctorVerificationDetails />
-            <DoctorAvailabilityDetails />
+            <PersonalInfo  />
+            <DoctorProfileDetails  />
+            <DoctorVerificationDetails  />
+            <DoctorAvailabilityDetails  />
           </>
         )}
 
         {!loading && !error && userInfo?.role !== "doctor" && (
           <div className="text-center text-gray-600 text-lg py-10">
             <p className="mb-4">
-               Hello {userInfo?.firstName || "there"}, this section is for doctors only.
+              Hello {userInfo?.firstName || "there"}, this section is for doctors only.
             </p>
             <p className="text-gray-500">
               If you're a doctor and need to set up your profile, please contact support or switch to a doctor account.

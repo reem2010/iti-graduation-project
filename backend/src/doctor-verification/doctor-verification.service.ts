@@ -40,6 +40,19 @@ export class DoctorVerificationService {
     };
   }
 
+  async getVerificationByDoctorId(doctorId: number) {
+    const verification = await this.prisma.doctorVerification.findFirst({
+      where: { userId: doctorId },
+      include: { user: true },
+    });
+
+    if (!verification) {
+      throw new NotFoundException('Doctor verification not found');
+    }
+
+    return verification;
+  }
+
   async createDoctorVerification(user: any, dto: CreateDoctorVerificationDto) {
     const { userId, role } = user;
 

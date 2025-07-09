@@ -43,6 +43,7 @@ export class PatientService {
   async getPatientProfileById(userId: number) {
     const patient = await this.prisma.patient.findUnique({
       where: { userId },
+      include: { user: true },
     });
 
     if (!patient) {

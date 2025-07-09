@@ -1,5 +1,9 @@
 // src/user/user.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from '../auth/dto/register.dto';
@@ -8,32 +12,11 @@ import { RegisterDto } from '../auth/dto/register.dto';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async updateUser(id: number, updateData: Partial<RegisterDto>) {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { id },
+  updateUser(userId: number, updateData: Partial<RegisterDto>) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
     });
-
-    if (!existingUser) {
-      throw new NotFoundException('User not found');
-    }
-
-    const dataToUpdate: any = { ...updateData };
-
-    if (updateData.password) {
-      const passwordHash = await bcrypt.hash(updateData.password, 10);
-      dataToUpdate.passwordHash = passwordHash;
-      delete dataToUpdate.password; // Remove plaintext password
-    }
-
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: dataToUpdate,
-    });
-
-    return {
-      message: 'User updated successfully',
-      data: updatedUser,
-    };
   }
 
   async deleteUser(userId: number) {

@@ -26,19 +26,27 @@ api.interceptors.request.use((config) => {
 
 // Auth API
 export const authApi = {
-  getUser: async (): Promise<User> => {
-    const response = await api.get<User>('/user');
+  getUser: async () => {
+    const response = await api.get('/user');
     return response.data;
   },
-   updateUser: async (data: Partial<User>): Promise<User> => {
-    const response = await api.put<User>('/user', data); // adjust endpoint if your backend expects /users/:id
+  updateUser: async (data: any) => {
+    const response = await api.put('/user', data);
     return response.data;
   },
-
-  deleteUser: async (): Promise<void> => {
+  getUserById: async (userId: number) => {
+    const response = await api.get(`/user/${userId}`);
+    return response.data;
+  },
+  updateUserById: async (userId: number, data: any) => {
+    const response = await api.put(`/user/${userId}`, data); 
+    return response.data;
+  },
+  deleteUser: async () => {
     await api.delete('/user');
   },
 };
+
 
 // Doctor Profile API
 export const doctorProfileApi = {
@@ -69,6 +77,10 @@ export const doctorVerificationApi = {
     const response = await api.get<ApiResponse<DoctorVerification>>('/doctor-verification');
     return response.data.data!;
   },
+  getDoctorVerificationByDoctorId: async (doctorId: number) => {
+  const res = await api.get(`/doctor-verification/doctor/${doctorId}`);
+  return res.data;
+},
 
   createDoctorVerification: async (data: CreateDoctorVerificationDto): Promise<DoctorVerification> => {
     const response = await api.post<ApiResponse<DoctorVerification>>('/doctor-verification', data);
@@ -92,10 +104,12 @@ export const doctorAvailabilityApi = {
     return response.data.data!;
   },
 
-  getDoctorAvailabilityById: async (id: number): Promise<DoctorAvailability> => {
-    const response = await api.get<ApiResponse<DoctorAvailability>>(`/doctor-availability/${id}`);
-    return response.data.data!;
-  },
+  getDoctorAvailabilitesByDoctorId(doctorId: number) {
+  return api
+    .get<ApiResponse<DoctorAvailability[]>>(`/doctor-availability/doctor/${doctorId}`)
+.then((res) => res.data.data);
+}
+,
 
   createDoctorAvailability: async (data: CreateDoctorAvailabilityDto): Promise<DoctorAvailability> => {
     const response = await api.post<ApiResponse<DoctorAvailability>>('/doctor-availability', data);
@@ -131,10 +145,10 @@ export const patientProfileApi = {
   deletePatientProfile: async (): Promise<void> => {
     await api.delete('/patients');
   },
-  // getPatientProfileById: async (userId: number) => {
-  //   const response = await api.get(`/patients/${userId}`);
-  //   return response.data;
-  // }
+getPatientProfileById: async (userId: number) => {
+  const response = await api.get(`/patients/${userId}`);
+  return response.data;
+}
 
 }
 

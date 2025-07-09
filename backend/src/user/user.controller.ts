@@ -19,9 +19,8 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Put('')
-  update(@Req() req, @Body() updateData: Partial<RegisterDto>) {
-    const userId = req.user.userId;
-    return this.userService.updateUser(userId, updateData);
+  updateUser(@Req() req, @Body() updateData: Partial<RegisterDto>) {
+    return this.userService.updateUser(req.user.userId, updateData);
   }
 
   @UseGuards(JwtAuthGuard)
