@@ -27,7 +27,7 @@ export default function PersonalInfo() {
       try {
         setLoading(true);
         setError(null);
-        const userRes = await authApi.getUser();
+        const userRes = await authApi.getUser();        
         console.log("Fetched user info:", userRes);
         setUserInfo(userRes);
       } catch (err: any) {

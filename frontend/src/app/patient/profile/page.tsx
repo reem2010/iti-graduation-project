@@ -17,9 +17,7 @@ export default function PatientProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditingUser, setIsEditingUser] = useState(false);
   const [isEditingPatient, setIsEditingPatient] = useState(false);
-  
 
-  // User edit form state
   const [userEditForm, setUserEditForm] = useState({
     firstName: '',
     lastName: '',
@@ -35,7 +33,6 @@ export default function PatientProfilePage() {
     dateOfBirth: '',
   });
 
-  // Patient edit form state
   const [patientEditForm, setPatientEditForm] = useState<PatientFormData>({
     emergencyContactName: '',
     emergencyContactPhone: '',
@@ -48,7 +45,6 @@ export default function PatientProfilePage() {
       setLoading(true);
       setError(null);
 
-      // Fetch user info
       const userRes = await authApi.getUser();
       setUserInfo(userRes);
       setUserEditForm({
@@ -68,18 +64,24 @@ export default function PatientProfilePage() {
           : '',
       });
 
-      // Fetch patient profile
-      const patientRes = await patientProfileApi.getPatientProfile();
-      console.log('Fetched Patient Profile:', patientRes);
-      setPatientProfile(patientRes.data);
-      setPatientEditForm({
-        emergencyContactName: patientRes?.data.emergencyContactName || '',
-        emergencyContactPhone: patientRes?.data.emergencyContactPhone || '',
-        insuranceProvider: patientRes?.data.insuranceProvider || '',
-        insurancePolicyNumber: patientRes?.data.insurancePolicyNumber || '',
-      });
-      console.log('Patient Profile:', patientRes);
-
+     if( userRes.role === 'patient') {
+        const patientRes = await patientProfileApi.getPatientProfile();
+        setPatientProfile(patientRes.data);
+        setPatientEditForm({
+          emergencyContactName: patientRes.data.emergencyContactName || '',
+          emergencyContactPhone: patientRes.data.emergencyContactPhone || '',
+          insuranceProvider: patientRes.data.insuranceProvider || '',
+          insurancePolicyNumber: patientRes.data.insurancePolicyNumber || '',
+        });
+      } else {
+        setPatientProfile(null);
+        setPatientEditForm({
+          emergencyContactName: '',
+          emergencyContactPhone: '',
+          insuranceProvider: '',
+          insurancePolicyNumber: '',
+        });
+      }
     } catch (err: any) {
       console.error('Failed to fetch data:', err);
       setError(
@@ -99,7 +101,6 @@ export default function PatientProfilePage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type, checked } = e.target;
-
     const newValue =
       type === 'checkbox'
         ? checked
@@ -147,7 +148,7 @@ export default function PatientProfilePage() {
     try {
       setLoading(true);
       await authApi.updateUser(cleanedUserData);
-      await fetchData(); // Refresh all data
+      await fetchData();
       setIsEditingUser(false);
     } catch (err: any) {
       console.error('Failed to update user:', err);
@@ -167,8 +168,6 @@ export default function PatientProfilePage() {
     try {
       setLoading(true);
       const updatedPatient = await patientProfileApi.updatePatientProfile(patientEditForm);
-      console.log('Updated Patient Profile:', updatedPatient);
-      // Update both the patient profile and form state
       setPatientProfile(updatedPatient.data);
       setPatientEditForm({
         emergencyContactName: updatedPatient.data.emergencyContactName || '',
@@ -176,7 +175,6 @@ export default function PatientProfilePage() {
         insuranceProvider: updatedPatient.data.insuranceProvider || '',
         insurancePolicyNumber: updatedPatient.data.insurancePolicyNumber || '',
       });
-      
       setIsEditingPatient(false);
     } catch (err: any) {
       console.error('Failed to update patient profile:', err);
@@ -192,9 +190,26 @@ export default function PatientProfilePage() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
+  if (userInfo?.role !== 'patient') {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-8">
+        <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full text-center">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-4">
+             Hello {userInfo?.firstName || "there"}!
+          </h2>
+          <p className="text-gray-600">
+            This page is intended for <span className="font-medium">patients</span> only.
+          </p>
+          <p className="text-gray-500 mt-2">
+            If you're trying to access your medical information, please ensure you're logged in with a patient account.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      {/* Personal Information Section */}
       <section className="bg-indigo-50 p-6 rounded-lg shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold text-indigo-600">Personal Information</h2>
@@ -208,89 +223,34 @@ export default function PatientProfilePage() {
 
         {isEditingUser ? (
           <form onSubmit={handleUpdateUser} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-            <input
-              name="firstName"
-              value={userEditForm.firstName}
-              onChange={handleUserChange}
-              required
-              placeholder="First Name"
-              className="p-2 border rounded"
-            />
-            <input
-              name="lastName"
-              value={userEditForm.lastName}
-              onChange={handleUserChange}
-              required
-              placeholder="Last Name"
-              className="p-2 border rounded"
-            />
-            <input
-              name="email"
-              value={userEditForm.email}
-              onChange={handleUserChange}
-              required
-              placeholder="Email"
-              className="p-2 border rounded"
-              type="email"
-            />
-            <input
-              name="phone"
-              value={userEditForm.phone}
-              onChange={handleUserChange}
-              placeholder="Phone"
-              className="p-2 border rounded"
-            />
-            <input
-              name="dateOfBirth"
-              type="date"
-              value={userEditForm.dateOfBirth}
-              onChange={handleUserChange}
-              className="p-2 border rounded"
-            />
-            <select
-              name="gender"
-              value={userEditForm.gender}
-              onChange={handleUserChange}
-              className="p-2 border rounded"
-            >
+            <input name="firstName" value={userEditForm.firstName} onChange={handleUserChange} required placeholder="First Name" className="p-2 border rounded" />
+            <input name="lastName" value={userEditForm.lastName} onChange={handleUserChange} required placeholder="Last Name" className="p-2 border rounded" />
+            <input name="email" value={userEditForm.email} onChange={handleUserChange} required placeholder="Email" className="p-2 border rounded" type="email" />
+            <input name="phone" value={userEditForm.phone} onChange={handleUserChange} placeholder="Phone" className="p-2 border rounded" />
+            <input name="dateOfBirth" type="date" value={userEditForm.dateOfBirth} onChange={handleUserChange} className="p-2 border rounded" />
+            <select name="gender" value={userEditForm.gender} onChange={handleUserChange} className="p-2 border rounded">
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
-            
             <div className="col-span-2 flex justify-end gap-4 mt-4">
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-                disabled={loading}
-              >
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" disabled={loading}>
                 {loading ? 'Saving...' : 'Save'}
               </button>
             </div>
           </form>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-            <p>
-              <strong>Name:</strong> {userInfo?.firstName} {userInfo?.lastName}
-            </p>
-            <p>
-              <strong>Email:</strong> {userInfo?.email}
-            </p>
-            <p>
-              <strong>Phone:</strong> {userInfo?.phone || 'N/A'}
-            </p>
-            <p>
-              <strong>Date of Birth:</strong> {userInfo?.dateOfBirth ? new Date(userInfo.dateOfBirth).toLocaleDateString() : 'N/A'}
-            </p>
-            <p>
-              <strong>Gender:</strong> {userInfo?.gender || 'N/A'}
-            </p>
+            <p><strong>Name:</strong> {userInfo?.firstName} {userInfo?.lastName}</p>
+            <p><strong>Email:</strong> {userInfo?.email}</p>
+            <p><strong>Phone:</strong> {userInfo?.phone || 'N/A'}</p>
+            <p><strong>Date of Birth:</strong> {userInfo?.dateOfBirth ? new Date(userInfo.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
+            <p><strong>Gender:</strong> {userInfo?.gender || 'N/A'}</p>
           </div>
         )}
       </section>
 
-      {/* Patient Information Section */}
       <section className="bg-indigo-50 p-6 rounded-lg shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold text-indigo-600">Patient Information</h2>
@@ -305,59 +265,22 @@ export default function PatientProfilePage() {
 
         {isEditingPatient ? (
           <form onSubmit={handleUpdatePatient} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-            <input
-              name="emergencyContactName"
-              value={patientEditForm.emergencyContactName}
-              onChange={handlePatientChange}
-              placeholder="Emergency Contact Name"
-              className="p-2 border rounded"
-            />
-            <input
-              name="emergencyContactPhone"
-              value={patientEditForm.emergencyContactPhone}
-              onChange={handlePatientChange}
-              placeholder="Emergency Contact Phone"
-              className="p-2 border rounded"
-            />
-            <input
-              name="insuranceProvider"
-              value={patientEditForm.insuranceProvider}
-              onChange={handlePatientChange}
-              placeholder="Insurance Provider"
-              className="p-2 border rounded"
-            />
-            <input
-              name="insurancePolicyNumber"
-              value={patientEditForm.insurancePolicyNumber}
-              onChange={handlePatientChange}
-              placeholder="Insurance Policy Number"
-              className="p-2 border rounded"
-            />
-            
+            <input name="emergencyContactName" value={patientEditForm.emergencyContactName} onChange={handlePatientChange} placeholder="Emergency Contact Name" className="p-2 border rounded" />
+            <input name="emergencyContactPhone" value={patientEditForm.emergencyContactPhone} onChange={handlePatientChange} placeholder="Emergency Contact Phone" className="p-2 border rounded" />
+            <input name="insuranceProvider" value={patientEditForm.insuranceProvider} onChange={handlePatientChange} placeholder="Insurance Provider" className="p-2 border rounded" />
+            <input name="insurancePolicyNumber" value={patientEditForm.insurancePolicyNumber} onChange={handlePatientChange} placeholder="Insurance Policy Number" className="p-2 border rounded" />
             <div className="col-span-2 flex justify-end gap-4 mt-4">
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-                disabled={loading}
-              >
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" disabled={loading}>
                 {loading ? 'Saving...' : 'Save'}
               </button>
             </div>
           </form>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-            <p>
-              <strong>Emergency Contact:</strong> {patientProfile?.emergencyContactName || 'N/A'}
-            </p>
-            <p>
-              <strong>Emergency Phone:</strong> {patientProfile?.emergencyContactPhone || 'N/A'}
-            </p>
-            <p>
-              <strong>Insurance Provider:</strong> {patientProfile?.insuranceProvider || 'N/A'}
-            </p>
-            <p>
-              <strong>Policy Number:</strong> {patientProfile?.insurancePolicyNumber || 'N/A'}
-            </p>
+            <p><strong>Emergency Contact:</strong> {patientProfile?.emergencyContactName || 'N/A'}</p>
+            <p><strong>Emergency Phone:</strong> {patientProfile?.emergencyContactPhone || 'N/A'}</p>
+            <p><strong>Insurance Provider:</strong> {patientProfile?.insuranceProvider || 'N/A'}</p>
+            <p><strong>Policy Number:</strong> {patientProfile?.insurancePolicyNumber || 'N/A'}</p>
           </div>
         )}
       </section>
