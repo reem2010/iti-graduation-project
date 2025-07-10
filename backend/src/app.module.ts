@@ -9,9 +9,10 @@ import { ArticlesModel } from './article/article.module';
 import { ReviewModule } from './review/review.module';
 import { DoctorVerificationModule } from './doctor-verification/doctor-verification.module';
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
-import { PaymentModule } from './payment/payment.module';
+import { TransactionModule } from './transaction/transaction.module';
 import { PaymobModule } from './paymob/paymob.module';
 import { ConfigModule } from '@nestjs/config';
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
   imports: [
@@ -31,8 +32,9 @@ import { ConfigModule } from '@nestjs/config';
 
     DoctorVerificationModule,
     DoctorAvailabilityModule,
-    PaymentModule,
+    TransactionModule,
     PaymobModule,
+    WalletModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -90,4 +90,22 @@ export class PaymobService {
     const response = await firstValueFrom(response$);
     return response.data.token;
   }
+
+  async refund(paymobTransactionId: string): Promise<void> {
+    const token = await this.authenticate();
+
+    const response$ = this.http.post(
+      'https://accept.paymob.com/api/acceptance/void_refund/refund',
+      {
+        auth_token: token,
+        transaction_id: paymobTransactionId,
+      },
+    );
+
+    const response = await firstValueFrom(response$);
+
+    if (!response.data || !response.data.success) {
+      throw new Error('Refund failed at Paymob');
+    }
+  }
 }
