@@ -12,6 +12,7 @@ import { DoctorAvailabilityModule } from './doctor-availability/doctor-availabli
 import { MessagesModule } from './messages/messages.module';
 import { NotificationModule } from './notification/notification.module';
 import { RealtimeModule } from './realtime/realtime.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RealtimeModule } from './realtime/realtime.module';
     MessagesModule,
     NotificationModule,
     RealtimeModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -15,7 +15,6 @@ import { UpdateDoctorAvailabilityDto } from './dto/update-doctor-availability.dt
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { DoctorAvailabilityService } from './doctor-availablity.service';
 
-@UseGuards(JwtAuthGuard)
 @Controller('doctor-availability')
 export class DoctorAvailabilityController {
   constructor(
@@ -26,17 +25,11 @@ export class DoctorAvailabilityController {
   async getDoctorAvailabilities(@Req() user: any) {
     return this.doctorAvailabilityService.getDoctorAvailabilities(user);
   }
-  @Get(':id')
-  async getDoctorAvailabilityById(
-    @Req() req,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    return this.doctorAvailabilityService.getDoctorAvailabilityById(
-      req.user,
-      id,
-    );
+  @Get('doctor/:doctorId')
+  getAvailabilityByDoctorId(@Param('doctorId', ParseIntPipe) doctorId: number) {
+    return this.doctorAvailabilityService.getAvailabilityByDoctorId(doctorId);
   }
-
+  @UseGuards(JwtAuthGuard)
   @Post()
   async createDoctorAvailability(
     @Req() req,
@@ -47,7 +40,7 @@ export class DoctorAvailabilityController {
       dto,
     );
   }
-
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateDoctorAvailability(
     @Req() req,
@@ -60,7 +53,7 @@ export class DoctorAvailabilityController {
       dto,
     );
   }
-
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteDoctorAvailability(
     @Req() req,

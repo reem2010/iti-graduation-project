@@ -30,6 +30,21 @@ export class DoctorProfileService {
       profile,
     };
   }
+  async getDoctorProfileById(id: number) {
+    const profile = await this.prisma.doctorProfile.findUnique({
+      where: { userId: id },
+      include: { user: true },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+
+    return {
+      message: 'Success',
+      profile,
+    };
+  }
 
   async createDoctorProfile(user: any, dto: CreateDoctorProfileDto) {
     const { userId, role } = user;
@@ -89,7 +104,7 @@ export class DoctorProfileService {
 
     return {
       message: 'Doctor profile updated successfully',
-      updatedProfile,
+      data: updatedProfile,
     };
   }
 
