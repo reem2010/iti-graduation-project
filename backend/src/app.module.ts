@@ -10,13 +10,12 @@ import { ReviewModule } from './review/review.module';
 import { DoctorVerificationModule } from './doctor-verification/doctor-verification.module';
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
 import { MessagesModule } from './messages/messages.module';
-import { RedisModule } from './redis/redis.module';
 import { NotificationModule } from './notification/notification.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
   imports: [
     PrismaModule,
-    RedisModule,
     AuthModule,
     PatientModule,
     DoctorProfileModule,
@@ -26,6 +25,7 @@ import { NotificationModule } from './notification/notification.module';
     DoctorAvailabilityModule,
     MessagesModule,
     NotificationModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

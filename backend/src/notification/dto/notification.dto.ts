@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsBoolean,
 } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 
 export enum NotificationType {
   INFO = 'INFO',
@@ -41,14 +42,26 @@ export class CreateNotificationDto {
   @IsOptional()
   @IsBoolean()
   isRead?: boolean;
+
+  @IsOptional()
+  @IsString()
+  actionUrl?: string; // URL to navigate to when clicking the notification
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string; // Image for the notification
 }
 
 export class NotificationQueryDto {
   @IsOptional()
+  @Type(() => Number)
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
   skip?: number = 0;
 
   @IsOptional()
+  @Type(() => Number)
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
   take?: number = 20;
 
@@ -57,6 +70,7 @@ export class NotificationQueryDto {
   type?: NotificationType;
 
   @IsOptional()
+  @Transform(({ value }) => value === 'true' ? true : value === 'false' ? false : value)
   @IsBoolean()
   isRead?: boolean;
 }

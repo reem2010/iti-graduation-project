@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -9,10 +11,15 @@ import {
   NotificationType,
   NotificationQueryDto,
 } from './dto/notification.dto';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 @Injectable()
 export class NotificationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => RealtimeGateway))
+    private realtimeGateway: RealtimeGateway,
+  ) {}
 
   // Basic CRUD Operations
   async getUserNotifications(userId: number, query: NotificationQueryDto = {}) {
@@ -61,10 +68,16 @@ export class NotificationService {
       return notification;
     }
 
-    return this.prisma.notification.update({
+    const updatedNotification = await this.prisma.notification.update({
       where: { id: notificationId },
       data: { isRead: true },
     });
+
+    // Update unread count via WebSocket
+    const unreadCount = await this.getUnreadCount(userId);
+    await this.realtimeGateway.updateUnreadCount(userId, unreadCount.unreadCount);
+
+    return updatedNotification;
   }
 
   async markAllAsRead(userId: number) {
@@ -72,6 +85,9 @@ export class NotificationService {
       where: { userId, isRead: false },
       data: { isRead: true },
     });
+
+    // Update unread count via WebSocket
+    await this.realtimeGateway.updateUnreadCount(userId, 0);
 
     return {
       message: 'All notifications marked as read',
@@ -102,27 +118,9 @@ export class NotificationService {
       throw new BadRequestException('User not found');
     }
 
-    return this.prisma.notification.create({ data });
-  }
+    const notification = await this.prisma.notification.create({ data });
 
-  async createBulkNotifications(notifications: CreateNotificationDto[]) {
-    if (!notifications || notifications.length === 0) {
-      throw new BadRequestException('No notifications to create');
-    }
-
-    // Filter out invalid notifications
-    const validNotifications = notifications.filter(
-      (n) => n.userId && n.title && n.message,
-    );
-
-    if (validNotifications.length === 0) {
-      throw new BadRequestException('No valid notifications provided');
-    }
-
-    return this.prisma.notification.createMany({
-      data: validNotifications,
-      skipDuplicates: true,
-    });
+    return notification;
   }
 
   async getUnreadCount(userId: number) {
@@ -136,6 +134,9 @@ export class NotificationService {
     const result = await this.prisma.notification.deleteMany({
       where: { userId },
     });
+
+    // Update unread count via WebSocket
+    await this.realtimeGateway.updateUnreadCount(userId, 0);
 
     return {
       message: 'All notifications cleared',
@@ -161,175 +162,13 @@ export class NotificationService {
     skip = 0,
     take = 20,
   ) {
-    return this.getUserNotifications(userId, { type, skip, take });
-  }
-
-  // Domain-Specific Notification Methods
-  async sendAppointmentConfirmation(
-    patientId: number,
-    doctorName: string,
-    appointmentId: number,
-    date: Date,
-  ) {
-    const formattedDate = date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    const notifications = await this.prisma.notification.findMany({
+      where: { userId, type },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take,
     });
 
-    return this.createNotification({
-      userId: patientId,
-      title: 'Appointment Confirmed',
-      message: `Your appointment with Dr. ${doctorName} on ${formattedDate} has been confirmed`,
-      type: NotificationType.APPOINTMENT,
-      referenceId: appointmentId,
-    });
-  }
-
-  async sendAppointmentReminder(
-    userId: number,
-    doctorName: string,
-    appointmentId: number,
-    date: Date,
-  ) {
-    const timeString = date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-    return this.createNotification({
-      userId,
-      title: 'Appointment Reminder',
-      message: `You have an appointment with Dr. ${doctorName} tomorrow at ${timeString}`,
-      type: NotificationType.REMINDER,
-      referenceId: appointmentId,
-    });
-  }
-
-  async sendPaymentReceipt(
-    userId: number,
-    amount: number,
-    appointmentId: number,
-  ) {
-    return this.createNotification({
-      userId,
-      title: 'Payment Received',
-      message: `Payment of $${amount.toFixed(2)} for appointment #${appointmentId} was successful`,
-      type: NotificationType.PAYMENT,
-      referenceId: appointmentId,
-    });
-  }
-
-  async sendDoctorVerificationUpdate(
-    doctorId: number,
-    status: 'approved' | 'rejected' | 'pending',
-    reason?: string,
-  ) {
-    const messages = {
-      approved:
-        'Your doctor verification has been approved! You can now start accepting appointments.',
-      rejected: `Verification rejected: ${reason || 'Please check your documents and try again'}`,
-      pending:
-        'Your verification documents are under review. We will notify you once completed.',
-    };
-
-    const types = {
-      approved: NotificationType.SUCCESS,
-      rejected: NotificationType.ERROR,
-      pending: NotificationType.INFO,
-    };
-
-    return this.createNotification({
-      userId: doctorId,
-      title: 'Verification Update',
-      message: messages[status],
-      type: types[status],
-    });
-  }
-
-  async notifyNewArticleSubscribers(
-    doctorId: number,
-    articleId: number,
-    subscriberIds: number[],
-  ) {
-    if (!subscriberIds || subscriberIds.length === 0) {
-      return { message: 'No subscribers to notify' };
-    }
-
-    const doctor = await this.prisma.user.findUnique({
-      where: { id: doctorId },
-      select: { firstName: true, lastName: true },
-    });
-
-    if (!doctor) {
-      throw new BadRequestException('Doctor not found');
-    }
-
-    const notifications = subscriberIds.map((userId) => ({
-      userId,
-      title: 'New Article Published',
-      message: `Dr. ${doctor.firstName} ${doctor.lastName} published a new article`,
-      type: NotificationType.ARTICLE,
-      referenceId: articleId,
-    }));
-
-    return this.createBulkNotifications(notifications);
-  }
-
-  async notifyDoctorAboutReview(
-    doctorId: number,
-    reviewId: number,
-    rating: number,
-  ) {
-    const stars = '⭐'.repeat(Math.min(rating, 5));
-
-    return this.createNotification({
-      userId: doctorId,
-      title: 'New Patient Review',
-      message: `You received a new ${rating}-star review ${stars}`,
-      type: NotificationType.REVIEW,
-      referenceId: reviewId,
-    });
-  }
-
-  async sendSystemAlert(
-    userIds: number[],
-    message: string,
-    type: NotificationType = NotificationType.SYSTEM,
-  ) {
-    if (!userIds || userIds.length === 0) {
-      throw new BadRequestException('No users specified');
-    }
-
-    const notifications = userIds.map((userId) => ({
-      userId,
-      title: 'System Notification',
-      message,
-      type,
-    }));
-
-    return this.createBulkNotifications(notifications);
-  }
-
-  async sendWelcomeNotification(userId: number) {
-    return this.createNotification({
-      userId,
-      title: 'Welcome!',
-      message: 'Welcome to our platform! We hope you have a great experience.',
-      type: NotificationType.SUCCESS,
-    });
-  }
-
-  async sendPasswordChangeNotification(userId: number) {
-    return this.createNotification({
-      userId,
-      title: 'Password Changed',
-      message:
-        "Your password has been successfully changed. If this wasn't you, please contact support.",
-      type: NotificationType.INFO,
-    });
+    return notifications;
   }
 }
