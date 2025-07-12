@@ -11,22 +11,32 @@ import { DoctorVerificationModule } from './doctor-verification/doctor-verificat
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
 import { AppointmentsModule } from './appointment/appointments.module';
 import { ConfigModule } from '@nestjs/config';
+import { TransactionModule } from './transaction/transaction.module';
+import { PaymobModule } from './paymob/paymob.module';
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({isGlobal:true}),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
     PrismaModule,
-   
+
     AuthModule,
-   
+
     PatientModule,
-   
+
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
+
     DoctorVerificationModule,
     DoctorAvailabilityModule,
     AppointmentsModule,
+    TransactionModule,
+    PaymobModule,
+    WalletModule,
   ],
   controllers: [AppController],
   providers: [AppService],
