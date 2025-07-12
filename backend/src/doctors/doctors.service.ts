@@ -15,7 +15,12 @@ export class DoctorsService {
       isAcceptingNewPatients,
       minExperience,
       maxFee,
+      page = 1,
+      limit = 6,
     } = filters;
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
 
     const where: any = {
       role: 'doctor',
@@ -44,7 +49,7 @@ export class DoctorsService {
 
     const doctorProfileFilters: any = {};
 
-    if (isAcceptingNewPatients !== undefined) {
+    if (isAcceptingNewPatients !== undefined && isAcceptingNewPatients !== '') {
       doctorProfileFilters.isAcceptingNewPatients =
         isAcceptingNewPatients === 'true';
     }
@@ -74,8 +79,12 @@ export class DoctorsService {
       };
     }
 
+    const total = await this.prisma.user.count({ where });
+
     const doctors = await this.prisma.user.findMany({
       where,
+      skip,
+      take,
       include: {
         doctorProfile: {
           include: {
@@ -106,6 +115,9 @@ export class DoctorsService {
       };
     });
 
-    return result;
+    return {
+      therapists: result,
+      totalPages: Math.ceil(total / take),
+    };
   }
 }

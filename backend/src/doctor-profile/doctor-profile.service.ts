@@ -30,56 +30,83 @@ export class DoctorProfileService {
       profile,
     };
   }
+
   async getDoctorProfileById(id: number) {
     const profile = await this.prisma.doctorProfile.findUnique({
       where: { userId: id },
-      include: { user: true },
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+            gender: true,
+          },
+        },
+        reviewsReceived: {
+          select: {
+            rating: true,
+          },
+        },
+      },
     });
 
     if (!profile) {
       throw new NotFoundException('Doctor profile not found');
     }
 
+    const { user, reviewsReceived, ...restProfile } = profile;
+
+    const averageRating =
+      reviewsReceived.length > 0
+        ? reviewsReceived.reduce((sum, r) => sum + r.rating, 0) /
+          reviewsReceived.length
+        : null;
     return {
       message: 'Success',
-      profile,
+      profile: {
+        ...restProfile,
+        fullName: `${user.firstName} ${user.lastName}`,
+        avatarUrl: user.avatarUrl,
+        gender: user.gender,
+        averageRating,
+      },
     };
   }
 
-async createEmptyProfile(userId: number) {
-  const userExists = await this.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  if (!userExists) {
-    throw new UnauthorizedException('User not found');
+  async createEmptyProfile(userId: number) {
+    const userExists = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!userExists) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const existing = await this.prisma.doctorProfile.findUnique({
+      where: { userId },
+    });
+    if (existing) {
+      throw new BadRequestException('Doctor profile already exists');
+    }
+
+    const createdProfile = await this.prisma.doctorProfile.create({
+      data: {
+        userId,
+        title: '',
+        specialization: '',
+        yearsOfExperience: 0,
+        consultationFee: 0,
+        languages: [],
+        isAcceptingNewPatients: false,
+        stripeAccountId: null,
+      },
+    });
+
+    return {
+      message: 'Doctor profile created successfully',
+      createdProfile,
+    };
   }
-
-  const existing = await this.prisma.doctorProfile.findUnique({
-    where: { userId },
-  });
-  if (existing) {
-    throw new BadRequestException('Doctor profile already exists');
-  }
-
-  const createdProfile = await this.prisma.doctorProfile.create({
-    data: {
-      userId,
-      title: '',
-      specialization: '',
-      yearsOfExperience: 0,
-      consultationFee: 0,
-      languages: [],
-      isAcceptingNewPatients: false,
-      stripeAccountId: null,
-    },
-  });
-
-  return {
-    message: 'Doctor profile created successfully',
-    createdProfile,
-  };
-}
-
 
   async updateDoctorProfile(user: any, dto: UpdateDoctorProfileDto) {
     const { userId, role } = user;
