@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-
+import svg from "@/lib/svgs";
 interface ArticleFormProps {
   mode?: "create" | "edit";
   articleId?: string;
@@ -104,7 +104,7 @@ export default function ArticleForm({
 
       if (res.ok) {
         alert(`Article ${mode === "edit" ? "updated" : "created"}!`);
-        window.location.href = "/articles"; // or redirect to detail page
+        window.location.href = "/articles";
       } else {
         alert("Failed to save article.");
       }
@@ -121,10 +121,6 @@ export default function ArticleForm({
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="rounded-lg shadow-lg p-8">
-        <h1 className="text-2xl font-bold mb-6">
-          {mode === "edit" ? "Edit Article" : "Create New Article"}
-        </h1>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Content Field */}
           <div>
@@ -135,7 +131,7 @@ export default function ArticleForm({
               id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Write your article content here..."
+              placeholder="Your words have the power to change someone life...."
               className="w-full min-h-[300px] p-4 rounded-lg resize-vertical"
               disabled={isFormDisabled}
               required
@@ -144,8 +140,11 @@ export default function ArticleForm({
 
           {/* Media Upload Field */}
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Media (Optional)
+            <label
+              className="block text-sm font-medium mb-2"
+              htmlFor="media-input"
+            >
+              {svg.paperClip}
             </label>
 
             <input
@@ -153,8 +152,9 @@ export default function ArticleForm({
               type="file"
               accept="image/*,video/*"
               onChange={handleFileChange}
-              className="block w-full text-sm disabled:opacity-50"
+              className="block w-full text-sm disabled:opacity-50 invisible"
               disabled={isFormDisabled}
+              id="media-input"
             />
 
             {(previewUrl || (mediaUrl && !hasNewFile)) && (
@@ -170,7 +170,7 @@ export default function ArticleForm({
                       className="text-sm font-medium"
                       disabled={isFormDisabled}
                     >
-                      Remove
+                      {svg.eraser}
                     </button>
                   </div>
 
@@ -201,15 +201,6 @@ export default function ArticleForm({
 
           {/* Submit Button */}
           <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              onClick={() => window.history.back()}
-              className="px-6 py-2 rounded-lg disabled:opacity-50"
-              disabled={isFormDisabled}
-            >
-              Cancel
-            </button>
-
             <button
               type="submit"
               disabled={isFormDisabled || !content.trim()}
