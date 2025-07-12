@@ -1,13 +1,10 @@
 //new article
-"use client";
 import ArticleForm from "../../../components/ArticleForm";
 import { BASE_URL } from "../../../lib/config";
 
 export default function NewArticle() {
-  return (
-    <>
-      <ArticleForm
-        onSubmit={async (data) => {
+  /*
+  onSubmit={async (data) => {
           const res = await fetch(`${BASE_URL}/article`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -19,8 +16,10 @@ export default function NewArticle() {
           } else {
             alert("Failed to create article.");
           }
-        }}
-      />
+        }} */
+  return (
+    <>
+      <ArticleForm mode="create" />
     </>
   );
 }
