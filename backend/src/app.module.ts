@@ -14,13 +14,10 @@ import { TransactionModule } from './transaction/transaction.module';
 import { PaymobModule } from './paymob/paymob.module';
 import { ConfigModule } from '@nestjs/config';
 import { WalletModule } from './wallet/wallet.module';
+import { DoctorsModule } from './doctors/doctors.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-
     PrismaModule,
 
     AuthModule,
@@ -30,13 +27,14 @@ import { WalletModule } from './wallet/wallet.module';
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
-
+    ,
     DoctorVerificationModule,
     DoctorAvailabilityModule,
     TransactionModule,
     PaymobModule,
     WalletModule,
     UserModule,
+    DoctorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
