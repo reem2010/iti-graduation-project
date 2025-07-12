@@ -9,10 +9,12 @@ import { ArticlesModel } from './article/article.module';
 import { ReviewModule } from './review/review.module';
 import { DoctorVerificationModule } from './doctor-verification/doctor-verification.module';
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
+import { AppointmentsModule } from './appointment/appointments.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    
+    ConfigModule.forRoot({isGlobal:true}),
     PrismaModule,
    
     AuthModule,
@@ -22,9 +24,9 @@ import { DoctorAvailabilityModule } from './doctor-availability/doctor-availabli
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
-  ,
     DoctorVerificationModule,
     DoctorAvailabilityModule,
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
