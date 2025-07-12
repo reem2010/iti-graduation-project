@@ -44,52 +44,89 @@ export class DoctorAvailabilityService {
     };
   }
 
-  async createDoctorAvailability(user: any, dto: CreateDoctorAvailabilityDto) {
-    const { userId, role } = user;
+async createEmptyAvailability(userId: number) {
+  const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
-    if (role !== 'doctor') {
-      throw new ForbiddenException('Only doctors can create availability');
-    }
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
 
-    const profile = await this.prisma.doctorProfile.findUnique({
-      where: { userId },
-    });
+  if (user.role !== 'doctor') {
+    throw new ForbiddenException('Only doctors can have availability');
+  }
 
-    if (!profile) {
-      throw new BadRequestException(
-        'Doctor profile must exist before setting availability',
-      );
-    }
+  const profile = await this.prisma.doctorProfile.findUnique({
+    where: { userId },
+  });
 
-    const exists = await this.prisma.doctorAvailability.findFirst({
-      where: {
-        doctorId: userId,
-        dayOfWeek: dto.dayOfWeek,
-        startTime: new Date(dto.startTime),
-        endTime: new Date(dto.endTime),
-      },
-    });
+  if (!profile) {
+    throw new BadRequestException('Doctor profile must exist before setting availability');
+  }
 
-    if (exists) {
-      throw new BadRequestException('This availability already exists');
-    }
+  const existing = await this.prisma.doctorAvailability.findFirst({
+    where: { doctorId: userId },
+  });
 
-    const created = await this.prisma.doctorAvailability.create({
-      data: {
-        doctorId: userId,
-        ...dto,
-        startTime: new Date(dto.startTime),
-        endTime: new Date(dto.endTime),
-        validFrom: new Date(dto.validFrom),
-        validUntil: dto.validUntil ? new Date(dto.validUntil) : undefined,
-      },
-    });
-
+  if (existing) {
     return {
-      message: 'Doctor availability created successfully',
-      data: created,
+      message: 'Availability already exists',
     };
   }
+
+  // Empty availability record (just to initialize if needed)
+  await this.prisma.doctorAvailability.create({
+    data: {
+      doctorId: userId,
+      dayOfWeek: 0,          
+      startTime: new Date(),         
+      endTime: new Date(),           
+      validFrom: new Date(),
+      validUntil: null,
+    },
+  });
+
+  return {
+    message: 'Empty doctor availability created',
+  };
+}
+
+
+async createDoctorAvailability(
+  user: any,
+  dto: CreateDoctorAvailabilityDto,
+) {
+  const { userId, role } = user;
+
+  if (role !== 'doctor') {
+    throw new ForbiddenException('Only doctors can create availability');
+  }
+
+  const doctorProfile = await this.prisma.doctorProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!doctorProfile) {
+    throw new BadRequestException('Doctor profile not found');
+  }
+
+  const newAvailability = await this.prisma.doctorAvailability.create({
+    data: {
+      doctorId: userId,
+      dayOfWeek: dto.dayOfWeek,
+      startTime: new Date(dto.startTime),
+      endTime: new Date(dto.endTime),
+      validFrom: new Date(dto.validFrom),
+      validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
+      isRecurring: dto.isRecurring ?? false,
+    },
+  });
+
+  return {
+    message: 'Doctor availability created successfully',
+    data: newAvailability,
+  };
+}
+
 
   async updateDoctorAvailability(
     user: any,

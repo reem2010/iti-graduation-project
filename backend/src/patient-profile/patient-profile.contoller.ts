@@ -18,20 +18,21 @@ import { UpdatePatientDto } from './dto/update-patient-profile.dto';
 @Controller('patients')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
+  @Get(':userId')
+  getPatientProfileById(@Param('userId', ParseIntPipe) userId: number) {
+    return this.patientService.getPatientProfileById(userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   getPatientProfile(@Req() req) {
     return this.patientService.getPatientProfile(req.user);
   }
-  @Get(':userId')
-  getPatientProfileById(@Param('userId', ParseIntPipe) userId: number) {
-    return this.patientService.getPatientProfileById(userId);
-  }
+
   @UseGuards(JwtAuthGuard)
   @Post()
-  createPatientProfile(@Req() req, @Body() dto: CreatePatientDto) {
-    return this.patientService.createPatientProfile(req.user, dto);
+  createPatientProfile(@Req() req) {
+    return this.patientService.createPatientProfile(req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
   @Put()

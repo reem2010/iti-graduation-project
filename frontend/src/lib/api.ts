@@ -162,7 +162,7 @@ export const doctorAvailabilityApi = {
     data: CreateDoctorAvailabilityDto
   ): Promise<DoctorAvailability> => {
     const response = await api.post<ApiResponse<DoctorAvailability>>(
-      "/doctor-availability",
+      "/doctor-availability/add",
       data
     );
     return response.data.data!;

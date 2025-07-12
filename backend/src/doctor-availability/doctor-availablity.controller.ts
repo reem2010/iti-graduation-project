@@ -32,14 +32,23 @@ export class DoctorAvailabilityController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async createDoctorAvailability(
-    @Req() req,
-    @Body() dto: CreateDoctorAvailabilityDto,
+    @Req() req,   
   ) {
-    return this.doctorAvailabilityService.createDoctorAvailability(
-      req.user,
-      dto,
+    return this.doctorAvailabilityService.createEmptyAvailability(
+      req.user.userId,
+     
     );
   }
+
+  @Post("/add")
+@UseGuards(JwtAuthGuard) // 
+async create(
+  @Req() req,
+  @Body() dto: CreateDoctorAvailabilityDto,
+) {
+  return this.doctorAvailabilityService.createDoctorAvailability(req.user, dto);
+}
+
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateDoctorAvailability(

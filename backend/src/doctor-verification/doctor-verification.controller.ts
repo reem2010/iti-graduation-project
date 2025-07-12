@@ -11,7 +11,6 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { DoctorVerificationService } from './doctor-verification.service';
-import { CreateDoctorVerificationDto } from './dto/create-doctor-verification.dto';
 import { UpdateDoctorVerificationDto } from './dto/update-doctor-verification.dto';
 import { ReviewDoctorVerificationDto } from './dto/review-doctor-verification.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
@@ -40,11 +39,9 @@ export class DoctorVerificationController {
   @Post()
   createDoctorVerification(
     @Req() req,
-    @Body() dto: CreateDoctorVerificationDto,
   ) {
-    return this.doctorVerificationService.createDoctorVerification(
-      req.user,
-      dto,
+    return this.doctorVerificationService.createDefaultVerification(
+      req.user.userId,
     );
   }
 
