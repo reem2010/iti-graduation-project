@@ -15,6 +15,8 @@ import { PaymobModule } from './paymob/paymob.module';
 import { ConfigModule } from '@nestjs/config';
 import { WalletModule } from './wallet/wallet.module';
 import { DoctorsModule } from './doctors/doctors.module';
+import { AppointmentsModule } from './appointment/appointments.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { DoctorsModule } from './doctors/doctors.module';
     WalletModule,
     UserModule,
     DoctorsModule,
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
