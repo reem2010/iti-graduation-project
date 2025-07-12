@@ -230,6 +230,11 @@ export const appointmentApi = {
     const response = await api.post("/appointments", data);
     return response.data;
   },
+
+  getMyAppointments: async () => {
+    const response = await api.get("/appointments/");
+    return response.data.appointments || response.data.data;
+  },
 };
 
 // Export all individual API services for easier import
