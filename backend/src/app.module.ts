@@ -11,27 +11,21 @@ import { DoctorVerificationModule } from './doctor-verification/doctor-verificat
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
 import { MessagesModule } from './messages/messages.module';
 import { RedisModule } from './redis/redis.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
-    
     PrismaModule,
     RedisModule,
-   
     AuthModule,
-   
     PatientModule,
-   
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
-
     DoctorVerificationModule,
     DoctorAvailabilityModule,
-
     MessagesModule,
-
-    RedisModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
