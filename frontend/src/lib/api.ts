@@ -93,6 +93,11 @@ export const doctorProfileApi = {
   deleteDoctorProfile: async (): Promise<void> => {
     await api.delete("/doctors");
   },
+
+  getDoctorProfileById: async (id: number) => {
+    const response = await api.get(`/doctors/${id}`);
+    return response.data.profile;
+  },
   getTherapists: async (filters: Record<string, string>) => {
     const queryParams = new URLSearchParams();
     for (const key in filters) {
@@ -214,10 +219,19 @@ export const patientProfileApi = {
   },
 };
 
+export const appointmentApi = {
+  createAppointment: async (data: {
+    doctorId: number;
+    startTime: string;
+    endTime: string;
+    price: number;
+    paymentGatewayId: number;
+  }) => {
+    const response = await api.post("/appointments", data);
+    return response.data;
+  },
+};
+
 // Export all individual API services for easier import
 
 export default api; // Export the axios instance as default if needed elsewhere
-
-function formatISO(weekStart: Date, arg1: { representation: string }) {
-  throw new Error("Function not implemented.");
-}

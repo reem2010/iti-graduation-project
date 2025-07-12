@@ -68,18 +68,15 @@ export class DoctorAvailabilityController {
   }
 
   @Get(':doctorId/slots')
-  async getWeeklySlots(
-    @Param('doctorId') doctorId: string,
-    @Query('weekStart') weekStart: string,
-  ) {
+  async getWeeklySlots(@Param('doctorId') doctorId: string) {
     const parsedDoctorId = parseInt(doctorId, 10);
 
-    if (isNaN(parsedDoctorId) || !weekStart) {
+    if (isNaN(parsedDoctorId)) {
       throw new BadRequestException('Invalid doctorId or weekStart');
     }
 
     const slots =
-      await this.doctorAvailabilityService.getWeeklyAvailableSlots(
+      await this.doctorAvailabilityService.getNext7DaysAvailableSlots(
         parsedDoctorId,
       );
 

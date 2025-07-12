@@ -70,6 +70,7 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       role: user.role,
+      phone: user.phone,
     };
 
     const access_token = await this.jwtService.signAsync(payload);

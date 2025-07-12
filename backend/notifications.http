@@ -1,0 +1,330 @@
+# Notification System REST API Tests
+# Import this file into Postman, Insomnia, or VS Code REST Client
+
+### Variables
+@baseUrl = http://localhost:3000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUxOTk3NDI0LCJleHAiOjE3NTIwODM4MjR9.QCDhu26UvxYhepfmhcnLHUaKcs_m8EMfR-XMzQRIYeo
+@userId = 1
+
+### ===========================================
+### 1. AUTHENTICATION (Get Token First)
+### ===========================================
+
+### Login to get token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "salma@g.com",
+  "password": "123456"
+}
+
+### ===========================================
+### 2. BASIC NOTIFICATION OPERATIONS
+### ===========================================
+
+### Get all notifications for user
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{token}}
+
+### Get notifications with pagination
+GET {{baseUrl}}/notifications?skip=0&take=5
+Authorization: Bearer {{token}}
+
+### Get notifications by type
+GET {{baseUrl}}/notifications?type=APPOINTMENT
+Authorization: Bearer {{token}}
+
+### Get only unread notifications
+GET {{baseUrl}}/notifications?isRead=false
+Authorization: Bearer {{token}}
+
+### Get unread count
+GET {{baseUrl}}/notifications/unread-count
+Authorization: Bearer {{token}}
+
+### Get specific notification by ID
+GET {{baseUrl}}/notifications/1
+Authorization: Bearer {{token}}
+
+### Get notifications by type endpoint
+GET {{baseUrl}}/notifications/type/APPOINTMENT
+Authorization: Bearer {{token}}
+
+### ===========================================
+### 3. MARK AS READ OPERATIONS
+### ===========================================
+
+### Mark specific notification as read
+PUT {{baseUrl}}/notifications/1/read
+Authorization: Bearer {{token}}
+
+### Mark all notifications as read
+PUT {{baseUrl}}/notifications/mark-all-read
+Authorization: Bearer {{token}}
+
+### ===========================================
+### 4. DELETE OPERATIONS
+### ===========================================
+
+### Delete specific notification
+DELETE {{baseUrl}}/notifications/1
+Authorization: Bearer {{token}}
+
+### Clear all notifications
+DELETE {{baseUrl}}/notifications
+Authorization: Bearer {{token}}
+
+### ===========================================
+### 5. CREATE TEST DATA (Add this endpoint to your controller)
+### ===========================================
+
+### Create test notifications
+POST {{baseUrl}}/notifications/test-data
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": {{userId}},
+  "count": 10
+}
+
+### ===========================================
+### 6. TEST DOMAIN-SPECIFIC METHODS
+### ===========================================
+
+### Test appointment confirmation
+POST {{baseUrl}}/notifications/test/appointment-confirmation
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "patientId": {{userId}},
+  "doctorName": "Ahmed Hassan",
+  "appointmentId": 123,
+  "date": "2024-01-15T10:00:00Z"
+}
+
+### Test appointment reminder
+POST {{baseUrl}}/notifications/test/appointment-reminder
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": {{userId}},
+  "doctorName": "Sara Mohamed",
+  "appointmentId": 124,
+  "date": "2024-01-16T14:30:00Z"
+}
+
+### Test payment receipt
+POST {{baseUrl}}/notifications/test/payment-receipt
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": {{userId}},
+  "amount": 150.50,
+  "appointmentId": 123
+}
+
+### Test doctor verification update - approved
+POST {{baseUrl}}/notifications/test/verification-update
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "doctorId": {{userId}},
+  "status": "approved"
+}
+
+### Test doctor verification update - rejected
+POST {{baseUrl}}/notifications/test/verification-update
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "doctorId": {{userId}},
+  "status": "rejected",
+  "reason": "Missing medical license"
+}
+
+### Test article subscribers notification
+POST {{baseUrl}}/notifications/test/article-subscribers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "doctorId": {{userId}},
+  "articleId": 456,
+  "subscriberIds": [1, 2, 3, 4, 5]
+}
+
+### Test doctor review notification
+POST {{baseUrl}}/notifications/test/doctor-review
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "doctorId": {{userId}},
+  "reviewId": 789,
+  "rating": 5
+}
+
+### Test system alert
+POST {{baseUrl}}/notifications/test/system-alert
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userIds": [1, 2, 3],
+  "message": "System maintenance scheduled for tomorrow at 2 AM",
+  "type": "WARNING"
+}
+
+### Test welcome notification
+POST {{baseUrl}}/notifications/test/welcome
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": {{userId}}
+}
+
+### Test password change notification
+POST {{baseUrl}}/notifications/test/password-change
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": {{userId}}
+}
+
+### ===========================================
+### 7. BULK OPERATIONS TESTS
+### ===========================================
+
+### Create multiple notifications
+POST {{baseUrl}}/notifications/test/bulk-create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "notifications": [
+    {
+      "userId": {{userId}},
+      "title": "Bulk Test 1",
+      "message": "This is bulk notification 1",
+      "type": "INFO"
+    },
+    {
+      "userId": {{userId}},
+      "title": "Bulk Test 2",
+      "message": "This is bulk notification 2",
+      "type": "SUCCESS"
+    },
+    {
+      "userId": {{userId}},
+      "title": "Bulk Test 3",
+      "message": "This is bulk notification 3",
+      "type": "WARNING"
+    }
+  ]
+}
+
+### ===========================================
+### 8. EDGE CASES & ERROR TESTING
+### ===========================================
+
+### Try to get notification that doesn't exist
+GET {{baseUrl}}/notifications/999999
+Authorization: Bearer {{token}}
+
+### Try to mark non-existent notification as read
+PUT {{baseUrl}}/notifications/999999/read
+Authorization: Bearer {{token}}
+
+### Try to delete non-existent notification
+DELETE {{baseUrl}}/notifications/999999
+Authorization: Bearer {{token}}
+
+### Try to access without token (should fail)
+GET {{baseUrl}}/notifications
+
+### Try with invalid token (should fail)
+GET {{baseUrl}}/notifications
+Authorization: Bearer invalid_token_here
+
+### Try to get notifications with invalid type
+GET {{baseUrl}}/notifications?type=INVALID_TYPE
+Authorization: Bearer {{token}}
+
+### ===========================================
+### 9. PERFORMANCE & PAGINATION TESTS
+### ===========================================
+
+### Test pagination - first page
+GET {{baseUrl}}/notifications?skip=0&take=5
+Authorization: Bearer {{token}}
+
+### Test pagination - second page
+GET {{baseUrl}}/notifications?skip=5&take=5
+Authorization: Bearer {{token}}
+
+### Test large take value
+GET {{baseUrl}}/notifications?take=100
+Authorization: Bearer {{token}}
+
+### Test filtering by type and read status
+GET {{baseUrl}}/notifications?type=APPOINTMENT&isRead=false
+Authorization: Bearer {{token}}
+
+### ===========================================
+### 10. CLEANUP OPERATIONS
+### ===========================================
+
+### Delete all test notifications
+DELETE {{baseUrl}}/notifications
+Authorization: Bearer {{token}}
+
+### Verify cleanup - should return empty array
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{token}}
+
+### ===========================================
+### TESTING HELPER ENDPOINTS (Add to your controller)
+### ===========================================
+
+### Reset test data
+POST {{baseUrl}}/notifications/test/reset
+Authorization: Bearer {{token}}
+
+### Get test statistics
+GET {{baseUrl}}/notifications/test/stats
+Authorization: Bearer {{token}}
+
+### ===========================================
+### RECOMMENDED TESTING SEQUENCE
+### ===========================================
+
+# 1. Login to get token
+# 2. Create test data
+# 3. Get notifications (verify creation)
+# 4. Test pagination
+# 5. Test filtering
+# 6. Mark some as read
+# 7. Test unread count
+# 8. Test domain methods
+# 9. Test delete operations
+# 10. Cleanup
+
+### ===========================================
+### NOTES FOR TESTING
+### ===========================================
+
+# 1. Replace {{token}} with actual JWT token after login
+# 2. Replace {{userId}} with actual user ID
+# 3. Make sure your server is running on correct port
+# 4. Test in order: Create → Read → Update → Delete
+# 5. Check database after each operation to verify changes
+# 6. Test both success and error scenarios
