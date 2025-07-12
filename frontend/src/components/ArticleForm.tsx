@@ -152,7 +152,7 @@ export default function ArticleForm({
               type="file"
               accept="image/*,video/*"
               onChange={handleFileChange}
-              className="block w-full text-sm disabled:opacity-50 invisible"
+              className=" w-full text-sm disabled:opacity-50 hidden"
               disabled={isFormDisabled}
               id="media-input"
             />
