@@ -9,22 +9,19 @@ import { ArticlesModel } from './article/article.module';
 import { ReviewModule } from './review/review.module';
 import { DoctorVerificationModule } from './doctor-verification/doctor-verification.module';
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
-    
     PrismaModule,
-   
     AuthModule,
-   
     PatientModule,
-   
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
-  ,
     DoctorVerificationModule,
     DoctorAvailabilityModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
