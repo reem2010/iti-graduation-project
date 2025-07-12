@@ -18,7 +18,9 @@ import { DoctorsModule } from './doctors/doctors.module';
 import { AppointmentsModule } from './appointment/appointments.module';
 import { ConfigModule } from '@nestjs/config';
 import { MessagesModule } from './messages/messages.module';
-import { RedisModule } from './redis/redis.module';
+import { NotificationModule } from './notification/notification.module';
+import { RealtimeModule } from './realtime/realtime.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -42,8 +44,9 @@ import { RedisModule } from './redis/redis.module';
     AppointmentsModule,
 
     MessagesModule,
-
-    RedisModule,
+    NotificationModule,
+    RealtimeModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
