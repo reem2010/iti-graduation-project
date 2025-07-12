@@ -9,10 +9,8 @@ import { ArticlesModel } from './article/article.module';
 import { ReviewModule } from './review/review.module';
 import { DoctorVerificationModule } from './doctor-verification/doctor-verification.module';
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
-import { UserModule } from './user/user.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { PaymobModule } from './paymob/paymob.module';
-import { ConfigModule } from '@nestjs/config';
 import { WalletModule } from './wallet/wallet.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { AppointmentsModule } from './appointment/appointments.module';
@@ -24,6 +22,9 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     PrismaModule,
 
     AuthModule,
@@ -33,7 +34,6 @@ import { UserModule } from './user/user.module';
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
-    ,
     DoctorVerificationModule,
     DoctorAvailabilityModule,
     TransactionModule,
