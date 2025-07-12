@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification WebSocket Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .connecting { background-color: #fff3cd; color: #856404; }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .notification {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .notification h4 {
+            margin: 0 0 5px 0;
+            color: #0066cc;
+        }
+        .notification p {
+            margin: 5px 0;
+            color: #333;
+        }
+        .notification .time {
+            font-size: 11px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Notification WebSocket Test</h1>
+        
+        <!-- Connection Form -->
+        <div class="form-group">
+            <label for="serverUrl">Server URL:</label>
+            <input type="text" id="serverUrl" value="http://localhost:3000" placeholder="http://localhost:3000">
+        </div>
+        
+        <div class="form-group">
+            <label for="userId">User ID:</label>
+            <input type="number" id="userId" value="1" placeholder="Enter user ID">
+        </div>
+        
+        <div class="form-group">
+            <label for="jwtToken">JWT Token (optional):</label>
+            <input type="text" id="jwtToken" placeholder="Enter JWT token for authentication">
+        </div>
+        
+        <button onclick="connect()" id="connectBtn">Connect</button>
+        <button onclick="disconnect()" id="disconnectBtn" disabled>Disconnect</button>
+        
+        <!-- Status -->
+        <div id="status" class="status disconnected">Disconnected</div>
+        
+        <!-- Connection Log -->
+        <h3>Connection Log:</h3>
+        <div id="log" class="log"></div>
+        
+        <!-- Notifications -->
+        <h3>Received Notifications:</h3>
+        <div id="notifications"></div>
+    </div>
+
+    <script>
+        let socket = null;
+        let isConnected = false;
+
+        function updateStatus(status, className) {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = status;
+            statusElement.className = `status ${className}`;
+        }
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function addNotification(notification) {
+            const notificationsDiv = document.getElementById('notifications');
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = 'notification';
+            
+            const time = new Date().toLocaleTimeString();
+            notificationDiv.innerHTML = `
+                <h4>${notification.title || 'Notification'}</h4>
+                <p>${notification.message || notification.content || 'No message'}</p>
+                <p><strong>Type:</strong> ${notification.type || 'Unknown'}</p>
+                <p><strong>ID:</strong> ${notification.id || 'N/A'}</p>
+                <p class="time">Received at: ${time}</p>
+            `;
+            
+            notificationsDiv.insertBefore(notificationDiv, notificationsDiv.firstChild);
+        }
+
+        function connect() {
+            const serverUrl = document.getElementById('serverUrl').value;
+            const userId = document.getElementById('userId').value;
+            const jwtToken = document.getElementById('jwtToken').value;
+
+            if (!serverUrl || !userId) {
+                alert('Please enter server URL and user ID');
+                return;
+            }
+
+            updateStatus('Connecting...', 'connecting');
+            log(`Connecting to ${serverUrl} with user ID: ${userId}`);
+
+            const options = {
+                query: { userId: userId }
+            };
+
+            if (jwtToken) {
+                options.auth = { token: jwtToken };
+            }
+
+            socket = io(serverUrl, options);
+
+            socket.on('connect', () => {
+                isConnected = true;
+                updateStatus('Connected', 'connected');
+                log('✅ Successfully connected to server');
+                
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+            });
+
+            socket.on('disconnect', () => {
+                isConnected = false;
+                updateStatus('Disconnected', 'disconnected');
+                log('❌ Disconnected from server');
+                
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            });
+
+            socket.on('connected', (data) => {
+                log(`🎉 Connected to rooms: ${data.rooms.join(', ')}`);
+                log(`User ID: ${data.userId}`);
+            });
+
+            socket.on('newNotification', (notification) => {
+                log(`🔔 New notification received: ${notification.title || notification.message}`);
+                addNotification(notification);
+            });
+
+            socket.on('unreadCount', (data) => {
+                log(`📊 Unread count updated: ${data.unreadCount}`);
+            });
+
+            socket.on('error', (error) => {
+                log(`❌ Error: ${error.message || JSON.stringify(error)}`);
+            });
+
+            socket.on('connect_error', (error) => {
+                log(`❌ Connection error: ${error.message}`);
+                updateStatus('Connection Failed', 'disconnected');
+            });
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                isConnected = false;
+                updateStatus('Disconnected', 'disconnected');
+                log('🔌 Manually disconnected');
+                
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            }
+        }
+
+        // Clear logs on page load
+        window.onload = function() {
+            document.getElementById('log').textContent = '';
+            document.getElementById('notifications').innerHTML = '';
+        };
+    </script>
+</body>
+</html> 

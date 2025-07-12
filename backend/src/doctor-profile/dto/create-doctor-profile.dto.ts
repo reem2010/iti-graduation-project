@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsNumber,
   IsArray,
-} from 'class-validator';
+} from '@nestjs/class-validator';
 
 export class CreateDoctorProfileDto {
   @IsString()

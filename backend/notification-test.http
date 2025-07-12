@@ -1,0 +1,41 @@
+### Notification System Test File
+### Base URL: http://localhost:3000
+
+### 1. Get Connection Info
+GET http://localhost:3000/realtime/connection-info
+
+### 2. Get User Notifications (requires JWT token)
+GET http://localhost:3000/notifications
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo
+
+### 3. Get Unread Count (requires JWT token)
+GET http://localhost:3000/notifications/unread-count
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo
+
+### 4. Get Notifications with Pagination (requires JWT token)
+GET http://localhost:3000/notifications?skip=10&take=100
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo
+
+### 5. Get Notifications by Type (requires JWT token)
+GET http://localhost:3000/notifications/type/SYSTEM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo
+
+### 6. Get Specific Notification (requires JWT token)
+GET http://localhost:3000/notifications/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo
+
+### 7. Mark Notification as Read (requires JWT token)
+PUT http://localhost:3000/notifications/1/read
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo
+
+### 8. Mark All Notifications as Read (requires JWT token)
+PUT http://localhost:3000/notifications/mark-all-read
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo
+
+### 9. Delete Specific Notification (requires JWT token)
+DELETE http://localhost:3000/notifications/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo
+
+### 10. Clear All Notifications (requires JWT token)
+DELETE http://localhost:3000/notifications
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzE5NjIyLCJleHAiOjE3NTI0MDYwMjJ9.DcAN5gegruNSIWQ1p7CrcbE3vPtBQJlMwbMb-VmwkUo

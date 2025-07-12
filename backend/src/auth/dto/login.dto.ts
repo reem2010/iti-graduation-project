@@ -1,4 +1,4 @@
-import { IsEmail, MinLength } from 'class-validator';
+import { IsEmail, MinLength } from '@nestjs/class-validator';
 
 export class LoginDto {
   @IsEmail()
