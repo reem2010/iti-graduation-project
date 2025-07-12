@@ -28,6 +28,12 @@ export class MessagesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('')
+  async getUserChats(@Request() req: any) {
+    return this.messagesService.getChatList(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('unread/:senderId')
   getUnreadMessages(@Request() req: any, @Param('senderId') senderId: string) {
     return this.messagesService.getUnreadMessages(req.user.userId, senderId);

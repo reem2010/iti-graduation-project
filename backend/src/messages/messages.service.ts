@@ -16,7 +16,7 @@ export class MessagesService {
     console.log('Payload received from client:', dto);
 
     // Validate required fields
-    if ( !recipientId || !content) {
+    if (!recipientId || !content) {
       throw new BadRequestException('Missing required fields in message');
     }
 
@@ -31,6 +31,77 @@ export class MessagesService {
         recipient: true,
       },
     });
+  }
+
+  // Get chat list for a user
+  async getChatList(userId: number) {
+    // Get all distinct users this user has exchanged messages with
+    const messages = await this.prisma.message.findMany({
+      where: {
+        OR: [{ senderId: userId }, { recipientId: userId }],
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        senderId: true,
+        recipientId: true,
+        content: true,
+        createdAt: true,
+        isRead: true,
+      },
+    });
+
+    // Track unique conversation users
+    const chatMap = new Map<
+      number,
+      {
+        userId: number;
+        lastMessage: { content: string; createdAt: Date };
+        unreadCount: number;
+      }
+    >();
+
+    for (const msg of messages) {
+      const isSender = msg.senderId === userId;
+      const otherUserId = isSender ? msg.recipientId : msg.senderId;
+
+      const isUnread = !msg.isRead && msg.recipientId === userId;
+
+      if (!chatMap.has(otherUserId)) {
+        chatMap.set(otherUserId, {
+          userId: otherUserId,
+          lastMessage: { content: msg.content, createdAt: msg.createdAt },
+          unreadCount: isUnread ? 1 : 0,
+        });
+      } else {
+        const entry = chatMap.get(otherUserId)!;
+        if (msg.createdAt > entry.lastMessage.createdAt) {
+          entry.lastMessage = {
+            content: msg.content,
+            createdAt: msg.createdAt,
+          };
+        }
+        if (isUnread) {
+          entry.unreadCount += 1;
+        }
+      }
+    }
+
+    // Get usernames
+    const userIds = Array.from(chatMap.keys());
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, firstName: true, lastName: true },
+    });
+
+    const userMap = new Map(users.map((u) => [u.id, [u.firstName, u.lastName].join(' ')]));
+
+    // Format response
+    return Array.from(chatMap.values()).map((chat) => ({
+      userId: chat.userId,
+      username: userMap.get(chat.userId) || 'Unknown',
+      unreadCount: chat.unreadCount,
+      lastMessage: chat.lastMessage,
+    }));
   }
 
   // Get conversation between two users
@@ -87,7 +158,11 @@ export class MessagesService {
    */
   async getUnreadMessages(userId: string, senderId: string) {
     const redis = this.redisService.getClient();
-    const messages = await redis.lrange(`user:${userId}:unreadMessages:from:${senderId}`, 0, -1);
+    const messages = await redis.lrange(
+      `user:${userId}:unreadMessages:from:${senderId}`,
+      0,
+      -1,
+    );
     return messages.map((msg) => JSON.parse(msg));
   }
 
@@ -113,14 +188,17 @@ export class MessagesService {
     return { success: true };
   }
 
-  
-  async cacheUnreadMessages(senderId: number, recipientId: number, message: any) {
+  async cacheUnreadMessages(
+    senderId: number,
+    recipientId: number,
+    message: any,
+  ) {
     const redis = this.redisService.getClient();
     // const isOnline = await redis.get(`user:${recipientId}:online`);
 
     // if (!isOnline) {
-      const key = `user:${recipientId}:unreadMessages:from:${senderId}`;
-      await redis.rpush(key, JSON.stringify(message));
+    const key = `user:${recipientId}:unreadMessages:from:${senderId}`;
+    await redis.rpush(key, JSON.stringify(message));
     // }
 
     // return isOnline; // useful if caller wants to check
