@@ -166,7 +166,7 @@ export default function TherapistsPage() {
                 Accepting new patients
               </p>
             )}
-            <button className="mt-4 w-full bg-emerald-600 text-white py-1 rounded hover:bg-emerald-700 transition">
+            <button className="cursor-pointer mt-4 w-full bg-emerald-600 text-white py-1 rounded hover:bg-emerald-700 transition">
               Book Appointment
             </button>
           </div>

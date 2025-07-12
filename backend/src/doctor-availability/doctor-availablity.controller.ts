@@ -9,6 +9,8 @@ import {
   ParseIntPipe,
   Req,
   Put,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateDoctorAvailabilityDto } from './dto/create-doctor-availability.dto';
 import { UpdateDoctorAvailabilityDto } from './dto/update-doctor-availability.dto';
@@ -63,5 +65,24 @@ export class DoctorAvailabilityController {
       req.user,
       id,
     );
+  }
+
+  @Get(':doctorId/slots')
+  async getWeeklySlots(
+    @Param('doctorId') doctorId: string,
+    @Query('weekStart') weekStart: string,
+  ) {
+    const parsedDoctorId = parseInt(doctorId, 10);
+
+    if (isNaN(parsedDoctorId) || !weekStart) {
+      throw new BadRequestException('Invalid doctorId or weekStart');
+    }
+
+    const slots =
+      await this.doctorAvailabilityService.getWeeklyAvailableSlots(
+        parsedDoctorId,
+      );
+
+    return slots;
   }
 }

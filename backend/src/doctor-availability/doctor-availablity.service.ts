@@ -7,6 +7,7 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateDoctorAvailabilityDto } from './dto/create-doctor-availability.dto';
 import { UpdateDoctorAvailabilityDto } from './dto/update-doctor-availability.dto';
+import { isBefore, addMinutes, addDays } from 'date-fns';
 
 @Injectable()
 export class DoctorAvailabilityService {
@@ -149,5 +150,68 @@ export class DoctorAvailabilityService {
     return {
       message: 'Doctor availability deleted successfully',
     };
+  }
+  async getWeeklyAvailableSlots(doctorId: number) {
+    const startDate = new Date(); // today
+    const endDate = addDays(startDate, 7); // 7 days later
+    const slots: { date: string; startTime: string; endTime: string }[] = [];
+
+    const availabilities = await this.prisma.doctorAvailability.findMany({
+      where: {
+        doctorId,
+        validFrom: { lte: endDate },
+        OR: [{ validUntil: null }, { validUntil: { gte: startDate } }],
+      },
+    });
+
+    if (!availabilities.length) return [];
+
+    const appointments = await this.prisma.appointment.findMany({
+      where: {
+        doctorId,
+        startTime: {
+          gte: startDate,
+          lt: endDate,
+        },
+        status: { notIn: ['canceled', 'no_show'] },
+      },
+    });
+
+    const bookedTimes = appointments.map((a) => a.startTime.toISOString());
+
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(startDate, i);
+      const dayOfWeek = date.getDay();
+      const todaysAvailabilities = availabilities.filter(
+        (a) => a.dayOfWeek === dayOfWeek,
+      );
+
+      for (const availability of todaysAvailabilities) {
+        const dateStr = date.toISOString().split('T')[0];
+        let current = new Date(
+          `${dateStr}T${availability.startTime.toISOString().split('T')[1]}`,
+        );
+        const end = new Date(
+          `${dateStr}T${availability.endTime.toISOString().split('T')[1]}`,
+        );
+
+        while (isBefore(current, end)) {
+          const next = addMinutes(current, 60);
+          const slotTaken = bookedTimes.includes(current.toISOString());
+
+          if (!slotTaken) {
+            slots.push({
+              date: dateStr,
+              startTime: current.toISOString(),
+              endTime: next.toISOString(),
+            });
+          }
+
+          current = next;
+        }
+      }
+    }
+
+    return slots;
   }
 }

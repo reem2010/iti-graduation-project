@@ -13,6 +13,7 @@ import {
   User,
 } from "@/types";
 import axios from "axios";
+import { format } from "date-fns";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -150,6 +151,10 @@ export const doctorAvailabilityApi = {
     );
     return response.data.data!;
   },
+  getWeeklySlots: async (doctorId: number) => {
+    const res = await api.get(`/doctor-availability/${doctorId}/slots`);
+    return res.data;
+  },
 
   getDoctorAvailabilitesByDoctorId(doctorId: number) {
     return api
@@ -212,3 +217,7 @@ export const patientProfileApi = {
 // Export all individual API services for easier import
 
 export default api; // Export the axios instance as default if needed elsewhere
+
+function formatISO(weekStart: Date, arg1: { representation: string }) {
+  throw new Error("Function not implemented.");
+}
