@@ -17,6 +17,8 @@ import { WalletModule } from './wallet/wallet.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { AppointmentsModule } from './appointment/appointments.module';
 import { ConfigModule } from '@nestjs/config';
+import { MessagesModule } from './messages/messages.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -38,6 +40,10 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     DoctorsModule,
     AppointmentsModule,
+
+    MessagesModule,
+
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
