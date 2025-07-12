@@ -10,23 +10,23 @@ import { ReviewModule } from './review/review.module';
 import { DoctorVerificationModule } from './doctor-verification/doctor-verification.module';
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availablity.module';
 import { UserModule } from './user/user.module';
+import { DoctorsModule } from './doctors/doctors.module';
 
 @Module({
   imports: [
-    
     PrismaModule,
-   
+
     AuthModule,
-   
+
     PatientModule,
-   
+
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
-  ,
     DoctorVerificationModule,
     DoctorAvailabilityModule,
     UserModule,
+    DoctorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
