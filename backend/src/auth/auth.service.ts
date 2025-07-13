@@ -28,7 +28,7 @@ export class AuthService {
 
 
   async register(data: RegisterDto) {
-    const { email, password, role, firstName, lastName, ...rest } = data;
+    const { email, password, role, firstName, lastName, dateOfBirth, ...rest } = data;
 
     if (!email || !password || !role || !firstName || !lastName) {
       throw new BadRequestException('All fields are required');
@@ -51,6 +51,7 @@ export class AuthService {
         role,
         firstName,
         lastName,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         ...rest,
       },
     });
