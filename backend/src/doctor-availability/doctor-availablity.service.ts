@@ -33,20 +33,14 @@ export class DoctorAvailabilityService {
     };
   }
 
-  async getDoctorAvailabilityById(user: any, id: number) {
-    const { userId /*, role */ } = user;
-    // if (role !== 'doctor') {
-    //   throw new ForbiddenException('Only doctors can view availability by ID');
-    // }
-    const availability = await this.prisma.doctorAvailability.findUnique({
-      where: { id, doctorId: userId },
+  async getAvailabilityByDoctorId(doctorId: number) {
+    const slots = await this.prisma.doctorAvailability.findMany({
+      where: { doctorId },
     });
-    if (!availability) {
-      throw new NotFoundException('Availability record not found');
-    }
+
     return {
       message: 'Doctor availability fetched successfully',
-      data: availability,
+      data: slots,
     };
   }
 

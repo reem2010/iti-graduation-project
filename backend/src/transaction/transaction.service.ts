@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, forwardRef, Injectable, NotFoundException } from '@nestjs/common';
 import { PaymobService } from 'src/paymob/paymob.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { TransactionStatus, TransactionType } from '@prisma/client';

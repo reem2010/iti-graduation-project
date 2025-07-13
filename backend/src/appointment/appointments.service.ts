@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject, forwardRef } from "@nestjs/common";
 import { PrismaService } from "prisma/prisma.service";
 import { ZoomService } from "src/zoom/zoom.service";
 import { AppointmentStatus } from '@prisma/client';
@@ -18,7 +18,8 @@ export class AppointmentsService {
         private prisma: PrismaService,
         private zoomService: ZoomService,
         private walletService: WalletService,
-        private transactionService: TransactionService,
+        @Inject(forwardRef(() => TransactionService))
+        private transactionService: TransactionService
     ) {}
 
 
@@ -103,7 +104,7 @@ private async createPendingAppointment(data: {
                 meetingUrl: zoomMeeting.join_url,
                 meetingId: zoomMeeting.id.toString(),
                 meetingPassword: zoomMeeting.password,
-                status:'pending',
+                status: AppointmentStatus.pending,
             },
             include: {
                 patient: {

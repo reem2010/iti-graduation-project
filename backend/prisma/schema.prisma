@@ -7,6 +7,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// model Notification {
+//   id          Int      @id @default(autoincrement())
+//   userId      Int
+//   title       String
+//   message     String
+//   isRead      Boolean  @default(false)
+//   referenceId Int?
+//   createdAt   DateTime @default(now())
+//   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  APPOINTMENT
+  PAYMENT
+  VERIFICATION
+  MESSAGE
+  REVIEW
+  REMINDER
+  ARTICLE
+  SYSTEM
+}
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  userId      Int
+  title       String
+  message     String
+  isRead      Boolean          @default(false)
+  referenceId Int? // Links to specific resources (appointment, message, etc.)
+  type        NotificationType @default(INFO)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model User {
   id                           Int                  @id @default(autoincrement())
   email                        String               @unique
@@ -134,6 +174,7 @@ model Appointment {
   updatedAt       DateTime          @updatedAt
   doctorProfile   DoctorProfile     @relation("DoctorProfileAppointments", fields: [doctorId], references: [userId], onDelete: Cascade)
   patient         Patient           @relation("PatientAppointments", fields: [patientId], references: [userId], onDelete: Cascade)
+  Transaction     Transaction[]
 }
 
 model DoctorAvailability {
@@ -164,17 +205,6 @@ model Message {
   sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 }
 
-model Notification {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  title       String
-  message     String
-  isRead      Boolean  @default(false)
-  referenceId Int?
-  createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 model Wallet {
   userId    Int      @id
   balance   Decimal  @default(0.00)
@@ -185,16 +215,19 @@ model Wallet {
 }
 
 model Transaction {
-  id          Int               @id @default(autoincrement())
-  userId      Int
-  amount      Decimal
-  type        TransactionType
-  status      TransactionStatus @default(pending)
-  description String?
-  metadata    Json?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            Int               @id @default(autoincrement())
+  userId        Int
+  appointmentId Int?
+  amount        Decimal
+  type          TransactionType
+  status        TransactionStatus @default(pending)
+  description   String?
+  metadata      Json?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
 }
 
 enum Role {
@@ -214,7 +247,7 @@ enum AppointmentStatus {
   completed
   canceled
   no_show
-  pending     
+  pending
 }
 
 enum PaymentStatus {
