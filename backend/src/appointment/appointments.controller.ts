@@ -1,26 +1,44 @@
-import {Controller, Req,Get, Post, Body, Param, Delete, Put, Query,HttpStatus, HttpCode } from '@nestjs/common';
+import {UseGuards,Controller, Req,Get, Post, Body, Param, Delete, Put, Query,HttpStatus, HttpCode } from '@nestjs/common';
 import {AppointmentsService} from './appointments.service';
 import { TransactionService } from 'src/transaction/transaction.service';
 import { Request } from 'express';
+import { AuthGuard } from '@nestjs/passport';
+import { IsNumber, IsString, IsDateString, IsOptional } from 'class-validator';
+
 
 // Extend the Request interface to include user from JWT
 interface AuthenticatedRequest extends Request {
     user: {
-        id: number;
+        userId: number;
         email: string;
-        phone?: string;
+        role: 'patient' | 'doctor' | 'admin'; 
+        phone:string;
     };
 }
 
 export class CreateAppointmentDto {
-    patientId: number;
-    doctorId: number;
-    startTime: Date;
-    endTime: Date;
-    price: number;
-    platformFee: number;
-    patientEmail: string;
-    patientPhone: string;
+    @IsNumber()
+  doctorId: number;
+
+  @IsDateString()
+  startTime: string;
+
+  @IsDateString()
+  endTime: string;
+
+  @IsNumber()
+  price: number;
+
+  @IsNumber()
+  platformFee: number;
+
+  @IsOptional()
+  @IsString()
+  patientEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
 }
 export class UpdateAppointmentDto {
     startTime?: Date;
@@ -64,6 +82,7 @@ export class AppointmentsController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED) 
+    @UseGuards(AuthGuard('jwt'))
     async createAppointment(@Body() createAppointmentDto: CreateAppointmentDto,@Req() req:AuthenticatedRequest) {
 
     try{
@@ -75,11 +94,15 @@ export class AppointmentsController {
                 };
             }
         const appointmentData = {
-                ...createAppointmentDto,
-                patientId: user.id,
-                patientEmail: user.email,
-                patientPhone: user.phone || '', // Handle case where phone might not be in JWT
-            };
+            doctorId: createAppointmentDto.doctorId,
+            startTime: new Date(createAppointmentDto.startTime),
+            endTime: new Date(createAppointmentDto.endTime),
+            price: createAppointmentDto.price,
+            platformFee: createAppointmentDto.platformFee,
+            patientId: user.userId,
+            patientEmail: user.email,
+            patientPhone: user.phone || "01205794232",
+};
         
         const result= await this.appointmentsService.createAppointmentWithPayment(appointmentData);
         if (result.success){
@@ -187,7 +210,7 @@ export class AppointmentsController {
             };
         }
     }
-     @Get('my-appointments')
+    @Get('my-appointments')
     async getMyAppointments(@Query('role') role: string, @Req() req: AuthenticatedRequest) {
         try {
             const user = req.user;
@@ -198,7 +221,7 @@ export class AppointmentsController {
                 };
             }
 
-            const appointments = await this.appointmentsService.getUserAppointments(user.id, role);
+            const appointments = await this.appointmentsService.getUserAppointments(user.userId, role);
             return {
                 status: 'success',
                 data: appointments
@@ -210,8 +233,6 @@ export class AppointmentsController {
             };
         }
     }
-
-
 
     @Get('user/:userId')
     async getAppointmentsByUserId(@Param('userId') userId: string, @Query('role') role: string) {
