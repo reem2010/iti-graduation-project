@@ -1,8 +1,25 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { MessageCircle, Sparkles, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { authApi } from "@/lib/api";
 export default function Header() {
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const user = await authApi.getUser();
+        setUser(user);
+      } catch (err) {
+        console.error("Failed to fetch current user:", err);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
   return (
     <div className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-emerald-100 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,25 +33,48 @@ export default function Header() {
             </span>
           </div>
 
-          <nav className="hidden md:flex space-x-8">
-            <Link
-              href={"/articles"}
-              className="text-gray-700 hover:text-emerald-700 transition-colors"
-            >
-              Blog
-            </Link>
-          </nav>
+          <div className="md:flex gap-8">
+            <nav className="hidden md:flex space-x-8">
+              <Link
+                href={"/articles"}
+                className="text-gray-700 hover:text-emerald-700 transition-colors"
+              >
+                Blog
+              </Link>
+            </nav>
+            <nav className="hidden md:flex space-x-8">
+              <Link
+                href={"/doctor"}
+                className="text-gray-700 hover:text-emerald-700 transition-colors"
+              >
+                Therapists
+              </Link>
+            </nav>
+          </div>
 
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
-            >
-              Sign In
-            </Button>
-            <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg">
-              Get Started
-            </Button>
+            {user ? (
+              <nav className="hidden md:flex space-x-8">
+                <Link
+                  href={"/chat"}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors"
+                >
+                  <MessageCircle color="#2ecc71" size={24} />
+                </Link>
+                <Link
+                  href={"/doctor"}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors"
+                >
+                  <User color="#2ecc71" size={24} />
+                </Link>
+              </nav>
+            ) : (
+              <>
+                <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg">
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
