@@ -261,13 +261,10 @@ export const appointmentApi = {
 
 // Export all individual API services for easier import
 
-
-
 // Messages API
 export const messagesApi = {
-  
   createMessage: async (data: any): Promise<any> => {
-    const response = await api.post('/messages', data);
+    const response = await api.post("/messages", data);
     return response.data;
   },
 
@@ -277,7 +274,7 @@ export const messagesApi = {
   },
 
   getUserChats: async (): Promise<any> => {
-    const response = await api.get('/messages');
+    const response = await api.get("/messages");
     return response.data;
   },
 
@@ -286,7 +283,10 @@ export const messagesApi = {
     return response.data;
   },
 
-  getConversation: async (senderId: number, recipientId: number): Promise<any[]> => {
+  getConversation: async (
+    senderId: number,
+    recipientId: number
+  ): Promise<any[]> => {
     const response = await api.get(`/messages/${senderId}/${recipientId}`);
     return response.data;
   },
@@ -295,9 +295,5 @@ export const messagesApi = {
     await api.patch(`/messages/unread/clear/${senderId}`);
   },
 };
-
-
-
-
 
 export default api; // Export the axios instance as default if needed elsewhere
