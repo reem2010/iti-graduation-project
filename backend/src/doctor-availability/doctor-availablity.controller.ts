@@ -9,6 +9,8 @@ import {
   ParseIntPipe,
   Req,
   Put,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateDoctorAvailabilityDto } from './dto/create-doctor-availability.dto';
 import { UpdateDoctorAvailabilityDto } from './dto/update-doctor-availability.dto';
@@ -32,14 +34,23 @@ export class DoctorAvailabilityController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async createDoctorAvailability(
-    @Req() req,
-    @Body() dto: CreateDoctorAvailabilityDto,
+    @Req() req,   
   ) {
-    return this.doctorAvailabilityService.createDoctorAvailability(
-      req.user,
-      dto,
+    return this.doctorAvailabilityService.createEmptyAvailability(
+      req.user.userId,
+     
     );
   }
+
+  @Post("/add")
+@UseGuards(JwtAuthGuard) // 
+async create(
+  @Req() req,
+  @Body() dto: CreateDoctorAvailabilityDto,
+) {
+  return this.doctorAvailabilityService.createDoctorAvailability(req.user, dto);
+}
+
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateDoctorAvailability(
@@ -63,5 +74,21 @@ export class DoctorAvailabilityController {
       req.user,
       id,
     );
+  }
+
+  @Get(':doctorId/slots')
+  async getWeeklySlots(@Param('doctorId') doctorId: string) {
+    const parsedDoctorId = parseInt(doctorId, 10);
+
+    if (isNaN(parsedDoctorId)) {
+      throw new BadRequestException('Invalid doctorId or weekStart');
+    }
+
+    const slots =
+      await this.doctorAvailabilityService.getNext7DaysAvailableSlots(
+        parsedDoctorId,
+      );
+
+    return slots;
   }
 }

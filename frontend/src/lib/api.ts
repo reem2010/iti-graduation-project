@@ -13,8 +13,9 @@ import {
   User,
 } from "@/types";
 import axios from "axios";
+import { format } from "date-fns";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -40,6 +41,27 @@ api.interceptors.request.use(
 
 // Auth API
 export const authApi = {
+  login: async (data: { email: string; password: string }) => {
+    const response = await api.post("/auth/login", data);
+    return response.data;
+  },
+  register: async (data: {
+    email: string;
+    password: string;
+    role: "patient" | "doctor" | "admin";
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: string;
+    gender?: string;
+    phone?: string;
+    bio?: string;
+  }) => {
+    console.log("API call to register with data:", data);
+    console.log("API base URL:", API_BASE_URL);
+    const response = await api.post("/auth/register", data);
+    console.log("API response:", response);
+    return response.data;
+  },
   getUser: async () => {
     const response = await api.get("/user");
     return response.data;
@@ -91,6 +113,11 @@ export const doctorProfileApi = {
 
   deleteDoctorProfile: async (): Promise<void> => {
     await api.delete("/doctors");
+  },
+
+  getDoctorProfileById: async (id: number) => {
+    const response = await api.get(`/doctors/${id}`);
+    return response.data.profile;
   },
   getTherapists: async (filters: Record<string, string>) => {
     const queryParams = new URLSearchParams();
@@ -150,6 +177,10 @@ export const doctorAvailabilityApi = {
     );
     return response.data.data!;
   },
+  getWeeklySlots: async (doctorId: number) => {
+    const res = await api.get(`/doctor-availability/${doctorId}/slots`);
+    return res.data;
+  },
 
   getDoctorAvailabilitesByDoctorId(doctorId: number) {
     return api
@@ -162,7 +193,7 @@ export const doctorAvailabilityApi = {
     data: CreateDoctorAvailabilityDto
   ): Promise<DoctorAvailability> => {
     const response = await api.post<ApiResponse<DoctorAvailability>>(
-      "/doctor-availability",
+      "/doctor-availability/add",
       data
     );
     return response.data.data!;
@@ -206,6 +237,24 @@ export const patientProfileApi = {
   getPatientProfileById: async (userId: number) => {
     const response = await api.get(`/patients/${userId}`);
     return response.data;
+  },
+};
+
+export const appointmentApi = {
+  createAppointment: async (data: {
+    doctorId: number;
+    startTime: string;
+    endTime: string;
+    price: number;
+    paymentGatewayId: number;
+  }) => {
+    const response = await api.post("/appointments", data);
+    return response.data;
+  },
+
+  getMyAppointments: async () => {
+    const response = await api.get("/appointments/");
+    return response.data.appointments || response.data.data;
   },
 };
 

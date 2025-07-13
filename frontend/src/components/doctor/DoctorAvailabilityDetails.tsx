@@ -212,11 +212,12 @@ export default function DoctorAvailabilityDetails() {
   };
 
   return (
-    <section className="bg-purple-50 p-6 rounded-lg shadow-sm">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-purple-700">
+    <section className="bg-siraj-white p-6 rounded-xl shadow-sm border border-siraj-gray-200">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-xl font-bold text-siraj-emerald-600">
           Time Availability
         </h2>
+        
         {isOwner && (
           <button
             onClick={() => {
@@ -230,19 +231,31 @@ export default function DoctorAvailabilityDetails() {
                 validUntil: "",
               });
             }}
-            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition duration-200"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              isEditingAvailability && currentAvailabilityForm.id === null
+                ? "bg-red-100 text-red-600 hover:bg-red-200"
+                : "bg-siraj-emerald-600 text-siraj-white hover:bg-siraj-emerald-700"
+            }`}
           >
-            <Plus className="w-4 h-4" />
-            <span>
+            {isEditingAvailability && currentAvailabilityForm.id === null ? (
+              <X className="w-4 h-4" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+            <span className="text-sm font-medium">
               {isEditingAvailability && currentAvailabilityForm.id === null
-                ? "Cancel Add"
+                ? "Cancel"
                 : "Add Availability"}
             </span>
           </button>
         )}
       </div>
 
-      {error && <p className="text-red-600 mb-2">{error}</p>}
+      {error && (
+        <div className="mb-6 p-3 bg-red-100 border border-red-200 rounded-lg text-red-700">
+          {error}
+        </div>
+      )}
 
       {isEditingAvailability && (
         <form
@@ -251,82 +264,82 @@ export default function DoctorAvailabilityDetails() {
               ? handleUpdateAvailability
               : handleAddAvailability
           }
-          className="space-y-4 mb-6 p-4 border border-purple-200 rounded-md bg-purple-100"
+          className="mb-8 p-6 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200 shadow-sm"
         >
-          <h3 className="text-xl font-semibold text-purple-800">
+          <h3 className="text-lg font-semibold text-siraj-emerald-600 mb-4">
             {currentAvailabilityForm.id
               ? "Edit Availability"
               : "Add New Availability"}
           </h3>
 
-          <div>
-            <label
-              htmlFor="dayOfWeek"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Day of Week
-            </label>
-            <select
-              id="dayOfWeek"
-              name="dayOfWeek"
-              value={currentAvailabilityForm.dayOfWeek}
-              onChange={handleAvailabilityChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-              required
-            >
-              <option value="">Select Day</option>
-              <option value="0">Sunday</option>
-              <option value="1">Monday</option>
-              <option value="2">Tuesday</option>
-              <option value="3">Wednesday</option>
-              <option value="4">Thursday</option>
-              <option value="5">Friday</option>
-              <option value="6">Saturday</option>
-            </select>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="space-y-1">
               <label
-                htmlFor="startTime"
-                className="block text-sm font-medium text-gray-700"
+                htmlFor="dayOfWeek"
+                className="block text-sm font-medium text-siraj-gray-800"
               >
-                Start Time
+                Day of Week
               </label>
-              <input
-                type="time"
-                id="startTime"
-                name="startTime"
-                value={currentAvailabilityForm.startTime}
+              <select
+                id="dayOfWeek"
+                name="dayOfWeek"
+                value={currentAvailabilityForm.dayOfWeek}
                 onChange={handleAvailabilityChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500 focus:border-siraj-emerald-500"
                 required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="endTime"
-                className="block text-sm font-medium text-gray-700"
               >
-                End Time
-              </label>
-              <input
-                type="time"
-                id="endTime"
-                name="endTime"
-                value={currentAvailabilityForm.endTime}
-                onChange={handleAvailabilityChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                required
-              />
+                <option value="">Select Day</option>
+                <option value="0">Sunday</option>
+                <option value="1">Monday</option>
+                <option value="2">Tuesday</option>
+                <option value="3">Wednesday</option>
+                <option value="4">Thursday</option>
+                <option value="5">Friday</option>
+                <option value="6">Saturday</option>
+              </select>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label
+                  htmlFor="startTime"
+                  className="block text-sm font-medium text-siraj-gray-800"
+                >
+                  Start Time
+                </label>
+                <input
+                  type="time"
+                  id="startTime"
+                  name="startTime"
+                  value={currentAvailabilityForm.startTime}
+                  onChange={handleAvailabilityChange}
+                  className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label
+                  htmlFor="endTime"
+                  className="block text-sm font-medium text-siraj-gray-800"
+                >
+                  End Time
+                </label>
+                <input
+                  type="time"
+                  id="endTime"
+                  name="endTime"
+                  value={currentAvailabilityForm.endTime}
+                  onChange={handleAvailabilityChange}
+                  className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
               <label
                 htmlFor="validFrom"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-siraj-gray-800"
               >
                 Valid From
               </label>
@@ -336,14 +349,15 @@ export default function DoctorAvailabilityDetails() {
                 name="validFrom"
                 value={currentAvailabilityForm.validFrom}
                 onChange={handleAvailabilityChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 required
               />
             </div>
-            <div>
+
+            <div className="space-y-1">
               <label
                 htmlFor="validUntil"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-siraj-gray-800"
               >
                 Valid Until (Optional)
               </label>
@@ -353,92 +367,119 @@ export default function DoctorAvailabilityDetails() {
                 name="validUntil"
                 value={currentAvailabilityForm.validUntil || ""}
                 onChange={handleAvailabilityChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
               />
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition duration-200"
-          >
-            <Save className="w-4 h-4" />
-            <span>
-              {currentAvailabilityForm.id
-                ? "Update Availability"
-                : "Add Availability"}
-            </span>
-          </button>
-
-          {currentAvailabilityForm.id && (
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
-              type="button"
-              onClick={() => {
-                setIsEditingAvailability(false);
-                setCurrentAvailabilityForm({
-                  id: null,
-                  dayOfWeek: "",
-                  startTime: "",
-                  endTime: "",
-                  validFrom: "",
-                  validUntil: "",
-                });
-              }}
-              className="w-full mt-2 flex items-center justify-center space-x-2 px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 transition duration-200"
+              type="submit"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors"
             >
-              <X className="w-4 h-4" />
-              <span>Cancel Edit</span>
+              <Save className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {currentAvailabilityForm.id
+                  ? "Update Availability"
+                  : "Add Availability"}
+              </span>
             </button>
-          )}
+
+            {currentAvailabilityForm.id && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditingAvailability(false);
+                  setCurrentAvailabilityForm({
+                    id: null,
+                    dayOfWeek: "",
+                    startTime: "",
+                    endTime: "",
+                    validFrom: "",
+                    validUntil: "",
+                  });
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-siraj-gray-300 bg-siraj-white hover:bg-siraj-gray-100 text-siraj-gray-800 rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4" />
+                <span className="text-sm font-medium">Cancel</span>
+              </button>
+            )}
+          </div>
         </form>
       )}
 
-      {doctorAvailability.length > 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center p-8">
+          <div className="text-siraj-gray-500">Loading availabilities...</div>
+        </div>
+      ) : doctorAvailability.length > 0 ? (
         <div className="space-y-4">
-          {doctorAvailability.map((avail) => (
-            <div
-              key={avail.id}
-              className="bg-purple-100 p-4 rounded-md shadow-sm flex justify-between items-center"
-            >
-              <div>
-                <p>
-                  <strong>Day:</strong> {avail.dayOfWeek}
-                </p>
-                <p>
-                  <strong>Time:</strong> {avail.startTime.substring(11, 16)} -{" "}
-                  {avail.endTime.substring(11, 16)}
-                </p>
-                <p>
-                  <strong>Valid:</strong>{" "}
-                  {new Date(avail.validFrom).toLocaleDateString()} -{" "}
-                  {avail.validUntil
-                    ? new Date(avail.validUntil).toLocaleDateString()
-                    : "Ongoing"}
-                </p>
-              </div>
-              {isOwner && (
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEditAvailabilityClick(avail)}
-                    className="flex items-center space-x-1 px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 text-sm"
-                  >
-                    <Edit className="w-3 h-3" />
-                    <span>Edit</span>
-                  </button>
-                  <button
-                    onClick={() => handleDeleteAvailability(avail.id)}
-                    className="flex items-center space-x-1 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    <span>Delete</span>
-                  </button>
+          {doctorAvailability
+            .filter(
+              (avail) =>
+                avail &&
+                typeof avail.dayOfWeek === "number" &&
+                avail.dayOfWeek >= 0 &&
+                avail.dayOfWeek <= 6
+            )
+            .map((avail) => (
+              <div
+                key={avail.id}
+                className="p-5 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200 shadow-sm"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-siraj-emerald-500"></span>
+                      <h4 className="font-medium text-siraj-emerald-600">
+                        {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][avail.dayOfWeek]}
+                      </h4>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-siraj-gray-600">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium text-siraj-gray-800">Time:</span>
+                        <span>
+                          {avail.startTime.substring(11, 16)} - {avail.endTime.substring(11, 16)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium text-siraj-gray-800">Valid:</span>
+                        <span>
+                          {new Date(avail.validFrom).toLocaleDateString()} -{" "}
+                          {avail.validUntil
+                            ? new Date(avail.validUntil).toLocaleDateString()
+                            : "Ongoing"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {isOwner && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditAvailabilityClick(avail)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-siraj-gray-300 bg-siraj-white hover:bg-siraj-gray-100 text-siraj-gray-800 rounded-lg transition-colors"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAvailability(avail.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
         </div>
       ) : (
-        <p className="text-gray-600">No availability records found.</p>
+        <div className="p-6 text-center text-siraj-gray-500 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200">
+          No availability records found.
+        </div>
       )}
     </section>
   );

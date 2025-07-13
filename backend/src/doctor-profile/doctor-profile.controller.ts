@@ -30,8 +30,8 @@ export class DoctorProfileController {
   }
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Req() req, @Body() dto: CreateDoctorProfileDto) {
-    return this.doctorService.createDoctorProfile(req.user, dto);
+  create(@Req() req) {
+    return this.doctorService.createEmptyProfile(req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)

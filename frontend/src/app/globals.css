@@ -21,6 +21,49 @@
   --input: #e5e5e5;
   --ring: #171717;
   --radius: 0.5rem;
+
+  /* Siraj Brand Colors - Extracted from Home Page */
+  --siraj-emerald-50: #ecfdf5;
+  --siraj-emerald-100: #d1fae5;
+  --siraj-emerald-200: #a7f3d0;
+  --siraj-emerald-300: #6ee7b7;
+  --siraj-emerald-400: #34d399;
+  --siraj-emerald-500: #10b981;
+  --siraj-emerald-600: #059669;
+  --siraj-emerald-700: #047857;
+  --siraj-emerald-800: #065f46;
+  --siraj-emerald-900: #064e3b;
+
+  /* Amber Colors */
+  --siraj-amber-400: #fbbf24;
+  --siraj-amber-500: #f59e0b;
+  --siraj-amber-600: #d97706;
+  --siraj-amber-700: #b45309;
+
+  /* Gray Colors */
+  --siraj-gray-50: #f9fafb;
+  --siraj-gray-100: #f3f4f6;
+  --siraj-gray-200: #e5e7eb;
+  --siraj-gray-300: #d1d5db;
+  --siraj-gray-400: #9ca3af;
+  --siraj-gray-500: #6b7280;
+  --siraj-gray-600: #4b5563;
+  --siraj-gray-700: #374151;
+  --siraj-gray-800: #1f2937;
+  --siraj-gray-900: #111827;
+
+  /* White/Transparent */
+  --siraj-white: #ffffff;
+  --siraj-white-95: rgba(255, 255, 255, 0.95);
+  --siraj-white-10: rgba(255, 255, 255, 0.1);
+  --siraj-white-20: rgba(255, 255, 255, 0.2);
+
+  /* Green for status */
+  --siraj-green-500: #10b981;
+
+  /* Dark colors */
+  --siraj-dark-900: #111827;
+  --siraj-dark-800: #1f2937;
 }
 
 @theme inline {
@@ -45,9 +88,42 @@
   --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Siraj Brand Colors for Tailwind */
+  --color-siraj-emerald-50: var(--siraj-emerald-50);
+  --color-siraj-emerald-100: var(--siraj-emerald-100);
+  --color-siraj-emerald-200: var(--siraj-emerald-200);
+  --color-siraj-emerald-300: var(--siraj-emerald-300);
+  --color-siraj-emerald-400: var(--siraj-emerald-400);
+  --color-siraj-emerald-500: var(--siraj-emerald-500);
+  --color-siraj-emerald-600: var(--siraj-emerald-600);
+  --color-siraj-emerald-700: var(--siraj-emerald-700);
+  --color-siraj-emerald-800: var(--siraj-emerald-800);
+  --color-siraj-emerald-900: var(--siraj-emerald-900);
+  --color-siraj-amber-400: var(--siraj-amber-400);
+  --color-siraj-amber-500: var(--siraj-amber-500);
+  --color-siraj-amber-600: var(--siraj-amber-600);
+  --color-siraj-amber-700: var(--siraj-amber-700);
+  --color-siraj-gray-50: var(--siraj-gray-50);
+  --color-siraj-gray-100: var(--siraj-gray-100);
+  --color-siraj-gray-200: var(--siraj-gray-200);
+  --color-siraj-gray-300: var(--siraj-gray-300);
+  --color-siraj-gray-400: var(--siraj-gray-400);
+  --color-siraj-gray-500: var(--siraj-gray-500);
+  --color-siraj-gray-600: var(--siraj-gray-600);
+  --color-siraj-gray-700: var(--siraj-gray-700);
+  --color-siraj-gray-800: var(--siraj-gray-800);
+  --color-siraj-gray-900: var(--siraj-gray-900);
+  --color-siraj-white: var(--siraj-white);
+  --color-siraj-white-95: var(--siraj-white-95);
+  --color-siraj-white-10: var(--siraj-white-10);
+  --color-siraj-white-20: var(--siraj-white-20);
+  --color-siraj-green-500: var(--siraj-green-500);
+  --color-siraj-dark-900: var(--siraj-dark-900);
+  --color-siraj-dark-800: var(--siraj-dark-800);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
@@ -70,9 +146,8 @@
     --ring: #ededed;
   }
 }
-
-body {
+*/ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
+  }

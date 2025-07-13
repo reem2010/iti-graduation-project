@@ -3,6 +3,9 @@ import {
   IsEnum,
   IsNotEmpty,
   MinLength,
+  IsOptional,
+  IsString,
+  IsDateString,
 } from '@nestjs/class-validator';
 
 export enum Role {
@@ -26,4 +29,20 @@ export class RegisterDto {
 
   @IsNotEmpty()
   lastName: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dateOfBirth?: string;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsString()
+  bio?: string;
 }

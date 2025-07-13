@@ -5,5 +5,6 @@ import { DoctorVerificationService } from './doctor-verification.service';
 @Module({
   controllers: [DoctorVerificationController],
   providers: [DoctorVerificationService],
+  exports: [DoctorVerificationService],
 })
 export class DoctorVerificationModule {}

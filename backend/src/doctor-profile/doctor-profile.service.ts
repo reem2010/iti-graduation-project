@@ -30,29 +30,51 @@ export class DoctorProfileService {
       profile,
     };
   }
+
   async getDoctorProfileById(id: number) {
     const profile = await this.prisma.doctorProfile.findUnique({
       where: { userId: id },
-      include: { user: true },
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+            gender: true,
+          },
+        },
+        reviewsReceived: {
+          select: {
+            rating: true,
+          },
+        },
+      },
     });
 
     if (!profile) {
       throw new NotFoundException('Doctor profile not found');
     }
 
+    const { user, reviewsReceived, ...restProfile } = profile;
+
+    const averageRating =
+      reviewsReceived.length > 0
+        ? reviewsReceived.reduce((sum, r) => sum + r.rating, 0) /
+          reviewsReceived.length
+        : null;
     return {
       message: 'Success',
-      profile,
+      profile: {
+        ...restProfile,
+        fullName: `${user.firstName} ${user.lastName}`,
+        avatarUrl: user.avatarUrl,
+        gender: user.gender,
+        averageRating,
+      },
     };
   }
 
-  async createDoctorProfile(user: any, dto: CreateDoctorProfileDto) {
-    const { userId, role } = user;
-
-    if (role !== 'doctor') {
-      throw new ForbiddenException('Only doctors can create doctor profiles');
-    }
-
+  async createEmptyProfile(userId: number) {
     const userExists = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -70,7 +92,13 @@ export class DoctorProfileService {
     const createdProfile = await this.prisma.doctorProfile.create({
       data: {
         userId,
-        ...dto,
+        title: '',
+        specialization: '',
+        yearsOfExperience: 0,
+        consultationFee: 0,
+        languages: [],
+        isAcceptingNewPatients: false,
+        stripeAccountId: null,
       },
     });
 
