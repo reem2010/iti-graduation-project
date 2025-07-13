@@ -2,7 +2,7 @@
 
 import ArticleForm from "../../../../components/ArticleForm";
 import { BASE_URL } from "../../../../lib/config";
-
+import Link from "next/link";
 export default async function EditArticle({ params }) {
   const { id } = await params;
   const data = await fetch(`${BASE_URL}/article/${id}`);
@@ -21,12 +21,12 @@ export default async function EditArticle({ params }) {
   //   }
   // };
   return (
-    <>
+    <div className="max-w-4xl mx-auto px-4 space-y-8">
       <ArticleForm
         initialContent={article.content}
         initialMediaUrl={article.media}
         mode="edit"
       />
-    </>
+    </div>
   );
 }

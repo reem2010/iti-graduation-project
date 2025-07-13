@@ -11,6 +11,7 @@ export class ArticlesService {
   //1-Get All articles
   async findAll() {
     const articles = await this.prisma.article.findMany({
+      orderBy: { createdAt: 'desc' },
       include: {
         doctorProfile: {
           select: {
