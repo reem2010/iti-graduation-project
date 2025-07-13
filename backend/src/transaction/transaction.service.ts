@@ -1,13 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, forwardRef, Injectable, NotFoundException } from '@nestjs/common';
 import { PaymobService } from 'src/paymob/paymob.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { TransactionStatus, TransactionType } from '@prisma/client';
+import { AppointmentsService } from 'src/appointment/appointments.service';
 
 @Injectable()
 export class TransactionService {
   constructor(
     private readonly paymobService: PaymobService,
     private readonly prisma: PrismaService,
+    private readonly appointmentsService: AppointmentsService,
   ) {}
 
   async bookSession(
@@ -126,7 +128,7 @@ export class TransactionService {
       ? TransactionStatus.completed
       : TransactionStatus.failed;
 
-    const lookupKey = is_refund ? 'originalTransactionId' : 'transactionId';
+    const lookupKey = is_refund ? 'originalTransactionId' : 'orderId';
     const lookupValue = is_refund ? paymobTxId : paymobOrderId;
 
     // Find the pending transaction
@@ -163,7 +165,21 @@ export class TransactionService {
             : 'Payment failed via Paymob',
       },
     });
+    //Handle appointment creation/cancellation based on payment result
+    if (!is_refund && pending.appointmentId) {
+      if (success) {
+        // If payment succeeded, update appointment status to scheduled
+        await this.appointmentsService.confirmAppointmentPayment(pending.appointmentId);
+        console.log(`Appointment ${pending.appointmentId} confirmed after successful payment`);
+
+      } else {
+        // If payment failed, cancel the appointment
+        await this.appointmentsService.handleFailedPayment(pending.appointmentId);
+        console.log(`Appointment ${pending.appointmentId} cancelled due to failed payment`);
+      }
+    }
   }
+
 
   async getAllTransactions() {
     return this.prisma.transaction.findMany({
@@ -178,5 +194,39 @@ export class TransactionService {
     });
 
     return transactions;
+  }
+  //Get transactions by appointment
+  async getTransactionsByAppointment(appointmentId: number) {
+    const transactions = await this.prisma.transaction.findMany({
+      where: { appointmentId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return transactions;
+  }
+
+  //Check if appointment has pending payment
+  async hasPendingPayment(appointmentId: number): Promise<boolean> {
+    const pendingTx = await this.prisma.transaction.findFirst({
+      where: {
+        appointmentId,
+        type: TransactionType.payment,
+        status: TransactionStatus.pending,
+      },
+    });
+
+    return !!pendingTx;
+  }
+
+  // Check if appointment payment is completed
+  async isPaymentCompleted(appointmentId: number): Promise<boolean> {
+    const completedTx = await this.prisma.transaction.findFirst({
+      where: {
+        appointmentId,
+        type: TransactionType.payment,
+        status: TransactionStatus.completed,
+      },
+    });
+    return !!completedTx;
   }
 }
