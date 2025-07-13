@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {forwardRef, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -26,27 +26,23 @@ import { UserModule } from './user/user.module';
       isGlobal: true,
     }),
     PrismaModule,
-
     AuthModule,
-
     PatientModule,
-
     DoctorProfileModule,
     ArticlesModel,
     ReviewModule,
     DoctorVerificationModule,
     DoctorAvailabilityModule,
-    TransactionModule,
+    forwardRef(() => TransactionModule),
+    forwardRef(() => AppointmentsModule),
     PaymobModule,
     WalletModule,
+    AppointmentsModule,
     UserModule,
     DoctorsModule,
-    AppointmentsModule,
-
     MessagesModule,
     NotificationModule,
     RealtimeModule,
-    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

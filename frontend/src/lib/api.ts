@@ -15,7 +15,8 @@ import {
 import axios from "axios";
 import { format } from "date-fns";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -41,6 +42,27 @@ api.interceptors.request.use(
 
 // Auth API
 export const authApi = {
+  login: async (data: { email: string; password: string }) => {
+    const response = await api.post("/auth/login", data);
+    return response.data;
+  },
+  register: async (data: {
+    email: string;
+    password: string;
+    role: "patient" | "doctor" | "admin";
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: string;
+    gender?: string;
+    phone?: string;
+    bio?: string;
+  }) => {
+    console.log("API call to register with data:", data);
+    console.log("API base URL:", API_BASE_URL);
+    const response = await api.post("/auth/register", data);
+    console.log("API response:", response);
+    return response.data;
+  },
   getUser: async () => {
     const response = await api.get("/user");
     return response.data;
