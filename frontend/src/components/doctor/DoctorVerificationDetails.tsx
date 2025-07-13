@@ -1,4 +1,3 @@
-// ✅ DoctorVerificationDetails.tsx
 "use client";
 
 import { doctorVerificationApi } from "@/lib/api";
@@ -108,16 +107,16 @@ export default function DoctorVerificationDetails() {
   };
 
   return (
-    <section className="bg-card p-6 rounded-xl shadow-sm border border-border">
+    <section className="bg-siraj-white p-6 rounded-xl shadow-sm border border-siraj-gray-200">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h2 className="text-xl font-bold text-primary">Verification Status</h2>
+        <h2 className="text-xl font-bold text-siraj-emerald-600">Verification Status</h2>
         
         <button
           onClick={() => setIsEditingVerification(!isEditingVerification)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isEditingVerification
-              ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-              : "bg-primary text-primary-foreground hover:bg-primary/90"
+              ? "bg-red-100 text-red-600 hover:bg-red-200"
+              : "bg-siraj-emerald-600 text-siraj-white hover:bg-siraj-emerald-700"
           }`}
         >
           <Edit className="w-4 h-4" />
@@ -129,56 +128,56 @@ export default function DoctorVerificationDetails() {
 
       {loading ? (
         <div className="flex justify-center items-center p-8">
-          <p className="text-muted-foreground">Loading verification data...</p>
+          <p className="text-siraj-gray-500">Loading verification data...</p>
         </div>
       ) : error ? (
-        <div className="mb-6 p-3 bg-destructive/10 border border-destructive rounded-lg text-destructive">
+        <div className="mb-6 p-3 bg-red-100 border border-red-200 rounded-lg text-red-700">
           {error}
         </div>
       ) : isEditingVerification ? (
         <form onSubmit={handleVerificationSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">License Number</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">License Number</label>
               <input
                 name="licenseNumber"
                 value={currentVerificationForm.licenseNumber}
                 onChange={handleVerificationChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 placeholder="Enter license number"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Degree</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Degree</label>
               <input
                 name="degree"
                 value={currentVerificationForm.degree}
                 onChange={handleVerificationChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 placeholder="Enter your degree"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">University</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">University</label>
               <input
                 name="university"
                 value={currentVerificationForm.university}
                 onChange={handleVerificationChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 placeholder="Enter university name"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Graduation Year</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Graduation Year</label>
               <input
                 name="graduationYear"
                 type="number"
                 value={currentVerificationForm.graduationYear}
                 onChange={handleVerificationChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 placeholder="Enter graduation year"
                 min={1900}
                 max={new Date().getFullYear()}
@@ -186,12 +185,12 @@ export default function DoctorVerificationDetails() {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-foreground">Specialization</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Specialization</label>
               <input
                 name="specialization"
                 value={currentVerificationForm.specialization}
                 onChange={handleVerificationChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 placeholder="Enter your specialization"
               />
             </div>
@@ -228,19 +227,19 @@ export default function DoctorVerificationDetails() {
               
               {Array.isArray(currentVerificationForm.additionalCertificates) && 
                 currentVerificationForm.additionalCertificates.map((cert, index) => (
-                  <div key={index} className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                  <div key={index} className="flex justify-between items-center p-3 bg-siraj-gray-100 rounded-lg">
                     <a 
                       href={cert} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="text-primary hover:underline"
+                      className="text-siraj-emerald-600 hover:underline"
                     >
                       Certificate {index + 1}
                     </a>
                     <button 
                       type="button" 
                       onClick={() => handleRemoveCertificate(index)} 
-                      className="text-destructive hover:text-destructive/80"
+                      className="text-red-600 hover:text-red-800"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -251,59 +250,59 @@ export default function DoctorVerificationDetails() {
 
           <button 
             type="submit" 
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors"
           >
             <Save className="w-4 h-4" />
             <span className="text-sm font-medium">Save Verification</span>
           </button>
         </form>
       ) : doctorVerification ? (
-        <div className="space-y-4 p-6 bg-background rounded-xl border border-border shadow-sm">
+        <div className="space-y-4 p-6 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">License Number</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">License Number</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorVerification.licenseNumber || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Degree</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Degree</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorVerification.degree || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">University</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">University</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorVerification.university || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Graduation Year</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Graduation Year</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorVerification.graduationYear || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <p className="text-sm font-medium text-muted-foreground">Specialization</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Specialization</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorVerification.specialization || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">License Photo</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">License Photo</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorVerification.licensePhotoUrl ? (
                   <a 
                     href={doctorVerification.licensePhotoUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-primary hover:underline"
+                    className="text-siraj-emerald-600 hover:underline"
                   >
                     View License
                   </a>
@@ -312,14 +311,14 @@ export default function DoctorVerificationDetails() {
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">ID Proof</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">ID Proof</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorVerification.idProofUrl ? (
                   <a 
                     href={doctorVerification.idProofUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-primary hover:underline"
+                    className="text-siraj-emerald-600 hover:underline"
                   >
                     View ID Proof
                   </a>
@@ -328,14 +327,14 @@ export default function DoctorVerificationDetails() {
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">CV</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">CV</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorVerification.cvUrl ? (
                   <a 
                     href={doctorVerification.cvUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-primary hover:underline"
+                    className="text-siraj-emerald-600 hover:underline"
                   >
                     View CV
                   </a>
@@ -344,7 +343,7 @@ export default function DoctorVerificationDetails() {
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <p className="text-sm font-medium text-muted-foreground">Certificates</p>
+              <p className="text-sm font-medium text-siraj-gray-600">Certificates</p>
               <div className="space-y-2">
                 {Array.isArray(doctorVerification.additionalCertificates) && 
                   doctorVerification.additionalCertificates.length > 0 ? (
@@ -354,21 +353,21 @@ export default function DoctorVerificationDetails() {
                         href={cert} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="text-primary hover:underline"
+                        className="text-siraj-emerald-600 hover:underline"
                       >
                         Certificate {index + 1}
                       </a>
                     </div>
                   ))
                 ) : (
-                  <p className="text-foreground">No certificates available</p>
+                  <p className="text-siraj-gray-900">No certificates available</p>
                 )}
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="p-6 text-center text-muted-foreground bg-background rounded-xl border border-border">
+        <div className="p-6 text-center text-siraj-gray-500 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200">
           No verification data available.
         </div>
       )}

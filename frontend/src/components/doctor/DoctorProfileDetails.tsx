@@ -114,18 +114,18 @@ export default function DoctorProfileDetails() {
     });
   };
 
-   return (
-    <section className="bg-card p-6 rounded-xl shadow-sm border border-border">
+  return (
+    <section className="bg-siraj-white p-6 rounded-xl shadow-sm border border-siraj-gray-200">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h2 className="text-xl font-bold text-primary">Doctor Profile Details</h2>
+        <h2 className="text-xl font-bold text-siraj-emerald-600">Doctor Profile Details</h2>
         
         {isOwner && (
           <button
             onClick={() => setIsEditingProfile(!isEditingProfile)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               isEditingProfile
-                ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                : "bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "bg-red-100 text-red-600 hover:bg-red-200"
+                : "bg-siraj-emerald-600 text-siraj-white hover:bg-siraj-emerald-700"
             }`}
           >
             <Edit className="w-4 h-4" />
@@ -137,16 +137,16 @@ export default function DoctorProfileDetails() {
       </div>
 
       {error && (
-        <div className="mb-6 p-3 bg-destructive/10 border border-destructive rounded-lg text-destructive">
+        <div className="mb-6 p-3 bg-red-100 border border-red-200 rounded-lg text-red-700">
           {error}
         </div>
       )}
 
       {isEditingProfile && isOwner ? (
-        <form onSubmit={handleProfileSubmit} className="space-y-6 p-6 bg-background rounded-xl border border-border shadow-sm">
+        <form onSubmit={handleProfileSubmit} className="space-y-6 p-6 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label htmlFor="title" className="block text-sm font-medium text-foreground">
+              <label htmlFor="title" className="block text-sm font-medium text-siraj-gray-800">
                 Title
               </label>
               <input
@@ -155,13 +155,13 @@ export default function DoctorProfileDetails() {
                 name="title"
                 value={currentProfileForm.title || ""}
                 onChange={handleProfileChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="specialization" className="block text-sm font-medium text-foreground">
+              <label htmlFor="specialization" className="block text-sm font-medium text-siraj-gray-800">
                 Specialization
               </label>
               <input
@@ -170,13 +170,13 @@ export default function DoctorProfileDetails() {
                 name="specialization"
                 value={currentProfileForm.specialization || ""}
                 onChange={handleProfileChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-foreground">
+              <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-siraj-gray-800">
                 Years of Experience
               </label>
               <input
@@ -185,18 +185,18 @@ export default function DoctorProfileDetails() {
                 name="yearsOfExperience"
                 value={currentProfileForm.yearsOfExperience || ""}
                 onChange={handleProfileChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 min="0"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="consultationFee" className="block text-sm font-medium text-foreground">
+              <label htmlFor="consultationFee" className="block text-sm font-medium text-siraj-gray-800">
                 Consultation Fee
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-siraj-gray-500">$</span>
                 <input
                   type="number"
                   id="consultationFee"
@@ -204,7 +204,7 @@ export default function DoctorProfileDetails() {
                   step="0.01"
                   value={currentProfileForm.consultationFee || ""}
                   onChange={handleProfileChange}
-                  className="w-full pl-8 p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                  className="w-full pl-8 p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                   min="0"
                   required
                 />
@@ -212,7 +212,7 @@ export default function DoctorProfileDetails() {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label htmlFor="languages" className="block text-sm font-medium text-foreground">
+              <label htmlFor="languages" className="block text-sm font-medium text-siraj-gray-800">
                 Languages (comma-separated)
               </label>
               <input
@@ -221,7 +221,7 @@ export default function DoctorProfileDetails() {
                 name="languages"
                 value={currentProfileForm.languages?.join(", ") || ""}
                 onChange={handleLanguagesChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 required
               />
             </div>
@@ -233,9 +233,9 @@ export default function DoctorProfileDetails() {
                 name="isAcceptingNewPatients"
                 checked={currentProfileForm.isAcceptingNewPatients || false}
                 onChange={handleProfileChange}
-                className="h-5 w-5 text-primary border-input rounded focus:ring-primary"
+                className="h-5 w-5 text-siraj-emerald-600 border-siraj-gray-300 rounded focus:ring-siraj-emerald-500"
               />
-              <label htmlFor="isAcceptingNewPatients" className="text-sm font-medium text-foreground">
+              <label htmlFor="isAcceptingNewPatients" className="text-sm font-medium text-siraj-gray-800">
                 Accepting New Patients
               </label>
             </div>
@@ -243,64 +243,64 @@ export default function DoctorProfileDetails() {
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors"
           >
             <Save className="w-4 h-4" />
             <span className="text-sm font-medium">Save Profile</span>
           </button>
         </form>
       ) : doctorProfile ? (
-        <div className="space-y-4 p-6 bg-background rounded-xl border border-border shadow-sm">
+        <div className="space-y-4 p-6 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Title</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Title</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorProfile.title || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Specialization</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Specialization</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorProfile.specialization || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Years of Experience</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Years of Experience</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorProfile.yearsOfExperience || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Consultation Fee</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Consultation Fee</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorProfile.consultationFee ? `$${doctorProfile.consultationFee}` : "N/A"}
               </p>
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <p className="text-sm font-medium text-muted-foreground">Languages</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Languages</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorProfile.languages?.join(", ") || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <p className="text-sm font-medium text-muted-foreground">Accepting New Patients</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Accepting New Patients</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {doctorProfile.isAcceptingNewPatients ? (
-                  <span className="text-green-600">Yes</span>
+                  <span className="text-siraj-emerald-600">Yes</span>
                 ) : (
-                  <span className="text-destructive">No</span>
+                  <span className="text-red-600">No</span>
                 )}
               </p>
             </div>
           </div>
         </div>
       ) : (
-        <div className="p-6 text-center text-muted-foreground bg-background rounded-xl border border-border">
+        <div className="p-6 text-center text-siraj-gray-500 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200">
           Doctor profile not found. Please create one.
         </div>
       )}

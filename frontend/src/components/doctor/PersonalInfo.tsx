@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 
 export default function PersonalInfo() {
   const [userInfo, setUserInfo] = useState<User | null>(null);
-  const [currentUser, setCurrentUser] = useState<User | null>(null); // 👈 المستخدم اللي عامل تسجيل دخول فعلاً
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isEditingUser, setIsEditingUser] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +65,7 @@ export default function PersonalInfo() {
     }
   }, [userInfo]);
 
-  const isOwner = currentUser?.id === userInfo?.id; // 👈 هل المستخدم الحالي هو صاحب البروفايل؟
+  const isOwner = currentUser?.id === userInfo?.id;
 
   const handleUserChange = (e: React.ChangeEvent<any>) => {
     const { name, value, type, checked } = e.target;
@@ -131,17 +131,17 @@ export default function PersonalInfo() {
   };
 
   return (
-    <section className="bg-card p-6 rounded-xl shadow-sm border border-border">
+    <section className="bg-siraj-white p-6 rounded-xl shadow-sm border border-siraj-gray-200">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h2 className="text-xl font-bold text-primary">Personal Information</h2>
+        <h2 className="text-xl font-bold text-siraj-emerald-600">Personal Information</h2>
         
         {isOwner && (
           <button
             onClick={() => setIsEditingUser(!isEditingUser)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               isEditingUser
-                ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                : "bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "bg-red-100 text-red-600 hover:bg-red-200"
+                : "bg-siraj-emerald-600 text-siraj-white hover:bg-siraj-emerald-700"
             }`}
           >
             {isEditingUser ? (
@@ -163,7 +163,7 @@ export default function PersonalInfo() {
       </div>
 
       {error && (
-        <div className="mb-6 p-3 bg-destructive/10 border border-destructive rounded-lg text-destructive">
+        <div className="mb-6 p-3 bg-red-100 border border-red-200 rounded-lg text-red-700">
           {error}
         </div>
       )}
@@ -172,57 +172,57 @@ export default function PersonalInfo() {
         <form onSubmit={handleUpdateUser} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">First Name</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">First Name</label>
               <input
                 name="firstName"
                 value={userEditForm.firstName}
                 onChange={handleUserChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Last Name</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Last Name</label>
               <input
                 name="lastName"
                 value={userEditForm.lastName}
                 onChange={handleUserChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Email</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Email</label>
               <input
                 type="email"
                 name="email"
                 value={userEditForm.email}
                 onChange={handleUserChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 required
                 disabled
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Phone</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Phone</label>
               <input
                 name="phone"
                 value={userEditForm.phone || ""}
                 onChange={handleUserChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Gender</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Gender</label>
               <select
                 name="gender"
                 value={userEditForm.gender || ""}
                 onChange={handleUserChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
               >
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
@@ -232,23 +232,23 @@ export default function PersonalInfo() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Date of Birth</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Date of Birth</label>
               <input
                 type="date"
                 name="dateOfBirth"
                 value={userEditForm.dateOfBirth || ""}
                 onChange={handleUserChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Preferred Language</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Preferred Language</label>
               <select
                 name="preferredLanguage"
                 value={userEditForm.preferredLanguage || "en"}
                 onChange={handleUserChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
               >
                 <option value="en">English</option>
                 <option value="ar">Arabic</option>
@@ -258,23 +258,23 @@ export default function PersonalInfo() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Timezone</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Timezone</label>
               <input
                 name="timezone"
                 value={userEditForm.timezone || ""}
                 onChange={handleUserChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
               />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-foreground">Bio</label>
+              <label className="block text-sm font-medium text-siraj-gray-800">Bio</label>
               <textarea
                 name="bio"
                 value={userEditForm.bio || ""}
                 onChange={handleUserChange}
                 rows={3}
-                className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
               />
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function PersonalInfo() {
           <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -295,7 +295,7 @@ export default function PersonalInfo() {
             <button
               type="button"
               onClick={handleDeleteUser}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-lg transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -308,53 +308,53 @@ export default function PersonalInfo() {
           </div>
         </form>
       ) : (
-        <div className="space-y-4 p-6 bg-background rounded-xl border border-border shadow-sm">
+        <div className="space-y-4 p-6 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Full Name</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Full Name</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.firstName} {userInfo?.lastName}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Email</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Email</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.email}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Role</p>
-              <p className="text-base font-medium text-foreground capitalize">
+              <p className="text-sm font-medium text-siraj-gray-600">Role</p>
+              <p className="text-base font-medium text-siraj-gray-900 capitalize">
                 {userInfo?.role}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Phone</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Phone</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.phone || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Gender</p>
-              <p className="text-base font-medium text-foreground capitalize">
+              <p className="text-sm font-medium text-siraj-gray-600">Gender</p>
+              <p className="text-base font-medium text-siraj-gray-900 capitalize">
                 {userInfo?.gender || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Date of Birth</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Date of Birth</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.dateOfBirth ? new Date(userInfo.dateOfBirth).toLocaleDateString() : "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Language</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Language</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.preferredLanguage === "en" ? "English" : 
                  userInfo?.preferredLanguage === "ar" ? "Arabic" : 
                  userInfo?.preferredLanguage === "fr" ? "French" : 
@@ -363,44 +363,44 @@ export default function PersonalInfo() {
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Timezone</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Timezone</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.timezone || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <p className="text-sm font-medium text-muted-foreground">Bio</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Bio</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.bio || "N/A"}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Verified</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Verified</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.isVerified ? (
-                  <span className="text-green-600">Yes</span>
+                  <span className="text-siraj-emerald-600">Yes</span>
                 ) : (
-                  <span className="text-destructive">No</span>
+                  <span className="text-red-600">No</span>
                 )}
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Status</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Status</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.isActive ? (
-                  <span className="text-green-600">Active</span>
+                  <span className="text-siraj-emerald-600">Active</span>
                 ) : (
-                  <span className="text-destructive">Inactive</span>
+                  <span className="text-red-600">Inactive</span>
                 )}
               </p>
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <p className="text-sm font-medium text-muted-foreground">Last Login</p>
-              <p className="text-base font-medium text-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">Last Login</p>
+              <p className="text-base font-medium text-siraj-gray-900">
                 {userInfo?.lastLogin ? new Date(userInfo.lastLogin).toLocaleString() : "N/A"}
               </p>
             </div>
