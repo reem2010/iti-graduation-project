@@ -198,56 +198,9 @@ export default function Home() {
                   Watch How It Works
                 </Button>
               </div>
-
-              <div className="flex items-center space-x-8 pt-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-700">
-                    10K+
-                  </div>
-                  <div className="text-sm text-gray-600">Happy Clients</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-700">
-                    500+
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Licensed Therapists
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-700">
-                    24/7
-                  </div>
-                  <div className="text-sm text-gray-600">Support Available</div>
-                </div>
-              </div>
             </div>
 
-            <div className="relative">
-              <div className="relative bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-3xl p-8 shadow-2xl">
-                <img
-                  src="https://images.pexels.com/photos/6823509/pexels-photo-6823509.jpeg?auto=compress&cs=tinysrgb&w=800"
-                  alt="Mental health counseling session"
-                  className="w-full h-96 object-cover rounded-2xl shadow-lg"
-                />
-                <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl p-4 shadow-xl">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Available Now
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating trust indicators */}
-              <div className="absolute -top-4 -left-4 bg-white rounded-xl p-3 shadow-xl">
-                <div className="flex items-center space-x-2">
-                  <Shield className="w-5 h-5 text-emerald-600" />
-                  <span className="text-xs font-medium">100% Secure</span>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </section>

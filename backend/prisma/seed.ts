@@ -1,4 +1,4 @@
-import { PrismaClient, Role, VerificationStatus } from '@prisma/client';
+import { PrismaClient, Role, VerificationStatus, NotificationType, AppointmentStatus, PaymentStatus, TransactionStatus, TransactionType } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 
@@ -6,15 +6,16 @@ const prisma = new PrismaClient();
 const PASSWORD = 'password123';
 
 async function main() {
-  const doctorCount = 10;
+  const doctorCount = 5;
   const patientCount = 5;
   const hashedPassword = await bcrypt.hash(PASSWORD, 10);
 
   const doctorUsers = [];
+  const patientUsers = [];
 
-  // 👨‍⚕️ Seed doctors
+  // Seed doctors
   for (let i = 0; i < doctorCount; i++) {
-    const user = await prisma.user.create({
+    const doctor = await prisma.user.create({
       data: {
         email: faker.internet.email(),
         passwordHash: hashedPassword,
@@ -25,18 +26,14 @@ async function main() {
         gender: faker.helpers.arrayElement(['male', 'female']),
         isVerified: true,
         isActive: true,
-        bio: faker.lorem.paragraph(),
         preferredLanguage: 'en',
+        bio: faker.lorem.sentence(),
         doctorProfile: {
           create: {
             title: 'Dr.',
             specialization: faker.person.jobType(),
             yearsOfExperience: faker.number.int({ min: 1, max: 25 }),
-            consultationFee: faker.number.float({
-              min: 20,
-              max: 200,
-              fractionDigits: 2,
-            }),
+            consultationFee: faker.number.float({ min: 30, max: 150, fractionDigits: 2 }),
             languages: ['en', 'ar'],
           },
         },
@@ -52,7 +49,7 @@ async function main() {
             licensePhotoUrl: faker.image.avatar(),
             degree: 'MBBS',
             university: faker.company.name(),
-            graduationYear: faker.date.past({ years: 15 }).getFullYear(),
+            graduationYear: faker.date.past({ years: 10 }).getFullYear(),
             specialization: faker.person.jobType(),
             idProofUrl: faker.image.avatar(),
             cvUrl: faker.internet.url(),
@@ -64,10 +61,28 @@ async function main() {
       include: { doctorProfile: true },
     });
 
-    doctorUsers.push(user);
+    // Articles and availability
+    await prisma.article.create({
+      data: {
+        doctorId: doctor.id,
+        content: faker.lorem.paragraph(),
+        media: faker.image.url(),
+      },
+    });
+
+    await prisma.doctorAvailability.create({
+      data: {
+        doctorId: doctor.id,
+        dayOfWeek: faker.number.int({ min: 1, max: 7 }),
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+      },
+    });
+
+    doctorUsers.push(doctor);
   }
 
-  // 🧑‍🤝‍🧑 Seed patients
+  // Seed patients
   for (let i = 0; i < patientCount; i++) {
     const patient = await prisma.user.create({
       data: {
@@ -98,52 +113,73 @@ async function main() {
       },
     });
 
-    // ✍️ Add reviews from this patient to 2 random doctors
-    const reviewedDoctors = faker.helpers.shuffle(doctorUsers).slice(0, 2);
-    for (const doctor of reviewedDoctors) {
+    patientUsers.push(patient);
+
+    const selectedDoctors = faker.helpers.shuffle(doctorUsers).slice(0, 2);
+    for (const doctor of selectedDoctors) {
       await prisma.review.create({
         data: {
           patientId: patient.id,
           doctorId: doctor.id,
           rating: faker.number.int({ min: 3, max: 5 }),
           comment: faker.lorem.sentence(),
-          isAnonymous: faker.datatype.boolean(),
         },
       });
-    }
-  }
 
-  // 🕓 Add availability for doctors
-  for (const doctor of doctorUsers) {
-    for (let day = 1; day <= 5; day++) {
-      const now = new Date();
-      const start = new Date(now);
-      start.setHours(9 + day, 0, 0, 0);
-
-      const end = new Date(now);
-      end.setHours(10 + day, 0, 0, 0);
-
-      await prisma.doctorAvailability.create({
+      const appointment = await prisma.appointment.create({
         data: {
+          patientId: patient.id,
           doctorId: doctor.id,
-          dayOfWeek: day,
-          startTime: start,
-          endTime: end,
-          isRecurring: true,
-          validFrom: now,
+          startTime: faker.date.future(),
+          endTime: faker.date.future(),
+          status: AppointmentStatus.scheduled,
+          price: 75.5,
+          platformFee: 5.5,
+          paymentStatus: PaymentStatus.paid,
+        },
+      });
+
+      await prisma.transaction.create({
+        data: {
+          userId: patient.id,
+          appointmentId: appointment.id,
+          amount: 75.5,
+          type: TransactionType.payment,
+          status: TransactionStatus.completed,
         },
       });
     }
   }
 
-  console.log('✅ Seeding completed successfully.');
+  // Seed messages and notifications
+  for (const patient of patientUsers) {
+    const doctor = faker.helpers.arrayElement(doctorUsers);
+    await prisma.message.create({
+      data: {
+        senderId: patient.id,
+        recipientId: doctor.id,
+        content: faker.lorem.sentence(),
+      },
+    });
+
+    await prisma.notification.create({
+      data: {
+        userId: patient.id,
+        title: 'Welcome!',
+        message: 'Thanks for joining the platform!',
+        type: NotificationType.SYSTEM,
+      },
+    });
+  }
+
+  console.log('🌱 Seed completed successfully.');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seed error:', e);
+    console.error(e);
     process.exit(1);
   })
-  .finally(() => {
-    prisma.$disconnect();
+  .finally(async () => {
+    await prisma.$disconnect();
   });
