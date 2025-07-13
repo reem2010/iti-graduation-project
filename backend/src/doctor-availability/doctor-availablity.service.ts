@@ -7,6 +7,7 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateDoctorAvailabilityDto } from './dto/create-doctor-availability.dto';
 import { UpdateDoctorAvailabilityDto } from './dto/update-doctor-availability.dto';
+import { isBefore, addMinutes, addDays, startOfDay } from 'date-fns';
 
 @Injectable()
 export class DoctorAvailabilityService {
@@ -186,5 +187,79 @@ async createDoctorAvailability(
     return {
       message: 'Doctor availability deleted successfully',
     };
+  }
+
+  async getNext7DaysAvailableSlots(doctorId: number) {
+    const today = startOfDay(new Date());
+    const endOfRange = addDays(today, 7);
+    const slots: { date: string; startTime: string; endTime: string }[] = [];
+
+    const availabilities = await this.prisma.doctorAvailability.findMany({
+      where: {
+        doctorId,
+        validFrom: { lte: endOfRange },
+        OR: [{ validUntil: null }, { validUntil: { gte: today } }],
+      },
+    });
+
+    if (!availabilities.length) return [];
+
+    const appointments = await this.prisma.appointment.findMany({
+      where: {
+        doctorId,
+        startTime: {
+          gte: today,
+          lt: endOfRange,
+        },
+        status: { notIn: ['canceled', 'no_show'] },
+      },
+    });
+
+    const bookedTimes = appointments.map((a) => a.startTime.toISOString());
+
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(today, i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayOfWeek = date.getDay();
+
+      const dayAvailabilities = availabilities.filter((a) => {
+        return (
+          a.dayOfWeek === dayOfWeek &&
+          new Date(dateStr) >= new Date(a.validFrom) &&
+          (!a.validUntil || new Date(dateStr) <= new Date(a.validUntil))
+        );
+      });
+
+      for (const availability of dayAvailabilities) {
+        const startHour = availability.startTime.getHours();
+        const startMinute = availability.startTime.getMinutes();
+        const endHour = availability.endTime.getHours();
+        const endMinute = availability.endTime.getMinutes();
+
+        let current = new Date(
+          `${dateStr}T${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}:00`,
+        );
+        const end = new Date(
+          `${dateStr}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`,
+        );
+
+        while (isBefore(current, end)) {
+          const next = new Date(current.getTime() + 60 * 60 * 1000); // 1 hour
+          const slotTaken = bookedTimes.includes(current.toISOString());
+
+          if (!slotTaken) {
+            slots.push({
+              date: dateStr,
+              startTime: current.toISOString(),
+              endTime: next.toISOString(),
+            });
+          }
+
+          current = next;
+        }
+      }
+    }
+
+    return slots;
   }
 }

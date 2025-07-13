@@ -13,6 +13,7 @@ import {
   User,
 } from "@/types";
 import axios from "axios";
+import { format } from "date-fns";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -92,6 +93,11 @@ export const doctorProfileApi = {
   deleteDoctorProfile: async (): Promise<void> => {
     await api.delete("/doctors");
   },
+
+  getDoctorProfileById: async (id: number) => {
+    const response = await api.get(`/doctors/${id}`);
+    return response.data.profile;
+  },
   getTherapists: async (filters: Record<string, string>) => {
     const queryParams = new URLSearchParams();
     for (const key in filters) {
@@ -150,6 +156,10 @@ export const doctorAvailabilityApi = {
     );
     return response.data.data!;
   },
+  getWeeklySlots: async (doctorId: number) => {
+    const res = await api.get(`/doctor-availability/${doctorId}/slots`);
+    return res.data;
+  },
 
   getDoctorAvailabilitesByDoctorId(doctorId: number) {
     return api
@@ -206,6 +216,24 @@ export const patientProfileApi = {
   getPatientProfileById: async (userId: number) => {
     const response = await api.get(`/patients/${userId}`);
     return response.data;
+  },
+};
+
+export const appointmentApi = {
+  createAppointment: async (data: {
+    doctorId: number;
+    startTime: string;
+    endTime: string;
+    price: number;
+    paymentGatewayId: number;
+  }) => {
+    const response = await api.post("/appointments", data);
+    return response.data;
+  },
+
+  getMyAppointments: async () => {
+    const response = await api.get("/appointments/");
+    return response.data.appointments || response.data.data;
   },
 };
 
