@@ -5,5 +5,6 @@ import { DoctorProfileService } from './doctor-profile.service';
 @Module({
   controllers: [DoctorProfileController],
   providers: [DoctorProfileService],
+  exports: [DoctorProfileService],
 })
 export class DoctorProfileModule {}

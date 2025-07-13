@@ -7,6 +7,7 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateDoctorAvailabilityDto } from './dto/create-doctor-availability.dto';
 import { UpdateDoctorAvailabilityDto } from './dto/update-doctor-availability.dto';
+import { isBefore, addMinutes, addDays, startOfDay } from 'date-fns';
 
 @Injectable()
 export class DoctorAvailabilityService {
@@ -33,69 +34,100 @@ export class DoctorAvailabilityService {
     };
   }
 
-  async getDoctorAvailabilityById(user: any, id: number) {
-    const { userId /*, role */ } = user;
-    // if (role !== 'doctor') {
-    //   throw new ForbiddenException('Only doctors can view availability by ID');
-    // }
-    const availability = await this.prisma.doctorAvailability.findUnique({
-      where: { id, doctorId: userId },
+  async getAvailabilityByDoctorId(doctorId: number) {
+    const slots = await this.prisma.doctorAvailability.findMany({
+      where: { doctorId },
     });
-    if (!availability) {
-      throw new NotFoundException('Availability record not found');
-    }
+
     return {
       message: 'Doctor availability fetched successfully',
-      data: availability,
+      data: slots,
     };
   }
 
-  async createDoctorAvailability(user: any, dto: CreateDoctorAvailabilityDto) {
-    const { userId, role } = user;
+async createEmptyAvailability(userId: number) {
+  const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
-    if (role !== 'doctor') {
-      throw new ForbiddenException('Only doctors can create availability');
-    }
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
 
-    const profile = await this.prisma.doctorProfile.findUnique({
-      where: { userId },
-    });
+  if (user.role !== 'doctor') {
+    throw new ForbiddenException('Only doctors can have availability');
+  }
 
-    if (!profile) {
-      throw new BadRequestException(
-        'Doctor profile must exist before setting availability',
-      );
-    }
+  const profile = await this.prisma.doctorProfile.findUnique({
+    where: { userId },
+  });
 
-    const exists = await this.prisma.doctorAvailability.findFirst({
-      where: {
-        doctorId: userId,
-        dayOfWeek: dto.dayOfWeek,
-        startTime: new Date(dto.startTime),
-        endTime: new Date(dto.endTime),
-      },
-    });
+  if (!profile) {
+    throw new BadRequestException('Doctor profile must exist before setting availability');
+  }
 
-    if (exists) {
-      throw new BadRequestException('This availability already exists');
-    }
+  const existing = await this.prisma.doctorAvailability.findFirst({
+    where: { doctorId: userId },
+  });
 
-    const created = await this.prisma.doctorAvailability.create({
-      data: {
-        doctorId: userId,
-        ...dto,
-        startTime: new Date(dto.startTime),
-        endTime: new Date(dto.endTime),
-        validFrom: new Date(dto.validFrom),
-        validUntil: dto.validUntil ? new Date(dto.validUntil) : undefined,
-      },
-    });
-
+  if (existing) {
     return {
-      message: 'Doctor availability created successfully',
-      data: created,
+      message: 'Availability already exists',
     };
   }
+
+  // Empty availability record (just to initialize if needed)
+  await this.prisma.doctorAvailability.create({
+    data: {
+      doctorId: userId,
+      dayOfWeek: 0,          
+      startTime: new Date(),         
+      endTime: new Date(),           
+      validFrom: new Date(),
+      validUntil: null,
+    },
+  });
+
+  return {
+    message: 'Empty doctor availability created',
+  };
+}
+
+
+async createDoctorAvailability(
+  user: any,
+  dto: CreateDoctorAvailabilityDto,
+) {
+  const { userId, role } = user;
+
+  if (role !== 'doctor') {
+    throw new ForbiddenException('Only doctors can create availability');
+  }
+
+  const doctorProfile = await this.prisma.doctorProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!doctorProfile) {
+    throw new BadRequestException('Doctor profile not found');
+  }
+
+  const newAvailability = await this.prisma.doctorAvailability.create({
+    data: {
+      doctorId: userId,
+      dayOfWeek: dto.dayOfWeek,
+      startTime: new Date(dto.startTime),
+      endTime: new Date(dto.endTime),
+      validFrom: new Date(dto.validFrom),
+      validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
+      isRecurring: dto.isRecurring ?? false,
+    },
+  });
+
+  return {
+    message: 'Doctor availability created successfully',
+    data: newAvailability,
+  };
+}
+
 
   async updateDoctorAvailability(
     user: any,
@@ -155,5 +187,79 @@ export class DoctorAvailabilityService {
     return {
       message: 'Doctor availability deleted successfully',
     };
+  }
+
+  async getNext7DaysAvailableSlots(doctorId: number) {
+    const today = startOfDay(new Date());
+    const endOfRange = addDays(today, 7);
+    const slots: { date: string; startTime: string; endTime: string }[] = [];
+
+    const availabilities = await this.prisma.doctorAvailability.findMany({
+      where: {
+        doctorId,
+        validFrom: { lte: endOfRange },
+        OR: [{ validUntil: null }, { validUntil: { gte: today } }],
+      },
+    });
+
+    if (!availabilities.length) return [];
+
+    const appointments = await this.prisma.appointment.findMany({
+      where: {
+        doctorId,
+        startTime: {
+          gte: today,
+          lt: endOfRange,
+        },
+        status: { notIn: ['canceled', 'no_show'] },
+      },
+    });
+
+    const bookedTimes = appointments.map((a) => a.startTime.toISOString());
+
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(today, i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayOfWeek = date.getDay();
+
+      const dayAvailabilities = availabilities.filter((a) => {
+        return (
+          a.dayOfWeek === dayOfWeek &&
+          new Date(dateStr) >= new Date(a.validFrom) &&
+          (!a.validUntil || new Date(dateStr) <= new Date(a.validUntil))
+        );
+      });
+
+      for (const availability of dayAvailabilities) {
+        const startHour = availability.startTime.getHours();
+        const startMinute = availability.startTime.getMinutes();
+        const endHour = availability.endTime.getHours();
+        const endMinute = availability.endTime.getMinutes();
+
+        let current = new Date(
+          `${dateStr}T${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}:00`,
+        );
+        const end = new Date(
+          `${dateStr}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`,
+        );
+
+        while (isBefore(current, end)) {
+          const next = new Date(current.getTime() + 60 * 60 * 1000); // 1 hour
+          const slotTaken = bookedTimes.includes(current.toISOString());
+
+          if (!slotTaken) {
+            slots.push({
+              date: dateStr,
+              startTime: current.toISOString(),
+              endTime: next.toISOString(),
+            });
+          }
+
+          current = next;
+        }
+      }
+    }
+
+    return slots;
   }
 }

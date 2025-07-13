@@ -1,0 +1,90 @@
+### NotificationFacade Test File
+### Base URL: http://localhost:3000
+
+### 1. Test Appointment Booked Notification
+POST http://localhost:3000/realtime/test/appointment-booked
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzIyMDAzLCJleHAiOjE3NTI0MDg0MDN9.5JKCBeQ-AD4Gq4r7ck3EzIsf1abX6_s2ayKemVoDGLw
+Content-Type: application/json
+
+{
+  "patientId": 2,
+  "doctorId": 1,
+  "appointmentId": 123,
+  "date": "2024-01-15T10:00:00Z",
+  "doctorName": "Dr. Ahmed Mohamed"
+}
+
+### 2. Test Payment Success Notification
+POST http://localhost:3000/realtime/test/payment-success
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzIyMDAzLCJleHAiOjE3NTI0MDg0MDN9.5JKCBeQ-AD4Gq4r7ck3EzIsf1abX6_s2ayKemVoDGLw
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "amount": 150.50,
+  "appointmentId": 123
+}
+
+### 3. Test Doctor Verified Notification
+POST http://localhost:3000/realtime/test/doctor-verified
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzIyMDAzLCJleHAiOjE3NTI0MDg0MDN9.5JKCBeQ-AD4Gq4r7ck3EzIsf1abX6_s2ayKemVoDGLw
+Content-Type: application/json
+
+{
+  "doctorId": 1
+}
+
+### 4. Test New Review Notification
+POST http://localhost:3000/realtime/test/new-review
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzIyMDAzLCJleHAiOjE3NTI0MDg0MDN9.5JKCBeQ-AD4Gq4r7ck3EzIsf1abX6_s2ayKemVoDGLw
+Content-Type: application/json
+
+{
+  "doctorId": 2,
+  "reviewId": 456,
+  "rating": 5
+}
+
+### 5. Test Welcome Notification
+POST http://localhost:3000/realtime/test/welcome
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzIyMDAzLCJleHAiOjE3NTI0MDg0MDN9.5JKCBeQ-AD4Gq4r7ck3EzIsf1abX6_s2ayKemVoDGLw
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### 6. Test System Alert Notification
+POST http://localhost:3000/realtime/test/system-alert
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzIyMDAzLCJleHAiOjE3NTI0MDg0MDN9.5JKCBeQ-AD4Gq4r7ck3EzIsf1abX6_s2ayKemVoDGLw
+Content-Type: application/json
+
+{
+  "userIds": [1, 2],
+  "message": "System maintenance scheduled for tomorrow at 2 AM",
+  "type": "SYSTEM"
+}
+
+### 7. Test Appointment Cancelled Notification
+POST http://localhost:3000/realtime/test/appointment-cancelled
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzIyMDAzLCJleHAiOjE3NTI0MDg0MDN9.5JKCBeQ-AD4Gq4r7ck3EzIsf1abX6_s2ayKemVoDGLw
+Content-Type: application/json
+
+{
+  "patientId": 1,
+  "doctorId": 2,
+  "appointmentId": 123,
+  "date": "2024-01-15T10:00:00Z",
+  "doctorName": "Dr. Ahmed Mohamed"
+}
+
+### 8. Test New Message Notification
+POST http://localhost:3000/realtime/test/new-message
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoic2FsbWFAZy5jb20iLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzUyMzIyMDAzLCJleHAiOjE3NTI0MDg0MDN9.5JKCBeQ-AD4Gq4r7ck3EzIsf1abX6_s2ayKemVoDGLw
+Content-Type: application/json
+
+{
+  "recipientId": 1,
+  "senderName": "Dr. Ahmed Mohamed",
+  "messageId": 789
+}
