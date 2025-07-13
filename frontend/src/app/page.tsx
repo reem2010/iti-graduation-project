@@ -23,6 +23,7 @@ import {
   UserCheck,
   Sparkles,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -145,8 +146,8 @@ export default function Home() {
             </nav>
 
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50">
-                Sign In
+              <Button variant="ghost" className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50" >
+                 <Link href="/auth">Sign In</Link>
               </Button>
               <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg">
                 Get Started

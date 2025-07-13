@@ -71,7 +71,7 @@ export default function Header() {
             ) : (
               <>
                 <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg">
-                  Get Started
+                  <Link href="/auth">Get Started</Link>
                 </Button>
               </>
             )}
