@@ -212,9 +212,9 @@ export default function DoctorAvailabilityDetails() {
   };
 
   return (
-    <section className="bg-card p-6 rounded-xl shadow-sm border border-border">
+    <section className="bg-siraj-white p-6 rounded-xl shadow-sm border border-siraj-gray-200">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h2 className="text-xl font-bold text-primary">
+        <h2 className="text-xl font-bold text-siraj-emerald-600">
           Time Availability
         </h2>
         
@@ -233,8 +233,8 @@ export default function DoctorAvailabilityDetails() {
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               isEditingAvailability && currentAvailabilityForm.id === null
-                ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                : "bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "bg-red-100 text-red-600 hover:bg-red-200"
+                : "bg-siraj-emerald-600 text-siraj-white hover:bg-siraj-emerald-700"
             }`}
           >
             {isEditingAvailability && currentAvailabilityForm.id === null ? (
@@ -252,7 +252,7 @@ export default function DoctorAvailabilityDetails() {
       </div>
 
       {error && (
-        <div className="mb-6 p-3 bg-destructive/10 border border-destructive rounded-lg text-destructive">
+        <div className="mb-6 p-3 bg-red-100 border border-red-200 rounded-lg text-red-700">
           {error}
         </div>
       )}
@@ -264,9 +264,9 @@ export default function DoctorAvailabilityDetails() {
               ? handleUpdateAvailability
               : handleAddAvailability
           }
-          className="mb-8 p-6 bg-background rounded-xl border border-border shadow-sm"
+          className="mb-8 p-6 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200 shadow-sm"
         >
-          <h3 className="text-lg font-semibold text-primary mb-4">
+          <h3 className="text-lg font-semibold text-siraj-emerald-600 mb-4">
             {currentAvailabilityForm.id
               ? "Edit Availability"
               : "Add New Availability"}
@@ -276,7 +276,7 @@ export default function DoctorAvailabilityDetails() {
             <div className="space-y-1">
               <label
                 htmlFor="dayOfWeek"
-                className="block text-sm font-medium text-foreground"
+                className="block text-sm font-medium text-siraj-gray-800"
               >
                 Day of Week
               </label>
@@ -285,7 +285,7 @@ export default function DoctorAvailabilityDetails() {
                 name="dayOfWeek"
                 value={currentAvailabilityForm.dayOfWeek}
                 onChange={handleAvailabilityChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500 focus:border-siraj-emerald-500"
                 required
               >
                 <option value="">Select Day</option>
@@ -303,7 +303,7 @@ export default function DoctorAvailabilityDetails() {
               <div className="space-y-1">
                 <label
                   htmlFor="startTime"
-                  className="block text-sm font-medium text-foreground"
+                  className="block text-sm font-medium text-siraj-gray-800"
                 >
                   Start Time
                 </label>
@@ -313,14 +313,14 @@ export default function DoctorAvailabilityDetails() {
                   name="startTime"
                   value={currentAvailabilityForm.startTime}
                   onChange={handleAvailabilityChange}
-                  className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                  className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                   required
                 />
               </div>
               <div className="space-y-1">
                 <label
                   htmlFor="endTime"
-                  className="block text-sm font-medium text-foreground"
+                  className="block text-sm font-medium text-siraj-gray-800"
                 >
                   End Time
                 </label>
@@ -330,7 +330,7 @@ export default function DoctorAvailabilityDetails() {
                   name="endTime"
                   value={currentAvailabilityForm.endTime}
                   onChange={handleAvailabilityChange}
-                  className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                  className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                   required
                 />
               </div>
@@ -339,7 +339,7 @@ export default function DoctorAvailabilityDetails() {
             <div className="space-y-1">
               <label
                 htmlFor="validFrom"
-                className="block text-sm font-medium text-foreground"
+                className="block text-sm font-medium text-siraj-gray-800"
               >
                 Valid From
               </label>
@@ -349,7 +349,7 @@ export default function DoctorAvailabilityDetails() {
                 name="validFrom"
                 value={currentAvailabilityForm.validFrom}
                 onChange={handleAvailabilityChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                 required
               />
             </div>
@@ -357,7 +357,7 @@ export default function DoctorAvailabilityDetails() {
             <div className="space-y-1">
               <label
                 htmlFor="validUntil"
-                className="block text-sm font-medium text-foreground"
+                className="block text-sm font-medium text-siraj-gray-800"
               >
                 Valid Until (Optional)
               </label>
@@ -367,7 +367,7 @@ export default function DoctorAvailabilityDetails() {
                 name="validUntil"
                 value={currentAvailabilityForm.validUntil || ""}
                 onChange={handleAvailabilityChange}
-                className="w-full p-2.5 border border-input rounded-lg bg-card text-foreground focus:ring-2 focus:ring-ring"
+                className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
               />
             </div>
           </div>
@@ -375,7 +375,7 @@ export default function DoctorAvailabilityDetails() {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               type="submit"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors"
             >
               <Save className="w-4 h-4" />
               <span className="text-sm font-medium">
@@ -399,7 +399,7 @@ export default function DoctorAvailabilityDetails() {
                     validUntil: "",
                   });
                 }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-input bg-background hover:bg-accent text-foreground rounded-lg transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-siraj-gray-300 bg-siraj-white hover:bg-siraj-gray-100 text-siraj-gray-800 rounded-lg transition-colors"
               >
                 <X className="w-4 h-4" />
                 <span className="text-sm font-medium">Cancel</span>
@@ -411,74 +411,73 @@ export default function DoctorAvailabilityDetails() {
 
       {loading ? (
         <div className="flex justify-center items-center p-8">
-          <div className="text-muted-foreground">Loading availabilities...</div>
+          <div className="text-siraj-gray-500">Loading availabilities...</div>
         </div>
       ) : doctorAvailability.length > 0 ? (
         <div className="space-y-4">
           {doctorAvailability
-  .filter(
-    (avail) =>
-      avail &&
-      typeof avail.dayOfWeek === "number" &&
-      avail.dayOfWeek >= 0 &&
-      avail.dayOfWeek <= 6
-  )
-  .map((avail) => (
-    <div
-      key={avail.id}
-      className="p-5 bg-background rounded-xl border border-border shadow-sm"
-    >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-primary"></span>
-            <h4 className="font-medium text-primary">
-              {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][avail.dayOfWeek]}
-            </h4>
-          </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <span className="font-medium text-foreground">Time:</span>
-              <span>
-                {avail.startTime.substring(11, 16)} - {avail.endTime.substring(11, 16)}
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-medium text-foreground">Valid:</span>
-              <span>
-                {new Date(avail.validFrom).toLocaleDateString()} -{" "}
-                {avail.validUntil
-                  ? new Date(avail.validUntil).toLocaleDateString()
-                  : "Ongoing"}
-              </span>
-            </div>
-          </div>
-        </div>
-        {isOwner && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleEditAvailabilityClick(avail)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-input bg-background hover:bg-accent text-foreground rounded-lg transition-colors"
-            >
-              <Edit className="w-3.5 h-3.5" />
-              <span>Edit</span>
-            </button>
-            <button
-              onClick={() => handleDeleteAvailability(avail.id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-lg transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Delete</span>
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-))}
-
+            .filter(
+              (avail) =>
+                avail &&
+                typeof avail.dayOfWeek === "number" &&
+                avail.dayOfWeek >= 0 &&
+                avail.dayOfWeek <= 6
+            )
+            .map((avail) => (
+              <div
+                key={avail.id}
+                className="p-5 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200 shadow-sm"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-siraj-emerald-500"></span>
+                      <h4 className="font-medium text-siraj-emerald-600">
+                        {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][avail.dayOfWeek]}
+                      </h4>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-siraj-gray-600">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium text-siraj-gray-800">Time:</span>
+                        <span>
+                          {avail.startTime.substring(11, 16)} - {avail.endTime.substring(11, 16)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium text-siraj-gray-800">Valid:</span>
+                        <span>
+                          {new Date(avail.validFrom).toLocaleDateString()} -{" "}
+                          {avail.validUntil
+                            ? new Date(avail.validUntil).toLocaleDateString()
+                            : "Ongoing"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {isOwner && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditAvailabilityClick(avail)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-siraj-gray-300 bg-siraj-white hover:bg-siraj-gray-100 text-siraj-gray-800 rounded-lg transition-colors"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAvailability(avail.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
         </div>
       ) : (
-        <div className="p-6 text-center text-muted-foreground bg-background rounded-xl border border-border">
+        <div className="p-6 text-center text-siraj-gray-500 bg-siraj-gray-50 rounded-xl border border-siraj-gray-200">
           No availability records found.
         </div>
       )}

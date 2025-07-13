@@ -140,14 +140,14 @@ export default function PatientProfilePage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-siraj-emerald-500"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-destructive/10 border border-destructive text-destructive p-4 rounded-lg max-w-2xl mx-auto">
+      <div className="bg-red-100 border border-red-200 text-red-700 p-4 rounded-lg max-w-2xl mx-auto">
         <p>{error}</p>
       </div>
     );
@@ -155,11 +155,11 @@ export default function PatientProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
-      <div className="bg-card rounded-xl shadow-sm border border-border p-6 md:p-8">
+      <div className="bg-siraj-white rounded-xl shadow-sm border border-siraj-gray-200 p-6 md:p-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center overflow-hidden border-2 border-primary/20">
+            <div className="w-16 h-16 rounded-full bg-siraj-gray-100 flex items-center justify-center overflow-hidden border-2 border-siraj-emerald-500/20">
               {userInfo?.avatarUrl ? (
                 <img
                   src={userInfo.avatarUrl}
@@ -167,25 +167,25 @@ export default function PatientProfilePage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-2xl font-bold text-primary">
+                <span className="text-2xl font-bold text-siraj-emerald-600">
                   {userInfo?.firstName?.charAt(0)}
                   {userInfo?.lastName?.charAt(0)}
                 </span>
               )}
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-primary">
+              <h1 className="text-2xl md:text-3xl font-bold text-siraj-emerald-600">
                 {userInfo?.firstName} {userInfo?.lastName}
               </h1>
-              <p className="text-muted-foreground mt-1">Patient Profile</p>
+              <p className="text-siraj-gray-500 mt-1">Patient Profile</p>
             </div>
           </div>
         </div>
 
         {/* Personal Information Section */}
-        <div className="bg-background rounded-lg p-6 border border-border mb-6">
+        <div className="bg-siraj-gray-50 rounded-lg p-6 border border-siraj-gray-200 mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+            <h2 className="text-xl font-bold text-siraj-emerald-600 flex items-center gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -206,7 +206,7 @@ export default function PatientProfilePage() {
             {!isEditingUser && (
               <button
                 onClick={() => setIsEditingUser(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm"
+                className="flex items-center gap-2 px-3 py-1.5 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors text-sm"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -231,52 +231,52 @@ export default function PatientProfilePage() {
             <form onSubmit={handleUserSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     First Name
                   </label>
                   <input
                     name="firstName"
                     value={userForm.firstName}
                     onChange={handleUserChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     Last Name
                   </label>
                   <input
                     name="lastName"
                     value={userForm.lastName}
                     onChange={handleUserChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     Phone
                   </label>
                   <input
                     name="phone"
                     value={userForm.phone}
                     onChange={handleUserChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     Gender
                   </label>
                   <select
                     name="gender"
                     value={userForm.gender}
                     onChange={handleUserChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                   >
                     <option value="">Select Gender</option>
                     <option value="male">Male</option>
@@ -286,7 +286,7 @@ export default function PatientProfilePage() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     Date of Birth
                   </label>
                   <input
@@ -294,7 +294,7 @@ export default function PatientProfilePage() {
                     type="date"
                     value={userForm.dateOfBirth}
                     onChange={handleUserChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                   />
                 </div>
               </div>
@@ -303,13 +303,13 @@ export default function PatientProfilePage() {
                 <button
                   type="button"
                   onClick={() => setIsEditingUser(false)}
-                  className="px-4 py-2 border border-input bg-background hover:bg-accent text-foreground rounded-lg transition-colors"
+                  className="px-4 py-2 border border-siraj-gray-300 bg-siraj-white hover:bg-siraj-gray-100 text-siraj-gray-800 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                  className="px-4 py-2 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors"
                 >
                   Save Changes
                 </button>
@@ -318,24 +318,24 @@ export default function PatientProfilePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Email</p>
-                <p className="font-medium text-foreground">
+                <p className="text-sm font-medium text-siraj-gray-600">Email</p>
+                <p className="font-medium text-siraj-gray-900">
                   {userInfo?.email || "Not provided"}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Phone</p>
-                <p className="font-medium text-foreground">
+                <p className="text-sm font-medium text-siraj-gray-600">Phone</p>
+                <p className="font-medium text-siraj-gray-900">
                   {userInfo?.phone || "Not provided"}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-sm font-medium text-siraj-gray-600">
                   Date of Birth
                 </p>
-                <p className="font-medium text-foreground">
+                <p className="font-medium text-siraj-gray-900">
                   {userInfo?.dateOfBirth
                     ? new Date(userInfo.dateOfBirth).toLocaleDateString()
                     : "Not provided"}
@@ -343,10 +343,10 @@ export default function PatientProfilePage() {
               </div>
 
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-sm font-medium text-siraj-gray-600">
                   Gender
                 </p>
-                <p className="font-medium text-foreground capitalize">
+                <p className="font-medium text-siraj-gray-900 capitalize">
                   {userInfo?.gender || "Not provided"}
                 </p>
               </div>
@@ -355,9 +355,9 @@ export default function PatientProfilePage() {
         </div>
 
         {/* Emergency Contact Section */}
-        <div className="bg-background rounded-lg p-6 border border-border mb-6">
+        <div className="bg-siraj-gray-50 rounded-lg p-6 border border-siraj-gray-200 mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+            <h2 className="text-xl font-bold text-siraj-emerald-600 flex items-center gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -377,7 +377,7 @@ export default function PatientProfilePage() {
             {!isEditingPatient && (
               <button
                 onClick={() => setIsEditingPatient(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm"
+                className="flex items-center gap-2 px-3 py-1.5 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors text-sm"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -402,52 +402,52 @@ export default function PatientProfilePage() {
             <form onSubmit={handlePatientSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     Emergency Contact Name
                   </label>
                   <input
                     name="emergencyContactName"
                     value={patientForm.emergencyContactName}
                     onChange={handlePatientChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     Emergency Contact Phone
                   </label>
                   <input
                     name="emergencyContactPhone"
                     value={patientForm.emergencyContactPhone}
                     onChange={handlePatientChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     Insurance Provider
                   </label>
                   <input
                     name="insuranceProvider"
                     value={patientForm.insuranceProvider}
                     onChange={handlePatientChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
+                  <label className="block text-sm font-medium text-siraj-gray-800">
                     Policy Number
                   </label>
                   <input
                     name="insurancePolicyNumber"
                     value={patientForm.insurancePolicyNumber}
                     onChange={handlePatientChange}
-                    className="w-full p-2.5 border border-input rounded-lg bg-background text-foreground focus:ring-2 focus:ring-ring"
+                    className="w-full p-2.5 border border-siraj-gray-300 rounded-lg bg-siraj-white text-siraj-gray-900 focus:ring-2 focus:ring-siraj-emerald-500"
                   />
                 </div>
               </div>
@@ -456,13 +456,13 @@ export default function PatientProfilePage() {
                 <button
                   type="button"
                   onClick={() => setIsEditingPatient(false)}
-                  className="px-4 py-2 border border-input bg-background hover:bg-accent text-foreground rounded-lg transition-colors"
+                  className="px-4 py-2 border border-siraj-gray-300 bg-siraj-white hover:bg-siraj-gray-100 text-siraj-gray-800 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                  className="px-4 py-2 bg-siraj-emerald-600 text-siraj-white rounded-lg hover:bg-siraj-emerald-700 transition-colors"
                 >
                   Save Changes
                 </button>
@@ -471,19 +471,19 @@ export default function PatientProfilePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-sm font-medium text-siraj-gray-600">
                   Name
                 </p>
-                <p className="font-medium text-foreground">
+                <p className="font-medium text-siraj-gray-900">
                   {patientProfile?.emergencyContactName || "Not provided"}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-sm font-medium text-siraj-gray-600">
                   Phone
                 </p>
-                <p className="font-medium text-foreground">
+                <p className="font-medium text-siraj-gray-900">
                   {patientProfile?.emergencyContactPhone || "Not provided"}
                 </p>
               </div>
@@ -492,8 +492,8 @@ export default function PatientProfilePage() {
         </div>
 
         {/* Insurance Section */}
-        <div className="bg-background rounded-lg p-6 border border-border">
-          <h2 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+        <div className="bg-siraj-gray-50 rounded-lg p-6 border border-siraj-gray-200">
+          <h2 className="text-xl font-bold text-siraj-emerald-600 mb-4 flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -512,19 +512,19 @@ export default function PatientProfilePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">
                 Provider
               </p>
-              <p className="font-medium text-foreground">
+              <p className="font-medium text-siraj-gray-900">
                 {patientProfile?.insuranceProvider || "Not provided"}
               </p>
             </div>
 
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-sm font-medium text-siraj-gray-600">
                 Policy Number
               </p>
-              <p className="font-medium text-foreground">
+              <p className="font-medium text-siraj-gray-900">
                 {patientProfile?.insurancePolicyNumber || "Not provided"}
               </p>
             </div>
