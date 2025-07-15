@@ -1,4 +1,13 @@
-import { PrismaClient, Role, VerificationStatus, NotificationType, AppointmentStatus, PaymentStatus, TransactionStatus, TransactionType } from '@prisma/client';
+import {
+  PrismaClient,
+  Role,
+  VerificationStatus,
+  NotificationType,
+  AppointmentStatus,
+  PaymentStatus,
+  TransactionStatus,
+  TransactionType,
+} from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 
@@ -33,7 +42,11 @@ async function main() {
             title: 'Dr.',
             specialization: faker.person.jobType(),
             yearsOfExperience: faker.number.int({ min: 1, max: 25 }),
-            consultationFee: faker.number.float({ min: 30, max: 150, fractionDigits: 2 }),
+            consultationFee: faker.number.float({
+              min: 30,
+              max: 150,
+              fractionDigits: 2,
+            }),
             languages: ['en', 'ar'],
           },
         },

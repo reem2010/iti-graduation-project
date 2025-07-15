@@ -87,18 +87,22 @@ export default function BookingPage() {
           ? Number(process.env.NEXT_PUBLIC_PAYMOB_CARD_ID)
           : Number(process.env.NEXT_PUBLIC_PAYMOB_WALLET_ID);
 
-      const iframe = await appointmentApi.createAppointment({
+      const res = await appointmentApi.createAppointment({
         doctorId: Number(id),
         startTime: selectedSlot.startTime,
         endTime: selectedSlot.endTime,
         price: doctor.consultationFee ?? 0,
         paymentGatewayId: gatewayId,
       });
-      console.log(iframe);
 
-      setSuccessMessage("Appointment booked successfully!");
-      setSelectedSlot(null);
-      setSelectedDay(null);
+      if (res.status === "payment_required") {
+        // redirect to payment iframe
+        router.push(`/payment?url=${encodeURIComponent(res.data.paymentUrl)}`);
+      } else {
+        setSuccessMessage("Appointment booked successfully!");
+        setSelectedSlot(null);
+        setSelectedDay(null);
+      }
     } catch (err: any) {
       console.error("Booking error:", err);
       alert(

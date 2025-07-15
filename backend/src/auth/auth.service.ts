@@ -13,6 +13,7 @@ import { DoctorVerificationService } from 'src/doctor-verification/doctor-verifi
 import { DoctorAvailabilityService } from 'src/doctor-availability/doctor-availablity.service';
 import { WalletService } from 'src/wallet/wallet.service';
 import { PatientService } from 'src/patient-profile/patient-profile.service';
+import { log } from 'console';
 
 @Injectable()
 export class AuthService {
