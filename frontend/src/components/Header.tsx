@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
 
 export default function Header() {
-
   const router = useRouter();
 
   const { user, loading } = useAuth();
@@ -65,7 +64,7 @@ export default function Header() {
               href="/articles"
               className="text-gray-700 hover:text-emerald-700 transition-colors"
             >
-              Blog
+              Blogs
             </Link>
             <Link
               href="/doctor"
@@ -79,12 +78,21 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {!loading && user ? (
               <nav className="hidden md:flex space-x-6 items-center">
-                <Link
-                  href="/chat"
-                  className="text-gray-700 hover:text-emerald-700 transition-colors"
-                >
-                  <MessageCircle color="#2ecc71" size={24} />
-                </Link>
+                <div className="relative">
+                  <Link
+                    href="/chat"
+                    className="text-gray-700 hover:text-emerald-700 transition-colors"
+                  >
+                    <MessageCircle color="#2ecc71" size={24} />
+                  </Link>
+
+                  {user.unreadMessagesCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-600 rounded-full">
+                      {user.unreadMessagesCount}
+                    </span>
+                  )}
+                </div>
+
                 <Link
                   href={
                     String(user.role) === "doctor"

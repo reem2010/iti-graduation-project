@@ -1,8 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { authApi } from "@/lib/api";
+import { authApi, messagesApi } from "@/lib/api";
 import type { User } from '@/types/index';
 
 interface AuthContextType {
@@ -16,14 +15,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await authApi.getUser();
         if (res && res.id) {
-          setUser(res);
+          setUser({...res, unreadMessagesCount: unreadCount});
         } else {
           setUser(null);
         }
@@ -34,6 +33,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
+    const unreadMessagesCount = async () => {
+          try {
+            const unreadCount = await messagesApi.getUnreadCount();
+            setUnreadCount(Number(unreadCount));
+          } catch (error) {
+            console.error('Error fetching unread messages:', error);
+          }
+        };
+    
+        
+    unreadMessagesCount();
     fetchUser();
   }, []); 
 
