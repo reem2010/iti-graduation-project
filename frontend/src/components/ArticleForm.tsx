@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import svg from "@/lib/svgs";
+import router from "next/router";
 interface ArticleFormProps {
   mode?: "create" | "edit";
   articleId?: string;
@@ -119,7 +120,7 @@ export default function ArticleForm({
   const isFormDisabled = isUploading || isSubmitting;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 pt-20">
       <div className="rounded-lg shadow-lg p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Content Field */}
@@ -140,11 +141,8 @@ export default function ArticleForm({
 
           {/* Media Upload Field */}
           <div>
-            <label
-              className="block text-sm font-medium mb-2"
-              htmlFor="media-input"
-            >
-              {svg.paperClip}
+            <label className="text-emerald-500" htmlFor="media-input">
+              {svg.photo}
             </label>
 
             <input
@@ -202,9 +200,17 @@ export default function ArticleForm({
           {/* Submit Button */}
           <div className="flex justify-end space-x-4">
             <button
+              type="button"
+              onClick={() => router.push("/articles")}
+              className="btn-primary"
+              disabled={isFormDisabled}
+            >
+              Cancel
+            </button>
+            <button
               type="submit"
               disabled={isFormDisabled || !content.trim()}
-              className="px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="btn-primary"
             >
               {(isUploading || isSubmitting) && (
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">

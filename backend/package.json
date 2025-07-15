@@ -24,9 +24,9 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
-    "@nestjs/axios": "^4.0.0",
     "@faker-js/faker": "^9.9.0",
     "@nestjs-modules/ioredis": "^2.0.2",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/class-validator": "^0.13.4",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^4.0.2",
@@ -51,6 +51,7 @@
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "socket.io-client": "^4.8.1",
     "stripe": "^18.3.0"
   },
   "devDependencies": {

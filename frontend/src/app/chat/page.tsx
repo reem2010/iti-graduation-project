@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Send,
@@ -10,8 +11,10 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { authApi, messagesApi } from "@/lib/api";
+
+
 import { connectSocket } from "@/lib/socket";
+import { authApi, messagesApi } from "@/lib/api";
 
 // Interfaces
 interface Message {
@@ -39,7 +42,7 @@ interface ChatSummary {
 const SirajChat = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedChatId = searchParams.get("with");
+  const selectedChatId = searchParams?.get("with");
 
   const [chatList, setChatList] = useState<ChatSummary[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatSummary | null>(null);
@@ -450,7 +453,7 @@ const SirajChat = () => {
                 Connect with licensed therapists and mental health professionals through our secure, 
                 culturally-sensitive platform.
               </p>
-              <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
+              {/* <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
                   End-to-end encrypted
@@ -463,7 +466,7 @@ const SirajChat = () => {
                   <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
                   24/7 support
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         )}

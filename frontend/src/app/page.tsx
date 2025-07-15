@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
-import { Badge } from '../components/ui/badge';
-import { 
-  Heart, 
-  Shield, 
-  Users, 
-  Clock, 
-  CheckCircle, 
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Heart,
+  Shield,
+  Users,
+  Clock,
+  CheckCircle,
   Star,
   Phone,
   Mail,
@@ -21,85 +21,112 @@ import {
   Calendar,
   MessageCircle,
   UserCheck,
-  Sparkles
-} from 'lucide-react';
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
 
   const services = [
     {
       icon: MessageCircle,
       title: "Individual Therapy",
-      description: "One-on-one sessions with licensed therapists tailored to your specific needs and goals.",
-      features: ["Personalized treatment plans", "Flexible scheduling", "Evidence-based approaches"]
+      description:
+        "One-on-one sessions with licensed therapists tailored to your specific needs and goals.",
+      features: [
+        "Personalized treatment plans",
+        "Flexible scheduling",
+        "Evidence-based approaches",
+      ],
     },
     {
       icon: Users,
       title: "Group Therapy",
-      description: "Connect with others facing similar challenges in a supportive group environment.",
-      features: ["Peer support", "Shared experiences", "Cost-effective treatment"]
+      description:
+        "Connect with others facing similar challenges in a supportive group environment.",
+      features: [
+        "Peer support",
+        "Shared experiences",
+        "Cost-effective treatment",
+      ],
     },
     {
       icon: Calendar,
       title: "Crisis Support",
-      description: "24/7 immediate support for mental health emergencies and crisis situations.",
-      features: ["24/7 availability", "Immediate response", "Emergency interventions"]
+      description:
+        "24/7 immediate support for mental health emergencies and crisis situations.",
+      features: [
+        "24/7 availability",
+        "Immediate response",
+        "Emergency interventions",
+      ],
     },
     {
       icon: UserCheck,
       title: "Wellness Coaching",
-      description: "Holistic approach to mental wellness with lifestyle and mindfulness coaching.",
-      features: ["Mindfulness training", "Lifestyle guidance", "Stress management"]
-    }
+      description:
+        "Holistic approach to mental wellness with lifestyle and mindfulness coaching.",
+      features: [
+        "Mindfulness training",
+        "Lifestyle guidance",
+        "Stress management",
+      ],
+    },
   ];
 
   const steps = [
     {
       number: "01",
       title: "Book Your Session",
-      description: "Choose from our qualified therapists and schedule at your convenience.",
-      icon: Calendar
+      description:
+        "Choose from our qualified therapists and schedule at your convenience.",
+      icon: Calendar,
     },
     {
-      number: "02", 
+      number: "02",
       title: "Connect Securely",
-      description: "Join your session through our secure, encrypted platform from anywhere.",
-      icon: Shield
+      description:
+        "Join your session through our secure, encrypted platform from anywhere.",
+      icon: Shield,
     },
     {
       number: "03",
       title: "Begin Your Journey",
-      description: "Start your path to better mental health with personalized care and support.",
-      icon: Heart
-    }
+      description:
+        "Start your path to better mental health with personalized care and support.",
+      icon: Heart,
+    },
   ];
 
   const testimonials = [
     {
       name: "Sarah Al-Mansouri",
       role: "Marketing Professional",
-      content: "Siraj changed my life. The therapists are incredibly professional and understanding. I finally found the support I needed.",
-      rating: 5
+      content:
+        "Siraj changed my life. The therapists are incredibly professional and understanding. I finally found the support I needed.",
+      rating: 5,
     },
     {
       name: "Ahmed Hassan",
-      role: "University Student", 
-      content: "The flexibility and accessibility of Siraj made it possible for me to get help while managing my studies. Highly recommended.",
-      rating: 5
+      role: "University Student",
+      content:
+        "The flexibility and accessibility of Siraj made it possible for me to get help while managing my studies. Highly recommended.",
+      rating: 5,
     },
     {
       name: "Fatima Al-Zahra",
       role: "Working Mother",
-      content: "As a busy mom, finding time for therapy seemed impossible. Siraj's online platform made it convenient and effective.",
-      rating: 5
-    }
+      content:
+        "As a busy mom, finding time for therapy seemed impossible. Siraj's online platform made it convenient and effective.",
+      rating: 5,
+    },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-emerald-50">
       {/* Header */}
-      <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-emerald-100 z-50">
+      {/* <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-emerald-100 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -119,8 +146,8 @@ export default function Home() {
             </nav>
 
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50">
-                Sign In
+              <Button variant="ghost" className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50" >
+                 <Link href="/auth">Sign In</Link>
               </Button>
               <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg">
                 Get Started
@@ -128,7 +155,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* Hero Section */}
       <section className="pt-24 pb-16">
@@ -140,68 +167,40 @@ export default function Home() {
                   🌟 Professional Mental Health Support
                 </Badge>
                 <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-                  Your path to{' '}
+                  Your path to{" "}
                   <span className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-amber-600 bg-clip-text text-transparent">
                     mental wellness
-                  </span>{' '}
+                  </span>{" "}
                   starts here
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Connect with licensed therapists and mental health professionals through our secure, 
-                  culturally-sensitive platform. Take the first step towards a healthier, happier you.
+                  Connect with licensed therapists and mental health
+                  professionals through our secure, culturally-sensitive
+                  platform. Take the first step towards a healthier, happier
+                  you.
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                >
                   Start Your Journey
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300"
+                >
                   <Play className="mr-2 w-5 h-5" />
                   Watch How It Works
                 </Button>
               </div>
-
-              <div className="flex items-center space-x-8 pt-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-700">10K+</div>
-                  <div className="text-sm text-gray-600">Happy Clients</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-700">500+</div>
-                  <div className="text-sm text-gray-600">Licensed Therapists</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-700">24/7</div>
-                  <div className="text-sm text-gray-600">Support Available</div>
-                </div>
-              </div>
             </div>
 
-            <div className="relative">
-              <div className="relative bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-3xl p-8 shadow-2xl">
-                <img 
-                  src="https://images.pexels.com/photos/6823509/pexels-photo-6823509.jpeg?auto=compress&cs=tinysrgb&w=800" 
-                  alt="Mental health counseling session"
-                  className="w-full h-96 object-cover rounded-2xl shadow-lg"
-                />
-                <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl p-4 shadow-xl">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-gray-700">Available Now</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Floating trust indicators */}
-              <div className="absolute -top-4 -left-4 bg-white rounded-xl p-3 shadow-xl">
-                <div className="flex items-center space-x-2">
-                  <Shield className="w-5 h-5 text-emerald-600" />
-                  <span className="text-xs font-medium">100% Secure</span>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </section>
@@ -210,27 +209,38 @@ export default function Home() {
       <section id="services" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
-            <Badge className="bg-emerald-100 text-emerald-800">Our Services</Badge>
+            <Badge className="bg-emerald-100 text-emerald-800">
+              Our Services
+            </Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
               Comprehensive Mental Health Support
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We offer a range of evidence-based therapeutic services designed to meet your unique needs and goals.
+              We offer a range of evidence-based therapeutic services designed
+              to meet your unique needs and goals.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {services.map((service, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-emerald-100 hover:border-emerald-200">
+              <Card
+                key={index}
+                className="group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-emerald-100 hover:border-emerald-200"
+              >
                 <CardContent className="p-6 space-y-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <service.icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900">{service.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {service.title}
+                  </h3>
                   <p className="text-gray-600">{service.description}</p>
                   <ul className="space-y-2">
                     {service.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-sm text-gray-700">
+                      <li
+                        key={idx}
+                        className="flex items-center text-sm text-gray-700"
+                      >
                         <CheckCircle className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
                         {feature}
                       </li>
@@ -244,15 +254,21 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 bg-gradient-to-b from-emerald-50 to-white">
+      <section
+        id="how-it-works"
+        className="py-20 bg-gradient-to-b from-emerald-50 to-white"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
-            <Badge className="bg-amber-100 text-amber-800">Simple Process</Badge>
+            <Badge className="bg-amber-100 text-amber-800">
+              Simple Process
+            </Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
               Getting Started is Easy
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Begin your mental health journey in just three simple steps. We've made it convenient and accessible.
+              Begin your mental health journey in just three simple steps. We've
+              made it convenient and accessible.
             </p>
           </div>
 
@@ -268,10 +284,12 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-semibold text-gray-900">{step.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {step.title}
+                  </h3>
                   <p className="text-gray-600">{step.description}</p>
                 </div>
-                
+
                 {index < steps.length - 1 && (
                   <div className="hidden md:block absolute top-10 left-full w-full">
                     <ArrowRight className="w-6 h-6 text-emerald-300 mx-auto" />
@@ -287,28 +305,43 @@ export default function Home() {
       <section id="testimonials" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
-            <Badge className="bg-emerald-100 text-emerald-800">Testimonials</Badge>
+            <Badge className="bg-emerald-100 text-emerald-800">
+              Testimonials
+            </Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
               Stories of Transformation
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Hear from our clients about their journey to better mental health with Siraj.
+              Hear from our clients about their journey to better mental health
+              with Siraj.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-emerald-100 hover:shadow-lg transition-shadow duration-300">
+              <Card
+                key={index}
+                className="border-emerald-100 hover:shadow-lg transition-shadow duration-300"
+              >
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center space-x-1">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                      <Star
+                        key={i}
+                        className="w-5 h-5 fill-amber-400 text-amber-400"
+                      />
                     ))}
                   </div>
-                  <p className="text-gray-700 italic">"{testimonial.content}"</p>
+                  <p className="text-gray-700 italic">
+                    "{testimonial.content}"
+                  </p>
                   <div className="border-t border-emerald-100 pt-4">
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-600">{testimonial.role}</div>
+                    <div className="font-semibold text-gray-900">
+                      {testimonial.name}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {testimonial.role}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -325,18 +358,22 @@ export default function Home() {
               Ready to Start Your Mental Health Journey?
             </h2>
             <p className="text-xl text-emerald-100 max-w-2xl mx-auto">
-              Take the first step towards better mental health. Our licensed professionals are here to support you every step of the way.
+              Take the first step towards better mental health. Our licensed
+              professionals are here to support you every step of the way.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto">
-              <Input 
-                type="email" 
+              <Input
+                type="email"
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-white/10 border-white/20 text-white placeholder:text-emerald-200"
               />
-              <Button size="lg" className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-xl whitespace-nowrap">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-xl whitespace-nowrap"
+              >
                 Get Started Free
               </Button>
             </div>
@@ -365,12 +402,15 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12">
             <div className="space-y-8">
               <div className="space-y-4">
-                <Badge className="bg-emerald-100 text-emerald-800">Get In Touch</Badge>
+                <Badge className="bg-emerald-100 text-emerald-800">
+                  Get In Touch
+                </Badge>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                   We're Here to Help
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Have questions about our services? Need immediate support? Our team is available to assist you.
+                  Have questions about our services? Need immediate support? Our
+                  team is available to assist you.
                 </p>
               </div>
 
@@ -380,7 +420,9 @@ export default function Home() {
                     <Phone className="w-6 h-6 text-emerald-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">24/7 Crisis Hotline</div>
+                    <div className="font-semibold text-gray-900">
+                      24/7 Crisis Hotline
+                    </div>
                     <div className="text-gray-600">+971 800 SIRAJ (74725)</div>
                   </div>
                 </div>
@@ -390,7 +432,9 @@ export default function Home() {
                     <Mail className="w-6 h-6 text-emerald-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Email Support</div>
+                    <div className="font-semibold text-gray-900">
+                      Email Support
+                    </div>
                     <div className="text-gray-600">support@siraj.ae</div>
                   </div>
                 </div>
@@ -400,8 +444,12 @@ export default function Home() {
                     <MapPin className="w-6 h-6 text-emerald-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Office Location</div>
-                    <div className="text-gray-600">Dubai Healthcare City, UAE</div>
+                    <div className="font-semibold text-gray-900">
+                      Office Location
+                    </div>
+                    <div className="text-gray-600">
+                      Dubai Healthcare City, UAE
+                    </div>
                   </div>
                 </div>
               </div>
@@ -409,14 +457,34 @@ export default function Home() {
 
             <Card className="border-emerald-100">
               <CardContent className="p-6 space-y-6">
-                <h3 className="text-xl font-semibold text-gray-900">Send us a message</h3>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Send us a message
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <Input placeholder="First Name" className="border-emerald-200 focus:border-emerald-400" />
-                  <Input placeholder="Last Name" className="border-emerald-200 focus:border-emerald-400" />
+                  <Input
+                    placeholder="First Name"
+                    className="border-emerald-200 focus:border-emerald-400"
+                  />
+                  <Input
+                    placeholder="Last Name"
+                    className="border-emerald-200 focus:border-emerald-400"
+                  />
                 </div>
-                <Input placeholder="Email Address" type="email" className="border-emerald-200 focus:border-emerald-400" />
-                <Input placeholder="Phone Number" type="tel" className="border-emerald-200 focus:border-emerald-400" />
-                <Textarea placeholder="How can we help you?" rows={4} className="border-emerald-200 focus:border-emerald-400" />
+                <Input
+                  placeholder="Email Address"
+                  type="email"
+                  className="border-emerald-200 focus:border-emerald-400"
+                />
+                <Input
+                  placeholder="Phone Number"
+                  type="tel"
+                  className="border-emerald-200 focus:border-emerald-400"
+                />
+                <Textarea
+                  placeholder="How can we help you?"
+                  rows={4}
+                  className="border-emerald-200 focus:border-emerald-400"
+                />
                 <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white">
                   Send Message
                 </Button>
@@ -427,7 +495,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
+      {/* <footer className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
@@ -477,7 +545,7 @@ export default function Home() {
             <p>&copy; 2024 Siraj Mental Health Platform. All rights reserved.</p>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
