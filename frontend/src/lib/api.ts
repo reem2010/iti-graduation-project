@@ -15,7 +15,8 @@ import {
 import axios from "axios";
 import { format } from "date-fns";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -255,6 +256,39 @@ export const appointmentApi = {
   getMyAppointments: async () => {
     const response = await api.get("/appointments/");
     return response.data.appointments || response.data.data;
+  },
+};
+
+// Messages API
+export const messagesApi = {
+  
+  createMessage: async (data: any): Promise<any> => {
+    const response = await api.post('/messages', data);
+    return response.data;
+  },
+
+  getUserStatus: async (userId: number): Promise<{ online: boolean }> => {
+    const response = await api.get(`/messages/user-status/${userId}`);
+    return response.data;
+  },
+
+  getUserChats: async (): Promise<any> => {
+    const response = await api.get('/messages');
+    return response.data;
+  },
+
+  getUnreadMessages: async (senderId: number): Promise<any[]> => {
+    const response = await api.get(`/messages/unread/${senderId}`);
+    return response.data;
+  },
+
+  getConversation: async (senderId: number, recipientId: number): Promise<any[]> => {
+    const response = await api.get(`/messages/${senderId}/${recipientId}`);
+    return response.data;
+  },
+
+  clearUnreadMessages: async (senderId: number): Promise<void> => {
+    await api.patch(`/messages/unread/clear/${senderId}`);
   },
 };
 

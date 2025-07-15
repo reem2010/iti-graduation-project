@@ -1,4 +1,9 @@
-import { Inject, forwardRef, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  forwardRef,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PaymobService } from 'src/paymob/paymob.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { TransactionStatus, TransactionType } from '@prisma/client';
@@ -20,6 +25,7 @@ export class TransactionService {
     phone: string,
   ): Promise<string> {
     const iframeId = process.env.PAYMOB_IFRAME_ID;
+    amount = Math.round(amount * 100);
 
     // Check for existing pending transaction
     const existingTx = await this.prisma.transaction.findFirst({
@@ -169,17 +175,23 @@ export class TransactionService {
     if (!is_refund && pending.appointmentId) {
       if (success) {
         // If payment succeeded, update appointment status to scheduled
-        await this.appointmentsService.confirmAppointmentPayment(pending.appointmentId);
-        console.log(`Appointment ${pending.appointmentId} confirmed after successful payment`);
-
+        await this.appointmentsService.confirmAppointmentPayment(
+          pending.appointmentId,
+        );
+        console.log(
+          `Appointment ${pending.appointmentId} confirmed after successful payment`,
+        );
       } else {
         // If payment failed, cancel the appointment
-        await this.appointmentsService.handleFailedPayment(pending.appointmentId);
-        console.log(`Appointment ${pending.appointmentId} cancelled due to failed payment`);
+        await this.appointmentsService.handleFailedPayment(
+          pending.appointmentId,
+        );
+        console.log(
+          `Appointment ${pending.appointmentId} cancelled due to failed payment`,
+        );
       }
     }
   }
-
 
   async getAllTransactions() {
     return this.prisma.transaction.findMany({
