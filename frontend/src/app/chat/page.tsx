@@ -1,14 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  Send,
-  Paperclip,
-  MoreVertical,
-  MessageCircle,
-} from "lucide-react";
+import { Send, Paperclip, MoreVertical, MessageCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { connectSocket } from "@/lib/socket";
 import { authApi, doctorProfileApi, messagesApi } from "@/lib/api";
+import { useAuth } from "@/contexts/authContext";
 
 // Interfaces
 interface Message {
@@ -50,6 +46,7 @@ const SirajChat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
 
+  const { refreshUnreadCount } = useAuth();
   // Utility Functions
   const formatTime = (iso: string) =>
     new Date(iso).toLocaleTimeString([], {
@@ -68,38 +65,7 @@ const SirajChat = () => {
       .slice(0, 2)
       .toUpperCase();
 
-  // const selectChat = async (chat: ChatSummary) => {
-  //   setSelectedChat(chat);
-  //   setIsLoading(true);
-
-  //   // Update URL to reflect selected chat
-  //   router.push(`/chat?with=${chat.userId}`);
-
-  //   try {
-  //     const res = await messagesApi.getConversation(
-  //       currentUser?.id!,
-  //       chat.userId
-  //     );
-  //     setMessages(res);
-
-  //     // Mark chat as read
-  //     await messagesApi.clearUnreadMessages(chat.userId);
-  //     setChatList((prev) =>
-  //       prev.map((c) =>
-  //         c.userId === chat.userId ? { ...c, unreadCount: 0 } : c
-  //       )
-  //     );
-  //   } catch (err) {
-  //     console.error("Failed to fetch messages", err);
-  //   } finally {
-  //     setIsLoading(false);
-  //     setTimeout(scrollToBottom, 100);
-  //   }
-  // };
-
-  const selectChat = async (
-    chat: ChatSummary
-  ) => {
+  const selectChat = async (chat: ChatSummary) => {
     setSelectedChat(chat);
     setIsLoading(true);
 
@@ -113,6 +79,7 @@ const SirajChat = () => {
       setMessages(res);
 
       await messagesApi.clearUnreadMessages(chat.userId);
+      await refreshUnreadCount();
       setChatList((prev) => {
         const exists = prev.some((c) => c.userId === chat.userId);
         if (exists) {
@@ -223,47 +190,37 @@ const SirajChat = () => {
     fetchChats();
   }, [fetchChats]);
 
-  // Handle initial chat selection from URL
-  // useEffect(() => {
-  //   if (selectedChatId && chatList.length > 0 && !selectedChat) {
-  //     const chat = chatList.find((c) => c.userId === parseInt(selectedChatId));
-  //     if (chat) {
-  //       selectChat(chat);
-  //     }
-  //   }
-  // }, [selectedChatId, chatList, selectedChat]);
-
   useEffect(() => {
-  if (!selectedChatId || !currentUser || selectedChat) return;
+    if (!selectedChatId || !currentUser || selectedChat) return;
 
-  const id = parseInt(selectedChatId);
-  const existingChat = chatList.find((c) => c.userId === id);
+    const id = parseInt(selectedChatId);
+    const existingChat = chatList.find((c) => c.userId === id);
 
-  if (existingChat) {
-    selectChat(existingChat);
-  } else {
-    // Optional: Fetch doctor name from API if not known
-    const fetchDoctor = async () => {
-      try {
-        const doctor = await doctorProfileApi.getDoctorProfileById(id);
-        console.log("Fetched doctor:", doctor);
-        selectChat({
-          userId: id, username: doctor.fullName,
-          unreadCount: 0,
-          lastMessage: {
-            content: "",
-            createdAt: ""
-          }
-        });
-      } catch (err) {
-        console.error("Doctor not found", err);
-      }
-    };
+    if (existingChat) {
+      selectChat(existingChat);
+    } else {
+      // Optional: Fetch doctor name from API if not known
+      const fetchDoctor = async () => {
+        try {
+          const doctor = await doctorProfileApi.getDoctorProfileById(id);
+          console.log("Fetched doctor:", doctor);
+          selectChat({
+            userId: id,
+            username: doctor.fullName,
+            unreadCount: 0,
+            lastMessage: {
+              content: "",
+              createdAt: "",
+            },
+          });
+        } catch (err) {
+          console.error("Doctor not found", err);
+        }
+      };
 
-    fetchDoctor();
-  }
-}, [selectedChatId, chatList, selectedChat, currentUser]);
-
+      fetchDoctor();
+    }
+  }, [selectedChatId, chatList, selectedChat, currentUser]);
 
   // Socket connection and message handling
   useEffect(() => {
@@ -275,9 +232,11 @@ const SirajChat = () => {
     socket.on("connect", () => setIsConnected(true));
     socket.on("disconnect", () => setIsConnected(false));
 
-    socket.on("newMessage", (message: Message) => {
+    socket.on("newMessage", async (message: Message) => {
       const fromUserId = message.senderId;
       const isSelected = selectedChat?.userId === fromUserId;
+
+      await refreshUnreadCount();
 
       // Update chat list
       setChatList((prev) => {
@@ -321,7 +280,7 @@ const SirajChat = () => {
     });
 
     return () => {
-      socket.disconnect();
+      // socket.disconnect();
     };
   }, [currentUser, selectedChat]);
 

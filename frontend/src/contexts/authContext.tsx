@@ -1,15 +1,16 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { authApi, messagesApi } from "@/lib/api";
 import type { User } from "@/types/index";
+import { connectSocket } from "@/lib/socket";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   setUser: (user: User | null) => void;
   unreadCount: number;
-  setUnreadCount: (count: number) => void;
+  refreshUnreadCount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,36 +19,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const socketRef = useRef<any>(null);
 
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     try {
-  //       const res = await authApi.getUser();
-  //       if (res && res.id) {
-  //         setUser(res);
-  //       } else {
-  //         setUser(null);
-  //       }
-  //     } catch (err) {
-  //       setUser(null);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   const unreadMessagesCount = async () => {
-  //     try {
-  //       const count = await messagesApi.getUnreadCount();
-  //       setUnreadCount(Number(count));
-  //       setUser((prev) => prev ? { ...prev, unreadMessagesCount: Number(count) } : prev);
-  //     } catch (error) {
-  //       console.error("Error fetching unread messages:", error);
-  //     }
-  //   };
-
-  //   fetchUser();
-  //   unreadMessagesCount();
-  // }, []);
+  const refreshUnreadCount = async () => {
+    try {
+      const count = await messagesApi.getUnreadCount(); 
+      setUnreadCount(Number(count));
+    } catch (err) {
+      console.error("Error fetching unread count:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchUserAndUnread = async () => {
@@ -59,8 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(null);
         }
 
-        const count = await messagesApi.getUnreadCount();
-        setUnreadCount(+count);
+        await refreshUnreadCount();
       } catch (err) {
         setUser(null);
         console.error("Error:", err);
@@ -72,9 +52,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     fetchUserAndUnread();
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const socket = connectSocket(user.id);
+    socketRef.current = socket;
+
+    socket.on("newMessage", async (message: any) => {
+      await refreshUnreadCount();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
+
+  console.log(socketRef.current);
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, setUser, unreadCount, setUnreadCount }}
+      value={{ user, loading, setUser, unreadCount, refreshUnreadCount }}
     >
       {children}
     </AuthContext.Provider>
