@@ -7,17 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// model Notification {
-//   id          Int      @id @default(autoincrement())
-//   userId      Int
-//   title       String
-//   message     String
-//   isRead      Boolean  @default(false)
-//   referenceId Int?
-//   createdAt   DateTime @default(now())
-//   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-// }
-
 enum NotificationType {
   INFO
   SUCCESS
@@ -32,6 +21,7 @@ enum NotificationType {
   ARTICLE
   SYSTEM
 }
+
 
 model Notification {
   id          Int              @id @default(autoincrement())
