@@ -21,12 +21,13 @@ import {
   Calendar,
   MessageCircle,
   UserCheck,
-  Sparkles,
+  BookOpenCheck,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [email, setEmail] = useState("");
+  const router = useRouter();
 
   const services = [
     {
@@ -41,36 +42,14 @@ export default function Home() {
       ],
     },
     {
-      icon: Users,
-      title: "Group Therapy",
+      icon: BookOpenCheck,
+      title: "Therapist Blogs",
       description:
-        "Connect with others facing similar challenges in a supportive group environment.",
+        "Expert-written blogs by licensed therapists covering mental health, personal growth, and wellness strategies.",
       features: [
-        "Peer support",
-        "Shared experiences",
-        "Cost-effective treatment",
-      ],
-    },
-    {
-      icon: Calendar,
-      title: "Crisis Support",
-      description:
-        "24/7 immediate support for mental health emergencies and crisis situations.",
-      features: [
-        "24/7 availability",
-        "Immediate response",
-        "Emergency interventions",
-      ],
-    },
-    {
-      icon: UserCheck,
-      title: "Wellness Coaching",
-      description:
-        "Holistic approach to mental wellness with lifestyle and mindfulness coaching.",
-      features: [
-        "Mindfulness training",
-        "Lifestyle guidance",
-        "Stress management",
+        "Professionally written content",
+        "Evidence-based insights",
+        "Topics on anxiety, depression, relationships, and more",
       ],
     },
   ];
@@ -160,48 +139,46 @@ export default function Home() {
       {/* Hero Section */}
       <section className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
-                  🌟 Professional Mental Health Support
-                </Badge>
-                <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-                  Your path to{" "}
-                  <span className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-amber-600 bg-clip-text text-transparent">
-                    mental wellness
-                  </span>{" "}
-                  starts here
-                </h1>
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  Connect with licensed therapists and mental health
-                  professionals through our secure, culturally-sensitive
-                  platform. Take the first step towards a healthier, happier
-                  you.
-                </p>
-              </div>
+          {/* <div className="grid lg:grid-cols-2 gap-12 items-center"> */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
+                🌟 Professional Mental Health Support
+              </Badge>
+              <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+                Your path to{" "}
+                <span className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-amber-600 bg-clip-text text-transparent">
+                  mental wellness
+                </span>{" "}
+                starts here
+              </h1>
+              <p className="text-xl text-gray-600 leading-relaxed">
+                Connect with licensed therapists and mental health professionals
+                through our secure, culturally-sensitive platform. Take the
+                first step towards a healthier, happier you.
+              </p>
+            </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-                >
-                  Start Your Journey
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-                <Button
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                onClick={() => router.push("/auth")}
+                size="lg"
+                className="cursor-pointer bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              >
+                Start Your Journey
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              {/* <Button
                   size="lg"
                   variant="outline"
-                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300"
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 cursor-pointer"
                 >
                   <Play className="mr-2 w-5 h-5" />
                   Watch How It Works
-                </Button>
-              </div>
+                </Button> */}
             </div>
-
-            
           </div>
+          {/* </div> */}
         </div>
       </section>
 
@@ -221,7 +198,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 justify-center">
             {services.map((service, index) => (
               <Card
                 key={index}
@@ -362,22 +339,6 @@ export default function Home() {
               professionals are here to support you every step of the way.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-emerald-200"
-              />
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-xl whitespace-nowrap"
-              >
-                Get Started Free
-              </Button>
-            </div>
-
             <div className="flex items-center justify-center space-x-8 text-emerald-100">
               <div className="flex items-center space-x-2">
                 <Shield className="w-5 h-5" />
@@ -392,104 +353,6 @@ export default function Home() {
                 <span>Licensed Therapists</span>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-20 bg-emerald-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <Badge className="bg-emerald-100 text-emerald-800">
-                  Get In Touch
-                </Badge>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-                  We're Here to Help
-                </h2>
-                <p className="text-xl text-gray-600">
-                  Have questions about our services? Need immediate support? Our
-                  team is available to assist you.
-                </p>
-              </div>
-
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <Phone className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      24/7 Crisis Hotline
-                    </div>
-                    <div className="text-gray-600">+971 800 SIRAJ (74725)</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      Email Support
-                    </div>
-                    <div className="text-gray-600">support@siraj.ae</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      Office Location
-                    </div>
-                    <div className="text-gray-600">
-                      Dubai Healthcare City, UAE
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Card className="border-emerald-100">
-              <CardContent className="p-6 space-y-6">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Send us a message
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    placeholder="First Name"
-                    className="border-emerald-200 focus:border-emerald-400"
-                  />
-                  <Input
-                    placeholder="Last Name"
-                    className="border-emerald-200 focus:border-emerald-400"
-                  />
-                </div>
-                <Input
-                  placeholder="Email Address"
-                  type="email"
-                  className="border-emerald-200 focus:border-emerald-400"
-                />
-                <Input
-                  placeholder="Phone Number"
-                  type="tel"
-                  className="border-emerald-200 focus:border-emerald-400"
-                />
-                <Textarea
-                  placeholder="How can we help you?"
-                  rows={4}
-                  className="border-emerald-200 focus:border-emerald-400"
-                />
-                <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white">
-                  Send Message
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>

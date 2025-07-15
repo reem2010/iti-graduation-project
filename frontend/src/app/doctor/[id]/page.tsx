@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { DoctorVerification, DoctorAvailability, User } from '@/types';
 import { doctorVerificationApi, doctorAvailabilityApi, authApi } from '@/lib/api';
 
@@ -14,6 +14,8 @@ export default function PublicDoctorProfilePage() {
   const [doctorUser, setDoctorUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchDoctorData() {
@@ -90,6 +92,14 @@ export default function PublicDoctorProfilePage() {
             <p className="text-siraj-gray-500 mt-1">
               {verification.specialization || 'Medical Professional'}
             </p>
+          </div>
+
+          <div>
+            <button
+              onClick={() => router.push(`/chat?with=${doctorUser?.id}`)}
+              className="px-4 py-2 bg-siraj-emerald-600 text-white rounded-lg hover:bg-siraj-emerald-700 transition-colors">
+              Message
+            </button>
           </div>
         </div>
 

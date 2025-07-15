@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Send,
@@ -11,10 +11,8 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-
 import { connectSocket } from "@/lib/socket";
-import { authApi, messagesApi } from "@/lib/api";
+import { authApi, doctorProfileApi, messagesApi } from "@/lib/api";
 
 // Interfaces
 interface Message {
@@ -63,8 +61,6 @@ const SirajChat = () => {
       minute: "2-digit",
     });
 
-  const formatDate = (iso: string) => new Date(iso).toLocaleDateString();
-
   const truncateMessage = (text: string, max = 40) =>
     text.length > max ? text.slice(0, max) + "..." : text;
 
@@ -76,15 +72,41 @@ const SirajChat = () => {
       .slice(0, 2)
       .toUpperCase();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // const selectChat = async (chat: ChatSummary) => {
+  //   setSelectedChat(chat);
+  //   setIsLoading(true);
 
-  const selectChat = async (chat: ChatSummary) => {
+  //   // Update URL to reflect selected chat
+  //   router.push(`/chat?with=${chat.userId}`);
+
+  //   try {
+  //     const res = await messagesApi.getConversation(
+  //       currentUser?.id!,
+  //       chat.userId
+  //     );
+  //     setMessages(res);
+
+  //     // Mark chat as read
+  //     await messagesApi.clearUnreadMessages(chat.userId);
+  //     setChatList((prev) =>
+  //       prev.map((c) =>
+  //         c.userId === chat.userId ? { ...c, unreadCount: 0 } : c
+  //       )
+  //     );
+  //   } catch (err) {
+  //     console.error("Failed to fetch messages", err);
+  //   } finally {
+  //     setIsLoading(false);
+  //     setTimeout(scrollToBottom, 100);
+  //   }
+  // };
+
+  const selectChat = async (
+    chat: ChatSummary
+  ) => {
     setSelectedChat(chat);
     setIsLoading(true);
 
-    // Update URL to reflect selected chat
     router.push(`/chat?with=${chat.userId}`);
 
     try {
@@ -94,18 +116,36 @@ const SirajChat = () => {
       );
       setMessages(res);
 
-      // Mark chat as read
       await messagesApi.clearUnreadMessages(chat.userId);
-      setChatList((prev) =>
-        prev.map((c) =>
-          c.userId === chat.userId ? { ...c, unreadCount: 0 } : c
-        )
-      );
+      setChatList((prev) => {
+        const exists = prev.some((c) => c.userId === chat.userId);
+        if (exists) {
+          return prev.map((c) =>
+            c.userId === chat.userId ? { ...c, unreadCount: 0 } : c
+          );
+        } else {
+          // Add new chat to the list
+          return [
+            {
+              userId: chat.userId,
+              username: chat.username,
+              unreadCount: 0,
+              lastMessage:
+                res.length > 0
+                  ? {
+                      content: res[res.length - 1].content,
+                      createdAt: res[res.length - 1].createdAt,
+                    }
+                  : { content: "", createdAt: new Date().toISOString() },
+            },
+            ...prev,
+          ];
+        }
+      });
     } catch (err) {
       console.error("Failed to fetch messages", err);
     } finally {
       setIsLoading(false);
-      setTimeout(scrollToBottom, 100);
     }
   };
 
@@ -149,7 +189,6 @@ const SirajChat = () => {
       });
 
       setCurrentMessage("");
-      setTimeout(scrollToBottom, 100);
     } catch (err) {
       console.error("Sending message failed:", err);
     }
@@ -189,14 +228,46 @@ const SirajChat = () => {
   }, [fetchChats]);
 
   // Handle initial chat selection from URL
+  // useEffect(() => {
+  //   if (selectedChatId && chatList.length > 0 && !selectedChat) {
+  //     const chat = chatList.find((c) => c.userId === parseInt(selectedChatId));
+  //     if (chat) {
+  //       selectChat(chat);
+  //     }
+  //   }
+  // }, [selectedChatId, chatList, selectedChat]);
+
   useEffect(() => {
-    if (selectedChatId && chatList.length > 0 && !selectedChat) {
-      const chat = chatList.find((c) => c.userId === parseInt(selectedChatId));
-      if (chat) {
-        selectChat(chat);
+  if (!selectedChatId || !currentUser || selectedChat) return;
+
+  const id = parseInt(selectedChatId);
+  const existingChat = chatList.find((c) => c.userId === id);
+
+  if (existingChat) {
+    selectChat(existingChat);
+  } else {
+    // Optional: Fetch doctor name from API if not known
+    const fetchDoctor = async () => {
+      try {
+        const doctor = await doctorProfileApi.getDoctorProfileById(id);
+        console.log("Fetched doctor:", doctor);
+        selectChat({
+          userId: id, username: doctor.fullName,
+          unreadCount: 0,
+          lastMessage: {
+            content: "",
+            createdAt: ""
+          }
+        });
+      } catch (err) {
+        console.error("Doctor not found", err);
       }
-    }
-  }, [selectedChatId, chatList, selectedChat]);
+    };
+
+    fetchDoctor();
+  }
+}, [selectedChatId, chatList, selectedChat, currentUser]);
+
 
   // Socket connection and message handling
   useEffect(() => {
@@ -250,7 +321,6 @@ const SirajChat = () => {
       // Add message to current conversation if it's selected
       if (isSelected) {
         setMessages((prev) => [...prev, message]);
-        setTimeout(scrollToBottom, 100);
       }
     });
 
@@ -267,16 +337,6 @@ const SirajChat = () => {
         <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">Chat</h1>
-            <div className="flex items-center space-x-2">
-              <div
-                className={`w-3 h-3 rounded-full ${
-                  isConnected ? "bg-green-400" : "bg-red-400"
-                }`}
-              ></div>
-              <span className="text-sm opacity-90">
-                {isConnected ? "Online" : "Offline"}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -432,14 +492,6 @@ const SirajChat = () => {
             </div>
           </>
         ) : (
-          // <div className="flex items-center justify-center flex-1 text-gray-400">
-          //   <div className="text-center">
-          //     <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          //     <p className="text-lg font-medium">
-          //       Select a conversation to start messaging
-          //     </p>
-          //   </div>
-          // </div>
           /* No Chat Selected */
           <div className="flex-1 flex items-center justify-center bg-gray-50">
             <div className="text-center">
@@ -450,23 +502,9 @@ const SirajChat = () => {
                 Welcome to Siraj Chat
               </h3>
               <p className="text-gray-600 mb-6 max-w-md">
-                Connect with licensed therapists and mental health professionals through our secure, 
-                culturally-sensitive platform.
+                Connect with licensed therapists and mental health professionals
+                through our secure, culturally-sensitive platform.
               </p>
-              {/* <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
-                  End-to-end encrypted
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
-                  HIPAA compliant
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
-                  24/7 support
-                </div>
-              </div> */}
             </div>
           </div>
         )}
