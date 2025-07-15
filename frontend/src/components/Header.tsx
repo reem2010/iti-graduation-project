@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/authContext";
 export default function Header() {
   const router = useRouter();
 
-  const { user, loading } = useAuth();
+  const { user, loading, unreadCount} = useAuth();
 
   if (loading) return null;
 
@@ -86,9 +86,9 @@ export default function Header() {
                     <MessageCircle color="#2ecc71" size={24} />
                   </Link>
 
-                  {user.unreadMessagesCount > 0 && (
+                  {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-600 rounded-full">
-                      {user.unreadMessagesCount}
+                      {unreadCount}
                     </span>
                   )}
                 </div>

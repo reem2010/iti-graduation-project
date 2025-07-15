@@ -93,7 +93,9 @@ export class MessagesService {
       select: { id: true, firstName: true, lastName: true },
     });
 
-    const userMap = new Map(users.map((u) => [u.id, [u.firstName, u.lastName].join(' ')]));
+    const userMap = new Map(
+      users.map((u) => [u.id, [u.firstName, u.lastName].join(' ')]),
+    );
 
     // Format response
     return Array.from(chatMap.values()).map((chat) => ({
@@ -181,7 +183,21 @@ export class MessagesService {
    */
   async clearUnreadMessages(userId: string, senderId: string) {
     const redis = this.redisService.getClient();
-    await redis.del(`user:${userId}:unreadMessages:from:${senderId}`);
+    // await redis.del(`user:${userId}:unreadMessages:from:${senderId}`);
+
+    const listKey = `user:${userId}:unreadMessages:from:${senderId}`;
+    const totalCountKey = `user:${userId}:unreadCount`;
+
+    // Get how many unread messages this sender has in Redis
+    const unreadCountFromSender = await redis.llen(listKey);
+
+    // Remove the list of unread messages from this sender
+    await redis.del(listKey);
+
+    // Decrease the total unread count by that number
+    if (unreadCountFromSender > 0) {
+      await redis.decrby(totalCountKey, unreadCountFromSender);
+    }
 
     // mark all messages as read in the database
     await this.prisma.message.updateMany({
