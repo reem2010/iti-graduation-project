@@ -129,19 +129,6 @@ export class MessagesService {
     });
   }
 
-  //   async markMessagesAsRead(senderId: number, recipientId: number) {
-  //     return this.prisma.message.updateMany({
-  //       where: {
-  //         senderId,
-  //         recipientId,
-  //         isRead: false,
-  //       },
-  //       data: {
-  //         isRead: true,
-  //       },
-  //     });
-  //   }
-
   /**
    * Retrieves the online status of a user.
    * This method checks Redis for the user's online status and returns it as an object.
@@ -163,7 +150,29 @@ export class MessagesService {
       0,
       -1,
     );
+
     return messages.map((msg) => JSON.parse(msg));
+  }
+
+  /**
+   * Increments the unread message count for a user.
+   * This method updates the Redis key that tracks the total unread messages for a user.
+   */
+  async incrementUnreadCount(userId: number) {
+    const redis = this.redisService.getClient();
+    await redis.incr(`user:${userId}:unreadCount`);
+
+    return { success: true };
+  }
+
+  /**
+   * Retrieves the total unread message count for a user.
+   * This method fetches the count from Redis and returns it.
+   */
+  async getUnreadCount(userId: number) {
+    const redis = this.redisService.getClient();
+    const count = await redis.get(`user:${userId}:unreadCount`);
+    return { unreadCount: count };
   }
 
   /**

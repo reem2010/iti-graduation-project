@@ -15,6 +15,7 @@ export enum VerificationStatus {
 
 // Base Interfaces matching Prisma models
 export interface User {
+  unreadMessagesCount: number;
   id: number;
   email: string;
   passwordHash: string;

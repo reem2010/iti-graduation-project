@@ -47,13 +47,11 @@ export class MessagesController {
     return this.messagesService.getConversation(+senderId, +recipientId);
   }
 
-  //   @Patch('markAsRead/:senderId/:recipientId')
-  //   markAsRead(
-  //     @Param('senderId') senderId: string,
-  //     @Param('recipientId') recipientId: string,
-  //   ) {
-  //     return this.messagesService.markMessagesAsRead(+senderId, +recipientId);
-  //   }
+  @UseGuards(JwtAuthGuard)
+  @Get('unreadCount')
+  getUnreadCount(@Request() req: any) {
+    return this.messagesService.getUnreadCount(req.user.userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Patch('unread/clear/:senderId')
