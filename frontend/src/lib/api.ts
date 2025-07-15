@@ -10,10 +10,8 @@ import {
   UpdateDoctorAvailabilityDto,
   UpdateDoctorProfileDto,
   UpdateDoctorVerificationDto,
-  User,
 } from "@/types";
 import axios from "axios";
-import { format } from "date-fns";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
@@ -297,6 +295,62 @@ export const messagesApi = {
   },
 };
 
+export const adminApi = {
+  getDoctors: async (params: {
+    skip?: number;
+    take?: number;
+    isActive?: boolean;
+    isVerified?: boolean;
+  }) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString());
+      }
+    });
+    const response = await api.get(`/admin/doctors?${queryParams.toString()}`);
+    return response.data;
+  },
+
+  updateDoctorStatus: async (
+    doctorId: number,
+    update: { isVerified?: boolean; isActive?: boolean }
+  ) => {
+    const response = await api.patch(`/admin/doctors/${doctorId}/status`, update);
+    return response.data;
+  },
+
+  getTransactions: async (params: {
+    skip?: number;
+    take?: number;
+    status?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString());
+      }
+    });
+    const response = await api.get(`/admin/transactions?${queryParams.toString()}`);
+    return response.data;
+  },
+
+  getAppointments: async (params: {
+    skip?: number;
+    take?: number;
+    status?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString());
+      }
+    });
+    const response = await api.get(`/admin/appointments?${queryParams.toString()}`);
+    return response.data;
+  },
+};
+
 // Export all individual API services for easier import
 
-export default api; // Export the axios instance as default if needed elsewhere
+export default api;

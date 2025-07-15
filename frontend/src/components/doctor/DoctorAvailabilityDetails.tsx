@@ -16,7 +16,7 @@ export default function DoctorAvailabilityDetails() {
     CreateDoctorAvailabilityDto & { id: number | null }
   >({
     id: null,
-    dayOfWeek: "",
+    dayOfWeek: 0,
     startTime: "",
     endTime: "",
     validFrom: "",
@@ -28,12 +28,10 @@ export default function DoctorAvailabilityDetails() {
       try {
         setLoading(true);
         setError(null);
-        const [user, availabilityRes] = await Promise.all([
-          authApi.getUser(),
-          doctorAvailabilityApi.getDoctorAvailabilities(),
-        ]);
+        const user = await authApi.getUser();
         setCurrentUserId(user.id);
-        setDoctorAvailability(availabilityRes);
+        const availabilityRes = await doctorAvailabilityApi.getDoctorAvailabilitesByDoctorId(user.id);
+        setDoctorAvailability(availabilityRes ?? []);
       } catch (err: any) {
         console.error("Failed to fetch data:", err);
         setError(
@@ -63,10 +61,13 @@ export default function DoctorAvailabilityDetails() {
     const { dayOfWeek, startTime, endTime, validFrom, validUntil } =
       currentAvailabilityForm;
 
-    if (!dayOfWeek || !startTime || !endTime || !validFrom) {
-      setError('All fields are required except "Valid Until".');
-      return;
-    }
+      console.log("dayOfWeek:", dayOfWeek);
+      console.log("startTime:", startTime);
+      console.log("endTime:", endTime);
+      console.log("validFrom:", validFrom);
+      console.log("validUntil:", validUntil);
+
+
 
     if (startTime >= endTime) {
       setError("Start Time must be before End Time.");
@@ -88,6 +89,7 @@ export default function DoctorAvailabilityDetails() {
 
       const payload = {
         dayOfWeek: dayOfWeek, // keep as string
+        isRecurring: true,
         startTime: isoStartTime,
         endTime: isoEndTime,
         validFrom,
@@ -100,7 +102,7 @@ export default function DoctorAvailabilityDetails() {
 
       setCurrentAvailabilityForm({
         id: null,
-        dayOfWeek: "",
+        dayOfWeek: 0,
         startTime: "",
         endTime: "",
         validFrom: "",
@@ -142,10 +144,7 @@ export default function DoctorAvailabilityDetails() {
       return;
     }
 
-    if (!dayOfWeek || !startTime || !endTime || !validFrom) {
-      setError('All fields are required except "Valid Until".');
-      return;
-    }
+    
 
     if (startTime >= endTime) {
       setError("Start Time must be before End Time.");
@@ -178,7 +177,7 @@ export default function DoctorAvailabilityDetails() {
 
       setCurrentAvailabilityForm({
         id: null,
-        dayOfWeek: "",
+        dayOfWeek: 0,
         startTime: "",
         endTime: "",
         validFrom: "",
@@ -221,7 +220,7 @@ export default function DoctorAvailabilityDetails() {
               setIsEditingAvailability(!isEditingAvailability);
               setCurrentAvailabilityForm({
                 id: null,
-                dayOfWeek: "",
+                dayOfWeek: 0,
                 startTime: "",
                 endTime: "",
                 validFrom: "",
@@ -389,7 +388,7 @@ export default function DoctorAvailabilityDetails() {
                   setIsEditingAvailability(false);
                   setCurrentAvailabilityForm({
                     id: null,
-                    dayOfWeek: "",
+                    dayOfWeek: 0,
                     startTime: "",
                     endTime: "",
                     validFrom: "",

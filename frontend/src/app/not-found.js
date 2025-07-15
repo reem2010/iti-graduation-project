@@ -11,9 +11,8 @@ export default function NotFound() {
         </div>
 
         <h1 className="text-xl font-semibold text-emerald-800 mb-3">
-          Siraj can't Ffound that page for you
+          Siraj can not find that  for you
         </h1>
-
         <div className="space-y-3">
           <Link
             href="/"
