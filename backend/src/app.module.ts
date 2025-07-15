@@ -19,6 +19,7 @@ import { MessagesModule } from './messages/messages.module';
 import { NotificationModule } from './notification/notification.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { UserModule } from './user/user.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { UserModule } from './user/user.module';
     MessagesModule,
     NotificationModule,
     RealtimeModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
