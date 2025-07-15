@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const refreshUnreadCount = async () => {
     try {
-      const count = await messagesApi.getUnreadCount(); 
+      const count = await messagesApi.getUnreadCount();
       setUnreadCount(Number(count));
     } catch (err) {
       console.error("Error fetching unread count:", err);
@@ -33,6 +33,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchUserAndUnread = async () => {
       try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        
         const res = await authApi.getUser();
         if (res && res.id) {
           setUser(res);
@@ -66,8 +69,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       socket.disconnect();
     };
   }, [user]);
-
-  console.log(socketRef.current);
 
   return (
     <AuthContext.Provider
