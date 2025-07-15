@@ -2,12 +2,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Send,
-  Smile,
   Paperclip,
   MoreVertical,
-  Phone,
-  Video,
-  Search,
   MessageCircle,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -340,18 +336,6 @@ const SirajChat = () => {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search conversations..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
         {/* Chat List */}
         <div className="flex-1 overflow-y-auto">
           {chatList.length === 0 ? (
@@ -420,12 +404,6 @@ const SirajChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                  <Phone className="w-5 h-5 text-gray-600" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                  <Video className="w-5 h-5 text-gray-600" />
-                </button>
                 <button className="p-2 hover:bg-gray-100 rounded-lg">
                   <MoreVertical className="w-5 h-5 text-gray-600" />
                 </button>

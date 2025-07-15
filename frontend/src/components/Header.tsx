@@ -2,41 +2,24 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, User } from "lucide-react";
-import { useEffect, useState } from "react";
-import { authApi } from "@/lib/api";
+import { LogOut, MessageCircle, User } from "lucide-react";
 import Image from "next/image";
-
-type UserType = {
-  id: string;
-  role: string;
-  // add other user properties if needed
-};
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/authContext";
 
 export default function Header() {
-  const [user, setUser] = useState<UserType | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await authApi.getUser();
-        // Only set user if the response is valid
-        if (res && res.id) {
-          setUser(res);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        // User not logged in or request failed
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const router = useRouter();
 
-    fetchUser();
-  }, []);
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+
+  const handleLogout = async () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.replace("/auth");
+  };
 
   return (
     <div className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-emerald-100 z-50">
@@ -103,11 +86,21 @@ export default function Header() {
                   <MessageCircle color="#2ecc71" size={24} />
                 </Link>
                 <Link
-                  href={user.role === "doctor" ? "/doctor/profile" : "/patient/profile"}
+                  href={
+                    String(user.role) === "doctor"
+                      ? "/doctor/profile"
+                      : "/patient/profile"
+                  }
                   className="text-gray-700 hover:text-emerald-700 transition-colors"
                 >
                   <User color="#2ecc71" size={24} />
                 </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                >
+                  <LogOut color="#2ecc71" size={24} />
+                </button>
               </nav>
             ) : (
               !loading && (

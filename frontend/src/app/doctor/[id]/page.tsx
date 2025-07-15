@@ -94,11 +94,11 @@ export default function PublicDoctorProfilePage() {
             </p>
           </div>
 
-          <div>
+          <div className="ml-auto">
             <button
               onClick={() => router.push(`/chat?with=${doctorUser?.id}`)}
               className="px-4 py-2 bg-siraj-emerald-600 text-white rounded-lg hover:bg-siraj-emerald-700 transition-colors">
-              Message
+              Send message
             </button>
           </div>
         </div>
