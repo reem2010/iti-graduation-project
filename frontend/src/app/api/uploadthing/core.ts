@@ -35,7 +35,7 @@ export const ourFileRouter = {
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
     }),
-  
+
   pdfUploader: f({ "application/pdf": { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       const user = auth(req);

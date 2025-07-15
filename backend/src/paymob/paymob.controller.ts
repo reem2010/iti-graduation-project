@@ -10,6 +10,7 @@ export class PaymobController {
   @Post('webhook')
   @HttpCode(200)
   async handleWebhook(@Body() body: any) {
+    console.log(body);
     await this.transactionService.recordFromWebhook(body);
     return { received: true };
   }

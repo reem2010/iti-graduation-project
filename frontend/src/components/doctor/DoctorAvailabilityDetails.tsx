@@ -87,12 +87,11 @@ export default function DoctorAvailabilityDetails() {
       const isoEndTime = new Date(`${validFrom}T${endTime}:00`).toISOString();
 
       const payload = {
-        dayOfWeek: parseInt(dayOfWeek),
+        dayOfWeek: dayOfWeek, // keep as string
         startTime: isoStartTime,
         endTime: isoEndTime,
         validFrom,
         validUntil: validUntil || undefined,
-        isRecurring: true,
       };
 
       const newAvailability =
@@ -167,14 +166,12 @@ export default function DoctorAvailabilityDetails() {
       const isoEndTime = new Date(`${validFrom}T${endTime}:00`).toISOString();
 
       const updated = await doctorAvailabilityApi.updateDoctorAvailability(id, {
-        dayOfWeek: parseInt(dayOfWeek),
+        dayOfWeek: dayOfWeek, // keep as string
         startTime: isoStartTime,
         endTime: isoEndTime,
         validFrom,
         validUntil: validUntil || undefined,
-        isRecurring: true,
       });
-
       setDoctorAvailability((prev) =>
         prev.map((item) => (item.id === updated.id ? updated : item))
       );
@@ -217,7 +214,7 @@ export default function DoctorAvailabilityDetails() {
         <h2 className="text-xl font-bold text-siraj-emerald-600">
           Time Availability
         </h2>
-        
+
         {isOwner && (
           <button
             onClick={() => {
@@ -433,18 +430,33 @@ export default function DoctorAvailabilityDetails() {
                     <div className="flex items-center gap-2">
                       <span className="inline-block w-2 h-2 rounded-full bg-siraj-emerald-500"></span>
                       <h4 className="font-medium text-siraj-emerald-600">
-                        {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][avail.dayOfWeek]}
+                        {
+                          [
+                            "Sunday",
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday",
+                            "Saturday",
+                          ][Number(avail.dayOfWeek)]
+                        }
                       </h4>
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-siraj-gray-600">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-medium text-siraj-gray-800">Time:</span>
+                        <span className="font-medium text-siraj-gray-800">
+                          Time:
+                        </span>
                         <span>
-                          {avail.startTime.substring(11, 16)} - {avail.endTime.substring(11, 16)}
+                          {avail.startTime.substring(11, 16)} -{" "}
+                          {avail.endTime.substring(11, 16)}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-medium text-siraj-gray-800">Valid:</span>
+                        <span className="font-medium text-siraj-gray-800">
+                          Valid:
+                        </span>
                         <span>
                           {new Date(avail.validFrom).toLocaleDateString()} -{" "}
                           {avail.validUntil
