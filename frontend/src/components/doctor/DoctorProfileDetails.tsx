@@ -100,13 +100,16 @@ export default function DoctorProfileDetails() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value, type, checked } = e.target;
-    const newValue =
-      type === "checkbox"
-        ? checked
-        : name === "yearsOfExperience" || name === "consultationFee"
-        ? parseFloat(value)
-        : value;
+    const { name, value, type } = e.target;
+    let newValue: any;
+
+    if (type === "checkbox") {
+      newValue = (e.target as HTMLInputElement).checked;
+    } else if (name === "yearsOfExperience" || name === "consultationFee") {
+      newValue = parseFloat(value);
+    } else {
+      newValue = value;
+    }
 
     setCurrentProfileForm({
       ...currentProfileForm,
