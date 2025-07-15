@@ -1,6 +1,6 @@
-"use client";
+// "use client";
 import Post from "../../components/Post";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 export default async function Articles() {
   // const [role, setRole] = useState("");
   // useEffect(() => {
