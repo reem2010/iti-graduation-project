@@ -123,11 +123,13 @@ export class TransactionService {
 
   async recordFromWebhook(data: any): Promise<void> {
     const {
-      order: { id: paymobOrderId },
-      success,
-      source_data,
-      is_refund,
-      id: paymobTxId,
+      obj: {
+        order: { id: paymobOrderId },
+        success,
+        source_data,
+        is_refund,
+        id: paymobTxId,
+      },
     } = data;
 
     const status = success
