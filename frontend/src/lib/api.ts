@@ -284,7 +284,7 @@ export const messagesApi = {
 
   getUnreadCount: async (): Promise<string> => {
     const response = await api.get('/messages/unreadCount');
-    return response.data;
+    return response.data.unreadCount;
   },
 
   getConversation: async (senderId: number, recipientId: number): Promise<any[]> => {
