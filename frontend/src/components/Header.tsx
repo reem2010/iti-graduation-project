@@ -2,35 +2,24 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Sparkles, User } from "lucide-react";
-import { useEffect, useState } from "react";
-import { authApi } from "@/lib/api";
+import { LogOut, MessageCircle, User } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/authContext";
 
 export default function Header() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await authApi.getUser();
-        // Only set user if the response is valid
-        if (res && res.id) {
-          setUser(res);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        // User not logged in or request failed
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const router = useRouter();
 
-    fetchUser();
-  }, []);
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+
+  const handleLogout = async () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.replace("/auth");
+  };
 
   return (
     <div className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-emerald-100 z-50">
@@ -39,15 +28,39 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <div className="w-15 h-15 rounded-lg flex items-center justify-center">
-              <Image src={"/siraj_logo.svg"} alt="Logo" width={52} height={52} className="rounded-lg" />
+              <Image
+                src={"/siraj_logo.svg"}
+                alt="Logo"
+                width={52}
+                height={52}
+                className="rounded-lg"
+              />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-emerald-700 to-emerald-900 bg-clip-text text-transparent">
-              Siraj
+              SIRAJ
             </span>
           </Link>
 
           {/* Navigation Links */}
           <nav className="hidden md:flex space-x-8">
+            <a
+              href="#services"
+              className="text-gray-700 hover:text-emerald-700 transition-colors"
+            >
+              Services
+            </a>
+            <a
+              href="#how-it-works"
+              className="text-gray-700 hover:text-emerald-700 transition-colors"
+            >
+              How It Works
+            </a>
+            <a
+              href="#testimonials"
+              className="text-gray-700 hover:text-emerald-700 transition-colors"
+            >
+              Testimonials
+            </a>
             <Link
               href="/articles"
               className="text-gray-700 hover:text-emerald-700 transition-colors"
@@ -73,11 +86,21 @@ export default function Header() {
                   <MessageCircle color="#2ecc71" size={24} />
                 </Link>
                 <Link
-                  href="/profile"
+                  href={
+                    String(user.role) === "doctor"
+                      ? "/doctor/profile"
+                      : "/patient/profile"
+                  }
                   className="text-gray-700 hover:text-emerald-700 transition-colors"
                 >
                   <User color="#2ecc71" size={24} />
                 </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                >
+                  <LogOut color="#2ecc71" size={24} />
+                </button>
               </nav>
             ) : (
               !loading && (
