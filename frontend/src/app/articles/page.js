@@ -1,6 +1,15 @@
+"use client";
 import Post from "../../components/Post";
-
+import { useEffect, useState } from "react";
 export default async function Articles() {
+  // const [role, setRole] = useState("");
+  // useEffect(() => {
+  //   const data = localStorage.getItem("user");
+  //   if (data) {
+  //     setRole(JSON.parse(data));
+  //   }
+  // }, []);
+  // console.log("Role", role);
   let posts = null;
   try {
     const data = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}article`);
@@ -8,7 +17,6 @@ export default async function Articles() {
       throw new Error(`HTTP error! status: ${data.status}`);
     }
     posts = await data.json();
-    console.log("Posts are", posts);
   } catch (error) {
     console.error("Error fetching articles:", error);
     posts = null;
@@ -19,29 +27,17 @@ export default async function Articles() {
       {posts && posts.length > 0 ? (
         posts.map((post) => <Post {...post} key={post.id} />)
       ) : (
-        <div className="flex items-center justify-center py-16">
-          <div className="text-center p-8 rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-emerald-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center p-10 rounded-2xl bg-white/70 backdrop-blur-sm shadow-sm border border-emerald-100 max-w-md">
+            <div className="w-14 h-14 mx-auto mb-8 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center shadow-sm">
+              <img src={"/siraj_logo.svg"} className="w-9 h-9" />
             </div>
-            <h3 className="text-lg font-medium text-emerald-800 mb-2">
-              No Articles Available
+            <h3 className="text-lg font-semibold text-emerald-800 mb-3">
+              No Articles Yet
             </h3>
-            <p className="text-emerald-600 text-sm">
-              We couldn't find any articles at the moment. Check back later for
-              new content.
+            <p className="text-emerald-600/80 text-sm leading-relaxed max-w-xs mx-auto">
+              We're working on bringing you fresh content. Check back soon for
+              new articles and updates.
             </p>
           </div>
         </div>
