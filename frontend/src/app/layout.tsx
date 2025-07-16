@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Siraj",
+  title: "SIRAJ",
   description: "Mental health comunity ",
 };
 
