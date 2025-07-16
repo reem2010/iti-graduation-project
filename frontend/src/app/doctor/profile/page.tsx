@@ -442,7 +442,7 @@ export default function DoctorProfilePage() {
                   </svg>
                 </div>
               </div>
-
+              
               <h2 className="text-2xl font-bold text-siraj-gray-900 mb-3">
                 Hello {userInfo?.firstName || "there"}! 👋
               </h2>
@@ -459,7 +459,7 @@ export default function DoctorProfilePage() {
                   Need Help?
                 </h3>
                 <p className="text-siraj-gray-500 text-sm">
-                  Contact our support team if you're a doctor and need access to
+                  Contact our support team if you&#39;re a doctor and need access to
                   this section.
                 </p>
               </div>
