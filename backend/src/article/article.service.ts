@@ -19,6 +19,7 @@ export class ArticlesService {
             specialization: true,
             user: {
               select: {
+                id: true,
                 firstName: true,
                 lastName: true,
                 avatarUrl: true,
@@ -44,6 +45,7 @@ export class ArticlesService {
             specialization: true,
             user: {
               select: {
+                id: true,
                 firstName: true,
                 lastName: true,
                 avatarUrl: true,
@@ -72,6 +74,7 @@ export class ArticlesService {
             specialization: true,
             user: {
               select: {
+                id: true,
                 firstName: true,
                 lastName: true,
                 avatarUrl: true,
@@ -100,6 +103,7 @@ export class ArticlesService {
           include: {
             user: {
               select: {
+                id: true,
                 firstName: true,
                 lastName: true,
               },
