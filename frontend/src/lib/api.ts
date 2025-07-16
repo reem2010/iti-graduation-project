@@ -10,10 +10,8 @@ import {
   UpdateDoctorAvailabilityDto,
   UpdateDoctorProfileDto,
   UpdateDoctorVerificationDto,
-  User,
 } from "@/types";
 import axios from "axios";
-import { format } from "date-fns";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
@@ -261,9 +259,8 @@ export const appointmentApi = {
 
 // Messages API
 export const messagesApi = {
-  
   createMessage: async (data: any): Promise<any> => {
-    const response = await api.post('/messages', data);
+    const response = await api.post("/messages", data);
     return response.data;
   },
 
@@ -273,7 +270,7 @@ export const messagesApi = {
   },
 
   getUserChats: async (): Promise<any> => {
-    const response = await api.get('/messages');
+    const response = await api.get("/messages");
     return response.data;
   },
 
@@ -282,7 +279,15 @@ export const messagesApi = {
     return response.data;
   },
 
-  getConversation: async (senderId: number, recipientId: number): Promise<any[]> => {
+  getUnreadCount: async (): Promise<string> => {
+    const response = await api.get("/messages/unreadCount");
+    return response.data.unreadCount;
+  },
+
+  getConversation: async (
+    senderId: number,
+    recipientId: number
+  ): Promise<any[]> => {
     const response = await api.get(`/messages/${senderId}/${recipientId}`);
     return response.data;
   },
@@ -292,6 +297,102 @@ export const messagesApi = {
   },
 };
 
+//Article API
+export const articleApi = {
+  createArticle: async (data: { content: string; media?: string }) => {
+    const response = await api.post("/article", data);
+    return response.data;
+  },
+
+  updateArticle: async (
+    articleId: number | string,
+    data: {
+      content: string;
+      media?: string;
+    }
+  ) => {
+    const response = await api.put(`/article/${articleId}`, data);
+    return response.data;
+  },
+
+  deleteArticle: async (articleId: number | string) => {
+    await api.delete(`/article/${articleId}`);
+  },
+
+  getArticleById: async (articleId: number | string) => {
+    const response = await api.get(`/article/${articleId}`);
+    return response.data;
+  },
+
+  getAllArticles: async () => {
+    const response = await api.get(`/article`);
+    return response.data;
+  },
+};
+
+export const adminApi = {
+  getDoctors: async (params: {
+    skip?: number;
+    take?: number;
+    isActive?: boolean;
+    isVerified?: boolean;
+  }) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString());
+      }
+    });
+    const response = await api.get(`/admin/doctors?${queryParams.toString()}`);
+    return response.data;
+  },
+
+  updateDoctorStatus: async (
+    doctorId: number,
+    update: { isVerified?: boolean; isActive?: boolean }
+  ) => {
+    const response = await api.patch(
+      `/admin/doctors/${doctorId}/status`,
+      update
+    );
+    return response.data;
+  },
+
+  getTransactions: async (params: {
+    skip?: number;
+    take?: number;
+    status?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString());
+      }
+    });
+    const response = await api.get(
+      `/admin/transactions?${queryParams.toString()}`
+    );
+    return response.data;
+  },
+
+  getAppointments: async (params: {
+    skip?: number;
+    take?: number;
+    status?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString());
+      }
+    });
+    const response = await api.get(
+      `/admin/appointments?${queryParams.toString()}`
+    );
+    return response.data;
+  },
+};
+
 // Export all individual API services for easier import
 
-export default api; // Export the axios instance as default if needed elsewhere
+export default api;

@@ -2,8 +2,8 @@
 
 // Enums from your Prisma schema
 export enum Role {
-  USER = 'USER',
-  DOCTOR = 'DOCTOR',
+  PATIENT = 'patient',
+  DOCTOR = 'doctor',
   ADMIN = 'ADMIN',
 }
 
@@ -15,6 +15,7 @@ export enum VerificationStatus {
 
 // Base Interfaces matching Prisma models
 export interface User {
+  unreadMessagesCount: number;
   id: number;
   email: string;
   passwordHash: string;
@@ -88,7 +89,7 @@ export interface DoctorVerification {
 export interface DoctorAvailability {
   id: number;
   doctorId: number; // Assuming this is userId from DoctorProfile
-  dayOfWeek: string;
+  dayOfWeek: number;
   startTime: string; // Time string, e.g., "09:00"
   endTime: string;   // Time string, e.g., "17:00"
   validFrom: string; // Date string, e.g., "YYYY-MM-DD" or ISO string

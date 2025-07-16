@@ -107,6 +107,9 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     // Cache unread
     await this.messagesService.cacheUnreadMessages(senderId, payload.recipientId, savedMessage);
 
+    // increment count of total unread messages in Redis variable
+    await this.messagesService.incrementUnreadCount(payload.recipientId);
+
     // Emit to recipient
     this.server.to(payload.recipientId.toString()).emit('newMessage', savedMessage);
 

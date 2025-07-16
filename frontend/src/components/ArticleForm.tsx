@@ -2,7 +2,10 @@
 
 import { useState, useRef } from "react";
 import svg from "@/lib/svgs";
-import router from "next/router";
+import { useRouter } from "next/navigation";
+
+import { articleApi } from "@/lib/api";
+import toast from "react-hot-toast";
 interface ArticleFormProps {
   mode?: "create" | "edit";
   articleId?: string;
@@ -16,6 +19,7 @@ export default function ArticleForm({
   initialContent = "",
   initialMediaUrl = "",
 }: ArticleFormProps) {
+  const router = useRouter();
   const [content, setContent] = useState(initialContent);
   const [mediaUrl, setMediaUrl] = useState(initialMediaUrl);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
@@ -66,7 +70,7 @@ export default function ArticleForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) {
-      alert("Content is required");
+      toast.error("Content is required");
       return;
     }
 
@@ -81,7 +85,7 @@ export default function ArticleForm({
           finalMediaUrl = await uploadToCloudinary(mediaFile);
         } catch (err) {
           console.error("Upload error:", err);
-          alert("Failed to upload media. Try again.");
+          toast.error("Failed to upload media. Try again.");
           return;
         } finally {
           setIsUploading(false);
@@ -92,26 +96,31 @@ export default function ArticleForm({
         content: content.trim(),
       };
       if (finalMediaUrl) payload.media = finalMediaUrl;
+      try {
+        if (mode === "edit") {
+          if (!articleId) throw new Error("Missing article ID for editing");
 
-      const endpoint =
-        mode === "edit" ? `/api/article/${articleId}` : `/api/article`;
-      const method = mode === "edit" ? "PUT" : "POST";
+          await toast.promise(articleApi.updateArticle(articleId, payload), {
+            loading: "Updating article...",
+            success: "Article updated!",
+            error: "Failed to update article.",
+          });
+        } else {
+          await toast.promise(articleApi.createArticle(payload), {
+            loading: "Creating article...",
+            success: "Article created!",
+            error: "Failed to create article.",
+          });
+        }
 
-      const res = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        alert(`Article ${mode === "edit" ? "updated" : "created"}!`);
-        window.location.href = "/articles";
-      } else {
-        alert("Failed to save article.");
+        router.push("/articles");
+      } catch (error) {
+        console.error(error);
+        toast.error("Something went wrong.");
       }
     } catch (err) {
       console.error("Submit error:", err);
-      alert("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }

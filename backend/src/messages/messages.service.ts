@@ -93,7 +93,9 @@ export class MessagesService {
       select: { id: true, firstName: true, lastName: true },
     });
 
-    const userMap = new Map(users.map((u) => [u.id, [u.firstName, u.lastName].join(' ')]));
+    const userMap = new Map(
+      users.map((u) => [u.id, [u.firstName, u.lastName].join(' ')]),
+    );
 
     // Format response
     return Array.from(chatMap.values()).map((chat) => ({
@@ -129,19 +131,6 @@ export class MessagesService {
     });
   }
 
-  //   async markMessagesAsRead(senderId: number, recipientId: number) {
-  //     return this.prisma.message.updateMany({
-  //       where: {
-  //         senderId,
-  //         recipientId,
-  //         isRead: false,
-  //       },
-  //       data: {
-  //         isRead: true,
-  //       },
-  //     });
-  //   }
-
   /**
    * Retrieves the online status of a user.
    * This method checks Redis for the user's online status and returns it as an object.
@@ -163,7 +152,29 @@ export class MessagesService {
       0,
       -1,
     );
+
     return messages.map((msg) => JSON.parse(msg));
+  }
+
+  /**
+   * Increments the unread message count for a user.
+   * This method updates the Redis key that tracks the total unread messages for a user.
+   */
+  async incrementUnreadCount(userId: number) {
+    const redis = this.redisService.getClient();
+    await redis.incr(`user:${userId}:unreadCount`);
+
+    return { success: true };
+  }
+
+  /**
+   * Retrieves the total unread message count for a user.
+   * This method fetches the count from Redis and returns it.
+   */
+  async getUnreadCount(userId: number) {
+    const redis = this.redisService.getClient();
+    const count = await redis.get(`user:${userId}:unreadCount`);
+    return { unreadCount: count };
   }
 
   /**
@@ -172,7 +183,21 @@ export class MessagesService {
    */
   async clearUnreadMessages(userId: string, senderId: string) {
     const redis = this.redisService.getClient();
-    await redis.del(`user:${userId}:unreadMessages:from:${senderId}`);
+    // await redis.del(`user:${userId}:unreadMessages:from:${senderId}`);
+
+    const listKey = `user:${userId}:unreadMessages:from:${senderId}`;
+    const totalCountKey = `user:${userId}:unreadCount`;
+
+    // Get how many unread messages this sender has in Redis
+    const unreadCountFromSender = await redis.llen(listKey);
+
+    // Remove the list of unread messages from this sender
+    await redis.del(listKey);
+
+    // Decrease the total unread count by that number
+    if (unreadCountFromSender > 0) {
+      await redis.decrby(totalCountKey, unreadCountFromSender);
+    }
 
     // mark all messages as read in the database
     await this.prisma.message.updateMany({

@@ -123,7 +123,7 @@ export default function TherapistsPage() {
           {therapists.map((therapist: any) => (
             <Card
               key={therapist.id}
-              className="cursor-pointer border border-emerald-100 hover:shadow-lg transition-shadow duration-300 h-[380px] flex flex-col justify-center"
+              className="cursor-pointer border border-emerald-100 hover:shadow-lg transition-shadow duration-300 h-[420px] flex flex-col justify-center"
               onClick={() => router.push(`/doctor/${therapist.id}`)}
             >
               <CardContent className="p-4 space-y-3">
@@ -172,6 +172,15 @@ export default function TherapistsPage() {
                 >
                   Book Appointment
                 </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/chat?with=${therapist.id}`);
+                  }}
+                  className="w-full cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-center px-4 py-2 rounded-md font-medium transition-colors"
+                >
+                  Send message
+                </button>
               </CardContent>
             </Card>
           ))}
@@ -185,7 +194,7 @@ export default function TherapistsPage() {
               disabled={page === 1}
               className="bg-emerald-600 text-white"
             >
-              Previous
+              Prev
             </Button>
             <span className="text-gray-700">
               Page {page} of {totalPages}
