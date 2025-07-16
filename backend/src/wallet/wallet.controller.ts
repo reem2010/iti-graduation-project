@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
-import { UpdateWalletDto } from './dto/update-wallet.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { ApiTagsWallet, ApiCreateWallet, ApiGetWallet } from './wallet.swagger';
 
 @Controller('wallet')
 export class WalletController {
@@ -18,6 +18,7 @@ export class WalletController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
+  @ApiCreateWallet()
   create(@Body() createWalletDto: CreateWalletDto, @Request() req: any) {
     return this.walletService.create({
       ...createWalletDto,
@@ -27,6 +28,7 @@ export class WalletController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @ApiGetWallet()
   findOne(@Request() req: any) {
     return this.walletService.findOne(req.user.userId);
   }
