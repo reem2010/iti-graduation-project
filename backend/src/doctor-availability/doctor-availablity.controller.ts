@@ -9,13 +9,21 @@ import {
   ParseIntPipe,
   Req,
   Put,
-  Query,
   BadRequestException,
 } from '@nestjs/common';
 import { CreateDoctorAvailabilityDto } from './dto/create-doctor-availability.dto';
 import { UpdateDoctorAvailabilityDto } from './dto/update-doctor-availability.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { DoctorAvailabilityService } from './doctor-availablity.service';
+import {
+  ApiGetDoctorAvailabilities,
+  ApiGetAvailabilityByDoctorId,
+  ApiCreateEmptyAvailability,
+  ApiAddDoctorAvailability,
+  ApiUpdateDoctorAvailability,
+  ApiDeleteDoctorAvailability,
+  ApiGetWeeklySlots,
+} from './doctor-availability.swagger';
 
 @Controller('doctor-availability')
 export class DoctorAvailabilityController {
@@ -24,35 +32,39 @@ export class DoctorAvailabilityController {
   ) {}
 
   @Get()
+  @ApiGetDoctorAvailabilities()
   async getDoctorAvailabilities(@Req() user: any) {
     return this.doctorAvailabilityService.getDoctorAvailabilities(user);
   }
+
   @Get('doctor/:doctorId')
+  @ApiGetAvailabilityByDoctorId()
   getAvailabilityByDoctorId(@Param('doctorId', ParseIntPipe) doctorId: number) {
     return this.doctorAvailabilityService.getAvailabilityByDoctorId(doctorId);
   }
+
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createDoctorAvailability(
-    @Req() req,   
-  ) {
+  @ApiCreateEmptyAvailability()
+  async createDoctorAvailability(@Req() req) {
     return this.doctorAvailabilityService.createEmptyAvailability(
       req.user.userId,
-     
     );
   }
 
-  @Post("/add")
-@UseGuards(JwtAuthGuard) // 
-async create(
-  @Req() req,
-  @Body() dto: CreateDoctorAvailabilityDto,
-) {
-  return this.doctorAvailabilityService.createDoctorAvailability(req.user, dto);
-}
+  @Post('/add')
+  @UseGuards(JwtAuthGuard)
+  @ApiAddDoctorAvailability()
+  async create(@Req() req, @Body() dto: CreateDoctorAvailabilityDto) {
+    return this.doctorAvailabilityService.createDoctorAvailability(
+      req.user,
+      dto,
+    );
+  }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
+  @ApiUpdateDoctorAvailability()
   async updateDoctorAvailability(
     @Req() req,
     @Param('id', ParseIntPipe) id: number,
@@ -64,8 +76,10 @@ async create(
       dto,
     );
   }
+
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
+  @ApiDeleteDoctorAvailability()
   async deleteDoctorAvailability(
     @Req() req,
     @Param('id', ParseIntPipe) id: number,
@@ -77,6 +91,7 @@ async create(
   }
 
   @Get(':doctorId/slots')
+  @ApiGetWeeklySlots()
   async getWeeklySlots(@Param('doctorId') doctorId: string) {
     const parsedDoctorId = parseInt(doctorId, 10);
 
