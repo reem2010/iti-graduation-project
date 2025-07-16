@@ -259,9 +259,8 @@ export const appointmentApi = {
 
 // Messages API
 export const messagesApi = {
-  
   createMessage: async (data: any): Promise<any> => {
-    const response = await api.post('/messages', data);
+    const response = await api.post("/messages", data);
     return response.data;
   },
 
@@ -271,7 +270,7 @@ export const messagesApi = {
   },
 
   getUserChats: async (): Promise<any> => {
-    const response = await api.get('/messages');
+    const response = await api.get("/messages");
     return response.data;
   },
 
@@ -281,17 +280,53 @@ export const messagesApi = {
   },
 
   getUnreadCount: async (): Promise<string> => {
-    const response = await api.get('/messages/unreadCount');
+    const response = await api.get("/messages/unreadCount");
     return response.data.unreadCount;
   },
 
-  getConversation: async (senderId: number, recipientId: number): Promise<any[]> => {
+  getConversation: async (
+    senderId: number,
+    recipientId: number
+  ): Promise<any[]> => {
     const response = await api.get(`/messages/${senderId}/${recipientId}`);
     return response.data;
   },
 
   clearUnreadMessages: async (senderId: number): Promise<void> => {
     await api.patch(`/messages/unread/clear/${senderId}`);
+  },
+};
+
+//Article API
+export const articleApi = {
+  createArticle: async (data: { content: string; media?: string }) => {
+    const response = await api.post("/article", data);
+    return response.data;
+  },
+
+  updateArticle: async (
+    articleId: number | string,
+    data: {
+      content: string;
+      media?: string;
+    }
+  ) => {
+    const response = await api.put(`/article/${articleId}`, data);
+    return response.data;
+  },
+
+  deleteArticle: async (articleId: number | string) => {
+    await api.delete(`/article/${articleId}`);
+  },
+
+  getArticleById: async (articleId: number | string) => {
+    const response = await api.get(`/article/${articleId}`);
+    return response.data;
+  },
+
+  getAllArticles: async () => {
+    const response = await api.get(`/article`);
+    return response.data;
   },
 };
 
@@ -316,7 +351,10 @@ export const adminApi = {
     doctorId: number,
     update: { isVerified?: boolean; isActive?: boolean }
   ) => {
-    const response = await api.patch(`/admin/doctors/${doctorId}/status`, update);
+    const response = await api.patch(
+      `/admin/doctors/${doctorId}/status`,
+      update
+    );
     return response.data;
   },
 
@@ -331,7 +369,9 @@ export const adminApi = {
         queryParams.append(key, value.toString());
       }
     });
-    const response = await api.get(`/admin/transactions?${queryParams.toString()}`);
+    const response = await api.get(
+      `/admin/transactions?${queryParams.toString()}`
+    );
     return response.data;
   },
 
@@ -346,7 +386,9 @@ export const adminApi = {
         queryParams.append(key, value.toString());
       }
     });
-    const response = await api.get(`/admin/appointments?${queryParams.toString()}`);
+    const response = await api.get(
+      `/admin/appointments?${queryParams.toString()}`
+    );
     return response.data;
   },
 };

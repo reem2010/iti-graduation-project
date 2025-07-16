@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import svgs from "@/lib/svgs";
 import Router from "next/router";
-import { BASE_URL } from "@/lib/config";
+import { articleApi, authApi } from "@/lib/api";
 export default function Post({
   doctorProfile,
   content,
@@ -12,11 +12,11 @@ export default function Post({
   createdAt,
   updatedAt,
   id,
+  currentUser,
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
-
   const MAX_CHARS = 350;
-
+  const isOwner = currentUser === doctorProfile.user.id;
   const ImageExtensions = [
     "jpg",
     "jpeg",
@@ -53,16 +53,8 @@ export default function Post({
     if (!confirmed) return;
 
     try {
-      const res = await fetch(`${BASE_URL}/articles/${postId}`, {
-        method: "DELETE",
-      });
-
-      if (res.ok) {
-        alert("Post deleted.");
-        Router.push("/articles");
-      } else {
-        alert("Failed to delete post.");
-      }
+      await articleApi.deleteArticle(postId);
+      alert("Article Deleted!");
     } catch (err) {
       console.error(err);
       alert("Error deleting post.");
@@ -79,8 +71,8 @@ export default function Post({
       {/* Author */}
       <div className="flex items-center gap-4">
         <Image
-          src={doctorProfile.user.avatarUrl || "/anonymous.png"}
-          alt={`${doctorProfile.user.firstName} ${doctorProfile.user.lastName}`}
+          src={doctorProfile.user.avatarUrl || "/avatar.png"}
+          alt={`${doctorProfile.user.firstName[0]} ${doctorProfile.user.lastName[0]}`}
           width={56}
           height={56}
           className="rounded-full object-cover border border-emerald-500 "
@@ -130,24 +122,26 @@ export default function Post({
         </div>
       )}
 
-      <div className="flex justify-end gap-3 mt-6">
-        <Link
-          href={`/articles/${id}/edit`}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-muted transition"
-          title="Edit post"
-        >
-          {svgs.pencil}
-          <span>Edit</span>
-        </Link>
-        <button
-          onClick={() => handleDelete(id)}
-          className="btn-subtle"
-          title="Delete post"
-        >
-          {svgs.eraser}
-          <span>Delete</span>
-        </button>
-      </div>
+      {isOwner && (
+        <div className="flex justify-end gap-3 mt-6">
+          <Link
+            href={`/articles/${id}/edit`}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-muted transition"
+            title="Edit post"
+          >
+            {svgs.pencil}
+            <span>Edit</span>
+          </Link>
+          <button
+            onClick={() => handleDelete(id)}
+            className="btn-subtle"
+            title="Delete post"
+          >
+            {svgs.eraser}
+            <span>Delete</span>
+          </button>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="pt-4 mt-4 border-t   border-emerald-500 text-sm text-muted-foreground">
