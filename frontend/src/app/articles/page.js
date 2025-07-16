@@ -15,7 +15,6 @@ export default function Articles() {
       try {
         const parsedData = JSON.parse(userData);
         setData(parsedData);
-        console.log("User from localStorage:", parsedData);
       } catch (error) {
         console.error("Error parsing user from localStorage:", error);
       }
