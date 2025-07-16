@@ -68,10 +68,10 @@ export class AuthService {
     } else if (newUser.role === 'patient') {
       await this.patientService.createPatientProfile(newUser.id);
     }
-
+    const { passwordHash: _, ...userWithoutPassword } = newUser;
     return {
       message: 'User registered successfully',
-      user: newUser,
+      user: userWithoutPassword,
     };
   }
 
@@ -98,11 +98,12 @@ export class AuthService {
     };
 
     const access_token = await this.jwtService.signAsync(payload);
+    const { passwordHash: _, ...userWithoutPassword } = user;
 
     return {
       message: 'Login successful',
       access_token,
-      user,
+      user: userWithoutPassword,
     };
   }
 }

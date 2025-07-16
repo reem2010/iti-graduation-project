@@ -6,7 +6,6 @@ import { PrismaService } from 'prisma/prisma.service';
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
-  // --- DOCTORS LIST ---
   async getDoctors(params: {
     skip?: number;
     take?: number;
@@ -35,7 +34,6 @@ export class AdminService {
     return { data, total };
   }
 
-  // --- UPDATE DOCTOR STATUS ---
   async updateDoctorStatus(
     doctorId: number,
     update: { isVerified?: boolean; isActive?: boolean },
@@ -46,7 +44,6 @@ export class AdminService {
     });
   }
 
-  // --- TRANSACTIONS WITH STATUS FILTER ---
   async getTransactions(params: {
     skip?: number;
     take?: number;
@@ -76,7 +73,6 @@ export class AdminService {
     return { data, total };
   }
 
-  // --- APPOINTMENTS WITH STATUS FILTER ---
   async getAppointments(params: {
     skip?: number;
     take?: number;

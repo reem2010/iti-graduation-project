@@ -1,4 +1,4 @@
-import {forwardRef, Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -14,12 +14,13 @@ import { PaymobModule } from './paymob/paymob.module';
 import { WalletModule } from './wallet/wallet.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { AppointmentsModule } from './appointment/appointments.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MessagesModule } from './messages/messages.module';
 import { NotificationModule } from './notification/notification.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
+import { JwtStrategy } from './auth/jwt/jwt.strategy';
 
 @Module({
   imports: [
@@ -47,6 +48,6 @@ import { AdminModule } from './admin/admin.module';
     AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtStrategy],
 })
 export class AppModule {}

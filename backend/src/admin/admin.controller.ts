@@ -13,14 +13,21 @@ import { AppointmentStatus, TransactionStatus } from '@prisma/client';
 import { Roles } from 'src/auth/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
+import {
+  GetDoctorsSwagger,
+  UpdateDoctorStatusSwagger,
+  GetTransactionsSwagger,
+  GetAppointmentsSwagger,
+} from './admin.swagger';
 
 @Controller('admin')
-// @UseGuards(AuthGuard('jwt'), RolesGuard)
-// @Roles('admin')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles('admin')
 export class AdminController {
   constructor(private adminService: AdminService) {}
 
   @Get('doctors')
+  @GetDoctorsSwagger()
   async getDoctors(
     @Query('skip') skip?: string,
     @Query('take') take?: string,
@@ -42,6 +49,7 @@ export class AdminController {
   }
 
   @Patch('doctors/:id/status')
+  @UpdateDoctorStatusSwagger()
   async updateDoctorStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { isVerified?: boolean; isActive?: boolean },
@@ -50,6 +58,7 @@ export class AdminController {
   }
 
   @Get('transactions')
+  @GetTransactionsSwagger()
   async getTransactions(
     @Query('skip') skip?: string,
     @Query('take') take?: string,
@@ -63,6 +72,7 @@ export class AdminController {
   }
 
   @Get('appointments')
+  @GetAppointmentsSwagger()
   async getAppointments(
     @Query('skip') skip?: string,
     @Query('take') take?: string,

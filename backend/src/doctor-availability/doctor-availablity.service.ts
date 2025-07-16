@@ -14,11 +14,7 @@ export class DoctorAvailabilityService {
   constructor(private prisma: PrismaService) {}
 
   async getDoctorAvailabilities(user: any) {
-    const { userId /*, role*/ } = user;
-
-    // if (role !== 'doctor') {
-    //   throw new ForbiddenException('Only doctors can view availability');
-    // }
+    const { userId } = user;
 
     const records = await this.prisma.doctorAvailability.findMany({
       where: { doctorId: userId },

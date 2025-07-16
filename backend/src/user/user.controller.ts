@@ -28,6 +28,7 @@ export class UserController {
   delete(@Req() req) {
     return this.userService.deleteUser(req.user.userId);
   }
+
   @UseGuards(JwtAuthGuard)
   @Get('')
   getUser(@Req() req) {

@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/authContext";
 export default function Header() {
   const router = useRouter();
 
-  const { user, loading, unreadCount} = useAuth();
+  const { user, loading, unreadCount } = useAuth();
 
   if (loading) return null;
 
@@ -43,19 +43,19 @@ export default function Header() {
           {/* Navigation Links */}
           <nav className="hidden md:flex space-x-8">
             <a
-              href="#services"
+              href="/#services"
               className="text-gray-700 hover:text-emerald-700 transition-colors"
             >
               Services
             </a>
             <a
-              href="#how-it-works"
+              href="/#how-it-works"
               className="text-gray-700 hover:text-emerald-700 transition-colors"
             >
               How It Works
             </a>
             <a
-              href="#testimonials"
+              href="/#testimonials"
               className="text-gray-700 hover:text-emerald-700 transition-colors"
             >
               Testimonials

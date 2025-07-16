@@ -36,6 +36,7 @@ export class TransactionService {
         status: TransactionStatus.pending,
       },
     });
+    console.log(existingTx);
 
     if (existingTx) {
       const { orderId } = existingTx.metadata as { orderId: number };
@@ -46,6 +47,7 @@ export class TransactionService {
         email,
         phone,
       );
+      console.log(existingToken);
 
       return `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${existingToken}`;
     }
