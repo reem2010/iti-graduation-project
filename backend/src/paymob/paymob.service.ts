@@ -6,31 +6,35 @@ import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class PaymobService {
   private authToken: string | null = null;
+  private tokenGeneratedAt: number | null = null;
+  private TOKEN_VALIDITY_MS = 60 * 60 * 1000;
 
   constructor(
     private http: HttpService,
     private config: ConfigService,
   ) {}
+  private isTokenExpired(): boolean {
+    if (!this.authToken || !this.tokenGeneratedAt) return true;
+    return Date.now() - this.tokenGeneratedAt > this.TOKEN_VALIDITY_MS;
+  }
 
   async authenticate(): Promise<string> {
-    if (this.authToken) return this.authToken;
+    if (!this.isTokenExpired()) {
+      return this.authToken!;
+    }
 
     const apiKey = this.config.get<string>('PAYMOB_API_KEY');
-
     const response$ = this.http.post(
       'https://accept.paymob.com/api/auth/tokens',
-      {
-        api_key: apiKey,
-      },
+      { api_key: apiKey },
     );
 
     const response = await firstValueFrom(response$);
-    const token = response.data.token;
+    this.authToken = response.data.token;
+    this.tokenGeneratedAt = Date.now();
 
-    this.authToken = token;
-    return token;
+    return this.authToken;
   }
-
   async createOrder(amount: number, merchantOrderId?: string): Promise<number> {
     const token = await this.authenticate();
 
