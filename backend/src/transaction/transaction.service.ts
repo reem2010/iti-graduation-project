@@ -8,6 +8,7 @@ import { PaymobService } from 'src/paymob/paymob.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { TransactionStatus, TransactionType } from '@prisma/client';
 import { AppointmentsService } from 'src/appointment/appointments.service';
+import { RealtimeGateway } from 'src/realtime/realtime.gateway';
 
 @Injectable()
 export class TransactionService {
@@ -15,6 +16,7 @@ export class TransactionService {
     private readonly paymobService: PaymobService,
     private readonly prisma: PrismaService,
     private readonly appointmentsService: AppointmentsService,
+    private readonly gateWay: RealtimeGateway,
   ) {}
 
   async bookSession(
@@ -175,6 +177,10 @@ export class TransactionService {
             : 'Payment failed via Paymob',
       },
     });
+    await this.gateWay.emitPaymentStatusUpdate(
+      pending.appointmentId,
+      success ? 'completed' : 'failed',
+    );
     //Handle appointment creation/cancellation based on payment result
     if (!is_refund && pending.appointmentId) {
       if (success) {
