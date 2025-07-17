@@ -21,12 +21,14 @@ import { RealtimeModule } from './realtime/realtime.module';
 import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
 import { JwtStrategy } from './auth/jwt/jwt.strategy';
+import { MonitorModule } from './monitor/monitor.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    MonitorModule,
     PrismaModule,
     AuthModule,
     PatientModule,
