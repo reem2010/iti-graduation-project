@@ -123,6 +123,8 @@ export default function AuthPage() {
           router.push("/doctor/profile");
         } else if (user.role === "patient") {
           router.push("/patient/profile");
+        } else if (user.role === "admin") {
+          router.push("/admin");
         } else {
           router.push("/");
         }
