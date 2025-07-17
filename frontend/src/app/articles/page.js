@@ -48,7 +48,7 @@ export default function Articles() {
     <main className="min-h-screen py-10 px-4 ">
       {posts && posts.length > 0 ? (
         posts.map((post) => (
-          <Post {...post} key={post.id} currentUser={data.id} />
+          <Post {...post} key={post.id} currentUser={data ? data.id : null} />
         ))
       ) : (
         <div className="flex items-center justify-center py-20">
