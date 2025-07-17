@@ -1,13 +1,14 @@
 "use client";
 import toast from "react-hot-toast";
 import { useEffect, useState, useRef } from "react";
-
+import { connectSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
 import {
   appointmentApi,
   doctorAvailabilityApi,
   doctorProfileApi,
 } from "@/lib/api";
+import { useAuth } from "@/contexts/authContext";
 
 type Slot = {
   startTime: string;
@@ -52,10 +53,13 @@ export default function BookingPage() {
   const paymentWindowRef = useRef<Window | null>(null);
   const paymentTimerRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
+  const socketRef: any = useRef<any>(null);
+  const { user } = useAuth();
+  const [trigger, setTrigger] = useState(true);
 
   useEffect(() => {
     if (id) fetchSlotsAndDoctor();
-  }, [id]);
+  }, [id, trigger]);
 
   const fetchSlotsAndDoctor = async () => {
     try {
@@ -103,7 +107,15 @@ export default function BookingPage() {
         );
         setSuccessMessage("Appointment booked successfully!");
         setPaymentUrl(res.data.paymentUrl);
+        if (!user) return;
 
+        const socket = connectSocket(user.id);
+        socketRef.current = socket;
+        const topic = `payment-status:${res.data.appointmentId}`;
+
+        socket.on(topic, (data) => {
+          onUpdate(data.status);
+        });
         if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
         paymentTimerRef.current = setTimeout(() => {
           if (paymentWindowRef.current && !paymentWindowRef.current.closed) {
@@ -135,7 +147,15 @@ export default function BookingPage() {
       }
     }
   };
-
+  function onUpdate(status: string) {
+    if (status == "failed") {
+      toast.error("Payment Failed.");
+      setTrigger(!trigger);
+    } else {
+      toast.success("Appointment booked successfully!");
+      router.push("/doctor");
+    }
+  }
   return (
     <div className="min-h-screen flex justify-center items-center w-full mt-[70px] mb-[40px]">
       <div className="max-w-2xl mx-auto px-6 py-10 bg-white rounded-3xl shadow-lg w-[490px]">

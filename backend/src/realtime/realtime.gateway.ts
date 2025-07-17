@@ -16,7 +16,9 @@ import { forwardRef, Inject } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
 @WebSocketGateway({ cors: { origin: '*' } })
-export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class RealtimeGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -33,10 +35,13 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const token = client.handshake.auth.token || client.handshake.query.token;
     const userIdFromQuery = client.handshake.query.userId;
     let userId: number;
-    
+
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret123') as any;
+        const decoded = jwt.verify(
+          token,
+          process.env.JWT_SECRET || 'secret123',
+        ) as any;
         userId = decoded.userId;
       } catch {
         client.disconnect();
@@ -48,22 +53,22 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       client.disconnect();
       return;
     }
-    
+
     if (!userId) {
       client.disconnect();
       return;
     }
-    
+
     this.connectedUsers.set(client.id, userId);
-    
+
     // Join messages room (same as old gateway)
     client.join(userId.toString());
     console.log(`User ${userId} connected with socket ID ${client.id}`);
     await this.messagesService.setUserOnline(userId.toString());
-    
+
     // Join notifications room
     await client.join(`notifications_${userId}`);
-    
+
     client.emit('connected', {
       userId,
       message: 'Connected to messages and notifications',
@@ -76,7 +81,9 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     console.log(`Client ${client.id} disconnected`);
     const userId = this.connectedUsers.get(client.id);
     if (userId) {
-      console.log(`User ${userId} disconnected from messages and notifications`);
+      console.log(
+        `User ${userId} disconnected from messages and notifications`,
+      );
       await this.messagesService.setUserOffline(userId.toString());
       this.connectedUsers.delete(client.id);
     }
@@ -105,13 +112,19 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const savedMessage = await this.messagesService.create(payload, senderId);
 
     // Cache unread
-    await this.messagesService.cacheUnreadMessages(senderId, payload.recipientId, savedMessage);
+    await this.messagesService.cacheUnreadMessages(
+      senderId,
+      payload.recipientId,
+      savedMessage,
+    );
 
     // increment count of total unread messages in Redis variable
     await this.messagesService.incrementUnreadCount(payload.recipientId);
 
     // Emit to recipient
-    this.server.to(payload.recipientId.toString()).emit('newMessage', savedMessage);
+    this.server
+      .to(payload.recipientId.toString())
+      .emit('newMessage', savedMessage);
 
     // Emit confirmation to sender
     client.emit('messageSent', savedMessage);
@@ -121,19 +134,31 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   // Notification events
   @SubscribeMessage('createNotification')
-  async handleCreateNotification(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+  async handleCreateNotification(
+    @MessageBody() data: any,
+    @ConnectedSocket() client: Socket,
+  ) {
     const userId = this.connectedUsers.get(client.id);
     if (!userId) {
-      client.emit('error', { message: 'User not authenticated', timestamp: new Date().toISOString() });
+      client.emit('error', {
+        message: 'User not authenticated',
+        timestamp: new Date().toISOString(),
+      });
       return;
     }
     await this.sendNotificationToUser(data.userId, data);
-    client.emit('notificationCreated', { ...data, timestamp: new Date().toISOString() });
+    client.emit('notificationCreated', {
+      ...data,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   async sendNotificationToUser(userId: number, notification: any) {
     const room = `notifications_${userId}`;
-    this.server.to(room).emit('newNotification', { ...notification, timestamp: new Date().toISOString() });
+    this.server.to(room).emit('newNotification', {
+      ...notification,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   async sendNotificationToUsers(userIds: number[], notification: any) {
@@ -143,39 +168,45 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   async broadcastNotification(notification: any) {
-    this.server.emit('newNotification', { ...notification, timestamp: new Date().toISOString() });
+    this.server.emit('newNotification', {
+      ...notification,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   async updateUnreadCount(userId: number, unreadCount: number) {
     const room = `notifications_${userId}`;
-    this.server.to(room).emit('unreadCount', { unreadCount, timestamp: new Date().toISOString() });
+    this.server.to(room).emit('unreadCount', {
+      unreadCount,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   // Send both message and notification to the same user
   async sendMessageAndNotification(
-    userId: number, 
-    message: any, 
-    notification: any
+    userId: number,
+    message: any,
+    notification: any,
   ) {
     try {
       // Send message to messages room (same as old gateway)
       this.server.to(userId.toString()).emit('newMessage', {
         ...message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-      
+
       // Send notification to notifications room
       this.server.to(`notifications_${userId}`).emit('newNotification', {
         ...notification,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-      
+
       console.log(`Sent both message and notification to user ${userId}`);
-      
+
       return {
         success: true,
         message: 'Both message and notification sent successfully',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       console.error('Error sending message and notification:', error);
@@ -188,7 +219,14 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     return {
       connectedUsers: this.connectedUsers.size,
       users: Array.from(this.connectedUsers.values()),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
-} 
+
+  emitPaymentStatusUpdate(appointmentId: number, status: string) {
+    this.server.emit(`payment-status:${appointmentId}`, {
+      appointmentId,
+      status,
+    });
+  }
+}
