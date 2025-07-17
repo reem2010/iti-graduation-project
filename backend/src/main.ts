@@ -35,7 +35,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
-      process.env.Front_URL,
+      process.env.FRONT_URL,
     ],
     credentials: true,
   });
