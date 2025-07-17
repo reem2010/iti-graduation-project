@@ -18,6 +18,7 @@ import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
+
 // Extend the Request interface to include user from JWT
 interface AuthenticatedRequest extends Request {
   user: {
@@ -183,6 +184,8 @@ export class AppointmentsController {
       };
     }
   }
+
+  @UseGuards(JwtAuthGuard)
   @Get('my-appointments')
   async getMyAppointments(
     @Query('role') role: string,
