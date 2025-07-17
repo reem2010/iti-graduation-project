@@ -10,13 +10,14 @@ import { useAuth } from "@/contexts/authContext";
 export default function Header() {
   const router = useRouter();
 
-  const { user, loading, unreadCount } = useAuth();
+  const { user, setUser, loading, unreadCount } = useAuth();
 
   if (loading) return null;
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    setUser(null);
     router.replace("/auth");
   };
 
