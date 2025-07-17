@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
     .setTitle('Siraj Docs')
-    .setDescription('API Documentation for Sirah')
+    .setDescription('API Documentation for Siraj')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

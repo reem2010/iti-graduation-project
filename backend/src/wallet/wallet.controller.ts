@@ -11,7 +11,8 @@ import { WalletService } from './wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { ApiTagsWallet, ApiCreateWallet, ApiGetWallet } from './wallet.swagger';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Wallet')
 @Controller('wallet')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}

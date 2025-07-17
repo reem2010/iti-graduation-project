@@ -19,7 +19,9 @@ import {
   GetTransactionsSwagger,
   GetAppointmentsSwagger,
 } from './admin.swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Admin')
 @Controller('admin')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles('admin')

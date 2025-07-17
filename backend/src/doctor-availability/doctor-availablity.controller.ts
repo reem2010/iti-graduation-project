@@ -24,7 +24,9 @@ import {
   ApiDeleteDoctorAvailability,
   ApiGetWeeklySlots,
 } from './doctor-availability.swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Doctors')
 @Controller('doctor-availability')
 export class DoctorAvailabilityController {
   constructor(
