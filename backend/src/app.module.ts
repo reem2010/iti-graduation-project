@@ -13,12 +13,14 @@ import { TransactionModule } from './transaction/transaction.module';
 import { PaymobModule } from './paymob/paymob.module';
 import { ConfigModule } from '@nestjs/config';
 import { WalletModule } from './wallet/wallet.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
 
     PrismaModule,
 
