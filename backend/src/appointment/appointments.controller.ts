@@ -17,6 +17,7 @@ import { TransactionService } from 'src/transaction/transaction.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 
+
 // Extend the Request interface to include user from JWT
 interface AuthenticatedRequest extends Request {
   user: {
@@ -223,6 +224,8 @@ export class AppointmentsController {
       };
     }
   }
+
+  @UseGuards(JwtAuthGuard)
   @Get('my-appointments')
   async getMyAppointments(
     @Query('role') role: string,

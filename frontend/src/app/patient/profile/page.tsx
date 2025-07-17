@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { authApi, patientProfileApi } from "@/lib/api";
 import { User } from "@/types";
+import { useRouter } from "next/navigation";
+
 
 interface PatientFormData {
   emergencyContactName: string;
@@ -41,6 +43,8 @@ export default function PatientProfilePage() {
     gender: "",
     dateOfBirth: "",
   });
+
+  const router = useRouter();
 
   const fetchData = async () => {
     try {
@@ -157,7 +161,8 @@ export default function PatientProfilePage() {
     <div className="max-w-4xl mx-auto p-4 md:p-8">
       <div className="bg-siraj-white rounded-xl shadow-sm border border-siraj-gray-200 p-6 md:p-8">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        <div className="flex justify-between items-center flex-wrap gap-4 mb-8">
+          {/* Left side: Avatar and Name */}
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-siraj-gray-100 flex items-center justify-center overflow-hidden border-2 border-siraj-emerald-500/20">
               {userInfo?.avatarUrl ? (
@@ -180,6 +185,14 @@ export default function PatientProfilePage() {
               <p className="text-siraj-gray-500 mt-1">Patient Profile</p>
             </div>
           </div>
+
+          {/* Right side: Button */}
+          <button
+            onClick={() => router.push("/appointments/my-appointments")}
+            className="px-4 py-2 bg-siraj-emerald-600 text-white rounded-lg hover:bg-siraj-emerald-700 transition whitespace-nowrap"
+          >
+          My Appointments
+          </button>
         </div>
 
         {/* Personal Information Section */}

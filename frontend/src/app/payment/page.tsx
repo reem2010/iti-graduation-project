@@ -1,10 +1,32 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { appointmentApi} from "@/lib/api";
+import { useRouter, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
+
 
 export default function PaymentPage() {
   const searchParams = useSearchParams();
   const url = searchParams.get("url");
+  const router = useRouter();
+  const appointmentId = searchParams.get("appointmentId");
+
+  useEffect(() => {
+  if (!appointmentId) return;
+
+  const interval = setInterval(async () => {
+    const res = await appointmentApi.getPaymentStatus(Number(appointmentId));
+    if (res?.data?.isPaymentCompleted) {
+      toast.success("Payment successful!");
+      clearInterval(interval);
+      router.replace("/appointments");
+    }
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, [appointmentId,router]);
+
 
   if (!url) {
     return (

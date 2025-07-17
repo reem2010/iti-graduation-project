@@ -97,7 +97,7 @@ export default function BookingPage() {
 
       if (res.status === "payment_required") {
         // redirect to payment iframe
-        router.push(`/payment?url=${encodeURIComponent(res.data.paymentUrl)}`);
+        router.push(`/payment?url=${encodeURIComponent(res.data.paymentUrl)}&appointmentId=${res.data.appointmentId}`);
       } else {
         setSuccessMessage("Appointment booked successfully!");
         setSelectedSlot(null);
