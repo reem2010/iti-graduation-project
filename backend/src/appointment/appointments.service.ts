@@ -1,11 +1,19 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  forwardRef,
+  InternalServerErrorException,
+  ForbiddenException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { ZoomService } from 'src/zoom/zoom.service';
 import { AppointmentStatus } from '@prisma/client';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TransactionService } from 'src/transaction/transaction.service';
 
-interface paymentResult {
+export interface paymentResult {
   success: boolean;
   appointmentId?: number;
   paymentUrl?: string;
@@ -22,25 +30,38 @@ export class AppointmentsService {
     private transactionService: TransactionService,
   ) {}
 
-  async createAppointmentWithPayment(data: {
-    patientId: number;
-    doctorId: number;
-    startTime: Date;
-    endTime: Date;
-    price: number;
-    platformFee: number;
-    patientEmail: string;
-    patientPhone: string;
-  }): Promise<paymentResult> {
+  async createAppointmentWithPayment(
+    data: {
+      patientId: number;
+      doctorId: number;
+      startTime: Date;
+      endTime: Date;
+      price: number;
+      platformFee: number;
+      patientEmail: string;
+      patientPhone: string;
+    },
+    role: string,
+  ): Promise<any> {
+    if (role === 'doctor') {
+      throw new ForbiddenException(
+        'Doctors are not allowed to create appointments.',
+      );
+    }
+    await this.validateDoctorAvailabilityAndSlot(
+      data.doctorId,
+      new Date(data.startTime),
+      new Date(data.endTime),
+    );
     try {
-      console.log(data);
-
       const totalAmount = data.price + data.platformFee;
-      const hasEnoughBalanace = await this.walletService.pay(
+
+      const hasEnoughBalance = await this.walletService.pay(
         totalAmount,
         data.patientId,
       );
-      if (hasEnoughBalanace) {
+
+      if (hasEnoughBalance) {
         const appointment = await this.createAppointment({
           patientId: data.patientId,
           doctorId: data.doctorId,
@@ -51,29 +72,88 @@ export class AppointmentsService {
         });
 
         return {
-          success: true,
-          appointmentId: appointment.id,
-          message: 'Appointment created successfully using wallet balance', // No payment URL needed for wallet transactions
+          status: 'success',
+          message: 'Appointment created successfully using wallet balance',
+          data: {
+            appointmentId: appointment.id,
+            paymentMethod: 'wallet',
+          },
         };
       } else {
         const pendingAppointment = await this.createPendingAppointment(data);
-        const payementUrl = await this.transactionService.bookSession(
+        const paymentUrl = await this.transactionService.bookSession(
           pendingAppointment.id,
           data.patientId,
           totalAmount,
           data.patientEmail,
           data.patientPhone,
         );
+
         return {
-          success: false,
-          appointmentId: pendingAppointment.id,
-          paymentUrl: payementUrl,
+          status: 'payment_required',
           message: 'Payment required to complete the booking',
+          data: {
+            appointmentId: pendingAppointment.id,
+            paymentUrl: paymentUrl,
+            paymentMethod: 'paymob',
+          },
         };
       }
     } catch (error) {
       console.error('Error creating appointment:', error);
-      throw new Error('Failed to create appointment');
+      throw new InternalServerErrorException('Failed to create appointment');
+    }
+  }
+
+  private async validateDoctorAvailabilityAndSlot(
+    doctorId: number,
+    startTime: Date,
+    endTime: Date,
+  ): Promise<void> {
+    const overlappingAppointment = await this.prisma.appointment.findFirst({
+      where: {
+        doctorId,
+        status: { not: 'canceled' },
+        startTime: { lt: endTime },
+        endTime: { gt: startTime },
+      },
+    });
+
+    if (overlappingAppointment) {
+      throw new ConflictException({
+        message: 'This time slot is already booked.',
+        code: 'SLOT_CONFLICT',
+      });
+    }
+
+    const dayOfWeek = startTime.getDay();
+    console.log(dayOfWeek);
+    const allAvailabilities = await this.prisma.doctorAvailability.findMany({
+      where: {
+        doctorId,
+        dayOfWeek,
+        validFrom: { lte: startTime },
+        OR: [{ validUntil: null }, { validUntil: { gte: startTime } }],
+      },
+    });
+    console.log(allAvailabilities);
+    const inputStartHour = startTime.getHours() + startTime.getMinutes() / 60;
+    const inputEndHour = endTime.getHours() + endTime.getMinutes() / 60;
+
+    const availability = allAvailabilities.find((slot) => {
+      const slotStartHour =
+        slot.startTime.getHours() + slot.startTime.getMinutes() / 60;
+      const slotEndHour =
+        slot.endTime.getHours() + slot.endTime.getMinutes() / 60;
+
+      return slotStartHour <= inputStartHour && slotEndHour >= inputEndHour;
+    });
+
+    if (!availability) {
+      throw new BadRequestException({
+        message: 'This time is outside the doctor’s availability.',
+        code: 'NOT_AVAILABLE',
+      });
     }
   }
 
@@ -85,26 +165,7 @@ export class AppointmentsService {
     price: number;
     platformFee: number;
   }) {
-    const doctor = await this.prisma.user.findUnique({
-      where: { id: data.doctorId },
-      include: { doctorProfile: true },
-    });
-
-    const patient = await this.prisma.user.findUnique({
-      where: { id: data.patientId },
-      include: { patientProfile: true },
-    });
-    let endTime = new Date(data.endTime);
-    let startTime = new Date(data.startTime);
-    const duration = (endTime.getTime() - startTime.getTime()) / (1000 * 60); // duration in minutes
-    const zoomMeeting = await this.zoomService.createMeeting(doctor.email, {
-      topic: `Therapy Session - Dr. ${doctor.firstName} ${doctor.lastName}`,
-      startTime: startTime.toISOString(),
-      duration: duration,
-    });
-
-    // save the appointment in the database
-    const appointment = await this.prisma.appointment.create({
+    return this.prisma.appointment.create({
       data: {
         patientId: data.patientId,
         doctorId: data.doctorId,
@@ -112,31 +173,27 @@ export class AppointmentsService {
         endTime: data.endTime,
         price: data.price,
         platformFee: data.platformFee,
-        meetingUrl: zoomMeeting.join_url,
-        meetingId: zoomMeeting.id.toString(),
-        meetingPassword: zoomMeeting.password,
         status: AppointmentStatus.pending,
       },
       include: {
         patient: {
-          include: {
-            user: true,
-          },
+          include: { user: true },
         },
         doctorProfile: {
-          include: {
-            user: true,
-          },
+          include: { user: true },
         },
       },
     });
-    return appointment;
   }
 
   async confirmAppointmentPayment(appointmentId: number): Promise<void> {
     try {
       const appointment = await this.prisma.appointment.findUnique({
         where: { id: appointmentId },
+        include: {
+          patient: true,
+          doctorProfile: { include: { user: true } },
+        },
       });
 
       if (!appointment) {
@@ -144,10 +201,26 @@ export class AppointmentsService {
       }
 
       if (appointment.status === AppointmentStatus.pending) {
-        // If the appointment is pending, update appointment status to scheduled
+        const doctor = appointment.doctorProfile.user;
+        const startTime = appointment.startTime;
+        const endTime = appointment.endTime;
+        const duration =
+          (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+
+        const zoomMeeting = await this.zoomService.createMeeting(doctor.email, {
+          topic: `Therapy Session - Dr. ${doctor.firstName} ${doctor.lastName}`,
+          startTime: startTime.toISOString(),
+          duration: duration,
+        });
+
         await this.prisma.appointment.update({
           where: { id: appointmentId },
-          data: { status: 'scheduled' },
+          data: {
+            status: AppointmentStatus.scheduled,
+            meetingUrl: zoomMeeting.join_url,
+            meetingId: zoomMeeting.id.toString(),
+            meetingPassword: zoomMeeting.password,
+          },
         });
       }
     } catch (error) {
@@ -162,22 +235,17 @@ export class AppointmentsService {
       const appointment = await this.prisma.appointment.findUnique({
         where: { id: appointmentId },
       });
+
       if (!appointment) {
         throw new Error('Appointment not found');
       }
+
       if (appointment.status === AppointmentStatus.pending) {
-        // If the appointment is pending, update appointment status to canceled
-        if (appointment.meetingId) {
-          await this.zoomService.deleteMeeting(appointment.meetingId);
-        }
         await this.prisma.appointment.update({
           where: { id: appointmentId },
           data: {
             status: AppointmentStatus.canceled,
             cancelReason: 'Payment failed',
-            meetingUrl: null,
-            meetingId: null,
-            meetingPassword: null,
           },
         });
       }
@@ -339,7 +407,11 @@ export class AppointmentsService {
       throw new Error('Failed to update appointment');
     }
   }
-  async cancelAppointment(appointmentId: number, cancelReason: string) {
+  async cancelAppointment(
+    appointmentId: number,
+    cancelReason: string,
+    role: string,
+  ) {
     try {
       const appointment = await this.prisma.appointment.findUnique({
         where: { id: appointmentId },
@@ -348,7 +420,7 @@ export class AppointmentsService {
         throw new Error('Appointment not found');
       }
       if (appointment.status === 'scheduled') {
-        await this.handleRefund(appointmentId);
+        await this.handleRefund(appointmentId, role);
       }
 
       if (appointment.meetingId) {
@@ -383,7 +455,10 @@ export class AppointmentsService {
     }
   }
 
-  private async handleRefund(appointmentId: number): Promise<void> {
+  private async handleRefund(
+    appointmentId: number,
+    role: string,
+  ): Promise<void> {
     //refund based on 24 hrs
     try {
       const appointment = await this.prisma.appointment.findUnique({
@@ -399,7 +474,7 @@ export class AppointmentsService {
       const timeDifference = appointmentTime.getTime() - currentTime.getTime();
       const hoursUntilAppointment = timeDifference / (1000 * 60 * 60);
 
-      if (hoursUntilAppointment > 24) {
+      if (hoursUntilAppointment < 24 || role == 'doctor') {
         // Process refund to bank
         await this.transactionService.refundToBank(appointmentId);
       } else {
