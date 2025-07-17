@@ -56,6 +56,7 @@ export default function BookingPage() {
   const socketRef: any = useRef<any>(null);
   const { user } = useAuth();
   const [trigger, setTrigger] = useState(true);
+  if (!user) router.push("/auth");
 
   useEffect(() => {
     if (id) fetchSlotsAndDoctor();
