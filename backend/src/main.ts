@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as crypto from 'crypto';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 if (!(global as any).crypto?.randomUUID) {
   (global as any).crypto = {
@@ -30,7 +32,11 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      process.env.Front_URL,
+    ],
     credentials: true,
   });
   await app.listen(process.env.PORT ?? 3000);
