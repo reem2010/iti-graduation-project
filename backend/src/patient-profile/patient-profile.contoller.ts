@@ -7,33 +7,52 @@ import {
   Body,
   UseGuards,
   Req,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { PatientService } from './patient-profile.service';
-import { CreatePatientDto } from './dto/create-patient-profile.dto';
 import { UpdatePatientDto } from './dto/update-patient-profile.dto';
+import {
+  ApiTagsPatient,
+  ApiGetPatientProfileById,
+  ApiGetOwnPatientProfile,
+  ApiCreatePatientProfile,
+  ApiUpdatePatientProfile,
+  ApiDeletePatientProfile,
+} from './patient.swagger';
 
 @Controller('patients')
-@UseGuards(JwtAuthGuard)
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
+  @Get(':userId')
+  @ApiGetPatientProfileById()
+  getPatientProfileById(@Param('userId', ParseIntPipe) userId: number) {
+    return this.patientService.getPatientProfileById(userId);
+  }
 
-  @Get('')
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  @ApiGetOwnPatientProfile()
   getPatientProfile(@Req() req) {
     return this.patientService.getPatientProfile(req.user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  createPatientProfile(@Req() req, @Body() dto: CreatePatientDto) {
-    return this.patientService.createPatientProfile(req.user, dto);
+  @ApiCreatePatientProfile()
+  createPatientProfile(@Req() req) {
+    return this.patientService.createPatientProfile(req.user.userId);
   }
-
+  @UseGuards(JwtAuthGuard)
   @Put()
+  @ApiUpdatePatientProfile()
   updatePatientProfile(@Req() req, @Body() dto: UpdatePatientDto) {
     return this.patientService.updatePatientProfile(req.user, dto);
   }
-
+  @UseGuards(JwtAuthGuard)
   @Delete()
+  @ApiDeletePatientProfile()
   deletePatientProfile(@Req() req) {
     return this.patientService.deletePatientProfile(req.user);
   }

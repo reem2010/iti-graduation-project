@@ -13,11 +13,7 @@ export class DoctorAvailabilityService {
   constructor(private prisma: PrismaService) {}
 
   async getDoctorAvailabilities(user: any) {
-    const { userId /*, role*/ } = user;
-
-    // if (role !== 'doctor') {
-    //   throw new ForbiddenException('Only doctors can view availability');
-    // }
+    const { userId } = user;
 
     const records = await this.prisma.doctorAvailability.findMany({
       where: { doctorId: userId },
@@ -33,28 +29,26 @@ export class DoctorAvailabilityService {
     };
   }
 
-  async getDoctorAvailabilityById(user: any, id: number) {
-    const { userId /*, role */ } = user;
-    // if (role !== 'doctor') {
-    //   throw new ForbiddenException('Only doctors can view availability by ID');
-    // }
-    const availability = await this.prisma.doctorAvailability.findUnique({
-      where: { id, doctorId: userId },
+  async getAvailabilityByDoctorId(doctorId: number) {
+    const slots = await this.prisma.doctorAvailability.findMany({
+      where: { doctorId },
     });
-    if (!availability) {
-      throw new NotFoundException('Availability record not found');
-    }
+
     return {
       message: 'Doctor availability fetched successfully',
-      data: availability,
+      data: slots,
     };
   }
 
-  async createDoctorAvailability(user: any, dto: CreateDoctorAvailabilityDto) {
-    const { userId, role } = user;
+  async createEmptyAvailability(userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
-    if (role !== 'doctor') {
-      throw new ForbiddenException('Only doctors can create availability');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role !== 'doctor') {
+      throw new ForbiddenException('Only doctors can have availability');
     }
 
     const profile = await this.prisma.doctorProfile.findUnique({
@@ -67,33 +61,63 @@ export class DoctorAvailabilityService {
       );
     }
 
-    const exists = await this.prisma.doctorAvailability.findFirst({
-      where: {
+    const existing = await this.prisma.doctorAvailability.findFirst({
+      where: { doctorId: userId },
+    });
+
+    if (existing) {
+      return {
+        message: 'Availability already exists',
+      };
+    }
+
+    // Empty availability record (just to initialize if needed)
+    await this.prisma.doctorAvailability.create({
+      data: {
+        doctorId: userId,
+        dayOfWeek: 0,
+        startTime: new Date(),
+        endTime: new Date(),
+        validFrom: new Date(),
+        validUntil: null,
+      },
+    });
+
+    return {
+      message: 'Empty doctor availability created',
+    };
+  }
+
+  async createDoctorAvailability(user: any, dto: CreateDoctorAvailabilityDto) {
+    const { userId, role } = user;
+
+    if (role !== 'doctor') {
+      throw new ForbiddenException('Only doctors can create availability');
+    }
+
+    const doctorProfile = await this.prisma.doctorProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!doctorProfile) {
+      throw new BadRequestException('Doctor profile not found');
+    }
+
+    const newAvailability = await this.prisma.doctorAvailability.create({
+      data: {
         doctorId: userId,
         dayOfWeek: dto.dayOfWeek,
         startTime: new Date(dto.startTime),
         endTime: new Date(dto.endTime),
-      },
-    });
-
-    if (exists) {
-      throw new BadRequestException('This availability already exists');
-    }
-
-    const created = await this.prisma.doctorAvailability.create({
-      data: {
-        doctorId: userId,
-        ...dto,
-        startTime: new Date(dto.startTime),
-        endTime: new Date(dto.endTime),
         validFrom: new Date(dto.validFrom),
-        validUntil: dto.validUntil ? new Date(dto.validUntil) : undefined,
+        validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
+        isRecurring: dto.isRecurring ?? false,
       },
     });
 
     return {
       message: 'Doctor availability created successfully',
-      data: created,
+      data: newAvailability,
     };
   }
 
@@ -155,5 +179,109 @@ export class DoctorAvailabilityService {
     return {
       message: 'Doctor availability deleted successfully',
     };
+  }
+
+  async getNext7DaysAvailableSlots(doctorId: number) {
+    const now = new Date();
+
+    const today = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    );
+
+    const endOfRange = new Date(today);
+    endOfRange.setUTCDate(today.getUTCDate() + 7);
+
+    const slots: { date: string; startTime: string; endTime: string }[] = [];
+
+    const availabilities = await this.prisma.doctorAvailability.findMany({
+      where: {
+        doctorId,
+        validFrom: { lte: endOfRange },
+        OR: [{ validUntil: null }, { validUntil: { gte: today } }],
+      },
+    });
+
+    if (!availabilities.length) return [];
+
+    const appointments = await this.prisma.appointment.findMany({
+      where: {
+        doctorId,
+        startTime: { gte: today, lt: endOfRange },
+        status: { notIn: ['canceled', 'no_show'] },
+      },
+    });
+
+    const bookedTimes = appointments.map((a) => a.startTime.toISOString());
+
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(today);
+      currentDate.setUTCDate(today.getUTCDate() + i);
+
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const dayOfWeek = currentDate.getUTCDay(); // 0 (Sun) to 6 (Sat)
+
+      const dayAvailabilities = availabilities.filter((av) => {
+        const validFrom = new Date(av.validFrom);
+        const validUntil = av.validUntil ? new Date(av.validUntil) : null;
+
+        return (
+          av.dayOfWeek === dayOfWeek &&
+          currentDate >= validFrom &&
+          (!validUntil || currentDate <= validUntil)
+        );
+      });
+
+      for (const availability of dayAvailabilities) {
+        const availabilityStart = new Date(availability.startTime);
+        const availabilityEnd = new Date(availability.endTime);
+
+        const startTime = new Date(
+          Date.UTC(
+            currentDate.getUTCFullYear(),
+            currentDate.getUTCMonth(),
+            currentDate.getUTCDate(),
+            availabilityStart.getUTCHours(),
+            availabilityStart.getUTCMinutes(),
+          ),
+        );
+
+        const endTime = new Date(
+          Date.UTC(
+            currentDate.getUTCFullYear(),
+            currentDate.getUTCMonth(),
+            currentDate.getUTCDate(),
+            availabilityEnd.getUTCHours(),
+            availabilityEnd.getUTCMinutes(),
+          ),
+        );
+
+        const isToday =
+          currentDate.getUTCFullYear() === now.getUTCFullYear() &&
+          currentDate.getUTCMonth() === now.getUTCMonth() &&
+          currentDate.getUTCDate() === now.getUTCDate();
+
+        if (isToday && startTime <= now) {
+          continue;
+        }
+
+        if (!bookedTimes.includes(startTime.toISOString())) {
+          slots.push({
+            date: dateStr,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+          });
+        }
+      }
+    }
+
+    return slots;
   }
 }

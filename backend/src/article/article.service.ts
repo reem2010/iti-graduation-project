@@ -10,7 +10,25 @@ export class ArticlesService {
   constructor(private prisma: PrismaService) {}
   //1-Get All articles
   async findAll() {
-    const articles = await this.prisma.article.findMany({});
+    const articles = await this.prisma.article.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        doctorProfile: {
+          select: {
+            yearsOfExperience: true,
+            specialization: true,
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
     if (!articles) {
       return [];
     }
@@ -20,6 +38,22 @@ export class ArticlesService {
   async findById(id: number) {
     const article = await this.prisma.article.findUnique({
       where: { id },
+      include: {
+        doctorProfile: {
+          select: {
+            yearsOfExperience: true,
+            specialization: true,
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!article) {
       throw new NotFoundException('Article not found');
@@ -33,6 +67,22 @@ export class ArticlesService {
     };
     const articles = await this.prisma.article.findMany({
       where,
+      include: {
+        doctorProfile: {
+          select: {
+            yearsOfExperience: true,
+            specialization: true,
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!articles) {
       throw new NotFoundException('No Articles found for doctor');
@@ -53,6 +103,7 @@ export class ArticlesService {
           include: {
             user: {
               select: {
+                id: true,
                 firstName: true,
                 lastName: true,
               },

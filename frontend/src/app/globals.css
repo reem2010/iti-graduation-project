@@ -3,24 +3,200 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #171717;
+  --primary-foreground: #fafafa;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #f5f5f5;
+  --accent-foreground: #171717;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #171717;
+  --radius: 0.5rem;
+
+  /* Siraj Brand Colors - Extracted from Home Page */
+  --siraj-emerald-50: #ecfdf5;
+  --siraj-emerald-100: #d1fae5;
+  --siraj-emerald-200: #a7f3d0;
+  --siraj-emerald-300: #6ee7b7;
+  --siraj-emerald-400: #34d399;
+  --siraj-emerald-500: #10b981;
+  --siraj-emerald-600: #059669;
+  --siraj-emerald-700: #047857;
+  --siraj-emerald-800: #065f46;
+  --siraj-emerald-900: #064e3b;
+
+  /* Amber Colors */
+  --siraj-amber-400: #fbbf24;
+  --siraj-amber-500: #f59e0b;
+  --siraj-amber-600: #d97706;
+  --siraj-amber-700: #b45309;
+
+  /* Gray Colors */
+  --siraj-gray-50: #f9fafb;
+  --siraj-gray-100: #f3f4f6;
+  --siraj-gray-200: #e5e7eb;
+  --siraj-gray-300: #d1d5db;
+  --siraj-gray-400: #9ca3af;
+  --siraj-gray-500: #6b7280;
+  --siraj-gray-600: #4b5563;
+  --siraj-gray-700: #374151;
+  --siraj-gray-800: #1f2937;
+  --siraj-gray-900: #111827;
+
+  /* White/Transparent */
+  --siraj-white: #ffffff;
+  --siraj-white-95: rgba(255, 255, 255, 0.95);
+  --siraj-white-10: rgba(255, 255, 255, 0.1);
+  --siraj-white-20: rgba(255, 255, 255, 0.2);
+
+  /* Green for status */
+  --siraj-green-500: #10b981;
+
+  /* Dark colors */
+  --siraj-dark-900: #111827;
+  --siraj-dark-800: #1f2937;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Siraj Brand Colors for Tailwind */
+  --color-siraj-emerald-50: var(--siraj-emerald-50);
+  --color-siraj-emerald-100: var(--siraj-emerald-100);
+  --color-siraj-emerald-200: var(--siraj-emerald-200);
+  --color-siraj-emerald-300: var(--siraj-emerald-300);
+  --color-siraj-emerald-400: var(--siraj-emerald-400);
+  --color-siraj-emerald-500: var(--siraj-emerald-500);
+  --color-siraj-emerald-600: var(--siraj-emerald-600);
+  --color-siraj-emerald-700: var(--siraj-emerald-700);
+  --color-siraj-emerald-800: var(--siraj-emerald-800);
+  --color-siraj-emerald-900: var(--siraj-emerald-900);
+  --color-siraj-amber-400: var(--siraj-amber-400);
+  --color-siraj-amber-500: var(--siraj-amber-500);
+  --color-siraj-amber-600: var(--siraj-amber-600);
+  --color-siraj-amber-700: var(--siraj-amber-700);
+  --color-siraj-gray-50: var(--siraj-gray-50);
+  --color-siraj-gray-100: var(--siraj-gray-100);
+  --color-siraj-gray-200: var(--siraj-gray-200);
+  --color-siraj-gray-300: var(--siraj-gray-300);
+  --color-siraj-gray-400: var(--siraj-gray-400);
+  --color-siraj-gray-500: var(--siraj-gray-500);
+  --color-siraj-gray-600: var(--siraj-gray-600);
+  --color-siraj-gray-700: var(--siraj-gray-700);
+  --color-siraj-gray-800: var(--siraj-gray-800);
+  --color-siraj-gray-900: var(--siraj-gray-900);
+  --color-siraj-white: var(--siraj-white);
+  --color-siraj-white-95: var(--siraj-white-95);
+  --color-siraj-white-10: var(--siraj-white-10);
+  --color-siraj-white-20: var(--siraj-white-20);
+  --color-siraj-green-500: var(--siraj-green-500);
+  --color-siraj-dark-900: var(--siraj-dark-900);
+  --color-siraj-dark-800: var(--siraj-dark-800);
 }
 
-@media (prefers-color-scheme: dark) {
+/* Buttons */
+.btn-primary {
+  @apply px-6 py-2 rounded-lg font-medium transition;
+  background-color: var(--siraj-emerald-500);
+  color: var(--siraj-white);
+}
+.btn-primary:hover {
+  background-color: var(--siraj-emerald-600);
+}
+.btn-primary:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Textarea / Input fields */
+.input-field {
+  @apply w-full p-4 rounded-lg border text-sm;
+  background-color: var(--siraj-gray-50);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+.input-field:disabled {
+  @apply opacity-50;
+}
+
+/* Labels */
+.form-label {
+  @apply block text-sm font-medium mb-2;
+  color: var(--foreground);
+}
+.border-avater {
+  border: var(--siraj-emerald-500);
+}
+/* Card wrapper */
+.card {
+  @apply rounded-lg shadow-lg p-8;
+  background-color: var(--card);
+  color: var(--card-foreground);
+}
+
+/* Media preview block */
+.media-preview {
+  @apply mt-4 rounded-lg p-4;
+  background-color: var(--siraj-gray-100);
+}
+.btn-subtle {
+  @apply flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-muted transition;
+}
+
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --card: #0a0a0a;
+    --card-foreground: #ededed;
+    --popover: #0a0a0a;
+    --popover-foreground: #ededed;
+    --primary: #ededed;
+    --primary-foreground: #0a0a0a;
+    --secondary: #262626;
+    --secondary-foreground: #ededed;
+    --muted: #262626;
+    --muted-foreground: #a3a3a3;
+    --accent: #262626;
+    --accent-foreground: #ededed;
+    --destructive: #7f1d1d;
+    --destructive-foreground: #ededed;
+    --border: #262626;
+    --input: #262626;
+    --ring: #ededed;
   }
-}
+} */
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
+  }

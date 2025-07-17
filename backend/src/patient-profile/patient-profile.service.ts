@@ -40,12 +40,25 @@ export class PatientService {
     };
   }
 
-  async createPatientProfile(user: any, dto: CreatePatientDto) {
-    const { userId, role } = user;
+  async getPatientProfileById(userId: number) {
+    const patient = await this.prisma.patient.findUnique({
+      where: { userId },
+      include: { user: true },
+    });
 
-    if (role !== 'patient') {
-      throw new ForbiddenException('Only patients can create their profile');
+    if (!patient) {
+      throw new NotFoundException('Patient profile does not exist');
     }
+
+    return {
+      message: 'Patient profile fetched successfully',
+      data: patient,
+    };
+  }
+
+  async createPatientProfile(userId: any) {
+
+
 
     const userExists = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -63,12 +76,16 @@ export class PatientService {
       throw new BadRequestException('Patient profile already exists');
     }
 
-    const newPatient = await this.prisma.patient.create({
-      data: {
-        userId,
-        ...dto,
-      },
-    });
+   const newPatient = await this.prisma.patient.create({
+  data: {
+    userId,
+    emergencyContactName: null,
+    emergencyContactPhone: null,
+    insuranceProvider: null,
+    insurancePolicyNumber: null,
+  },
+});
+
 
     return {
       message: 'Patient profile created successfully',

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,6 +7,218 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  APPOINTMENT
+  PAYMENT
+  VERIFICATION
+  MESSAGE
+  REVIEW
+  REMINDER
+  ARTICLE
+  SYSTEM
+}
+
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  userId      Int
+  title       String
+  message     String
+  isRead      Boolean          @default(false)
+  referenceId Int? // Links to specific resources (appointment, message, etc.)
+  type        NotificationType @default(INFO)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                           Int                  @id @default(autoincrement())
+  email                        String               @unique
+  passwordHash                 String
+  role                         Role
+  createdAt                    DateTime             @default(now())
+  updatedAt                    DateTime             @updatedAt
+  firstName                    String
+  lastName                     String
+  phone                        String?
+  avatarUrl                    String?
+  dateOfBirth                  DateTime?
+  gender                       String?
+  preferredLanguage            String               @default("en")
+  timezone                     String?
+  bio                          String?
+  isVerified                   Boolean              @default(false)
+  isActive                     Boolean              @default(true)
+  lastLogin                    DateTime?
+  doctorProfile                DoctorProfile?       @relation("DoctorProfileToUser")
+  doctorVerificationsReviewed  DoctorVerification[] @relation("DoctorVerificationReviewer")
+  doctorVerificationsRequested DoctorVerification[] @relation("DoctorVerificationRequester")
+  messagesReceived             Message[]            @relation("ReceivedMessages")
+  messagesSent                 Message[]            @relation("SentMessages")
+  notifications                Notification[]
+  patientProfile               Patient?             @relation("PatientToUser")
+  transactions                 Transaction[]
+  wallet                       Wallet?              @relation("WalletToUser")
+}
+
+model Patient {
+  userId                Int           @id
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  insuranceProvider     String?
+  insurancePolicyNumber String?
+  appointmentsAsPatient Appointment[] @relation("PatientAppointments")
+  user                  User          @relation("PatientToUser", fields: [userId], references: [id], onDelete: Cascade)
+  reviewsGiven          Review[]      @relation("PatientReviews")
+}
+
+model DoctorProfile {
+  userId                 Int                  @id
+  title                  String
+  specialization         String
+  yearsOfExperience      Int
+  consultationFee        Decimal
+  languages              String[]
+  isAcceptingNewPatients Boolean              @default(true)
+  stripeAccountId        String?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  appointmentsAsDoctor   Appointment[]        @relation("DoctorProfileAppointments")
+  articles               Article[]            @relation("DoctorProfileArticles")
+  availabilities         DoctorAvailability[] @relation("DoctorProfileAvailability")
+  user                   User                 @relation("DoctorProfileToUser", fields: [userId], references: [id], onDelete: Cascade)
+  reviewsReceived        Review[]             @relation("DoctorProfileReviews")
+}
+
+model DoctorVerification {
+  id                     Int                @id @default(autoincrement())
+  userId                 Int
+  licenseNumber          String
+  licensePhotoUrl        String
+  degree                 String
+  university             String
+  graduationYear         Int
+  specialization         String
+  idProofUrl             String
+  cvUrl                  String?
+  additionalCertificates Json?
+  status                 VerificationStatus @default(pending)
+  reviewedBy             Int?
+  reviewedAt             DateTime?
+  rejectionReason        String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  reviewer               User?              @relation("DoctorVerificationReviewer", fields: [reviewedBy], references: [id])
+  user                   User               @relation("DoctorVerificationRequester", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Article {
+  id            Int           @id @default(autoincrement())
+  doctorId      Int
+  content       String
+  media         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  doctorProfile DoctorProfile @relation("DoctorProfileArticles", fields: [doctorId], references: [userId], onDelete: Cascade)
+}
+
+model Review {
+  id            Int           @id @default(autoincrement())
+  patientId     Int
+  doctorId      Int
+  rating        Int
+  comment       String?
+  isAnonymous   Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  doctorProfile DoctorProfile @relation("DoctorProfileReviews", fields: [doctorId], references: [userId], onDelete: Cascade)
+  patient       Patient       @relation("PatientReviews", fields: [patientId], references: [userId], onDelete: Cascade)
+}
+
+model Appointment {
+  id              Int               @id @default(autoincrement())
+  patientId       Int
+  doctorId        Int
+  startTime       DateTime
+  endTime         DateTime
+  status          AppointmentStatus @default(scheduled)
+  cancelReason    String?
+  meetingUrl      String?
+  meetingId       String?
+  meetingPassword String?
+  price           Decimal
+  platformFee     Decimal
+  paymentStatus   PaymentStatus     @default(pending)
+  paymentIntentId String?
+  diagnosis       String?
+  prescription    String?
+  notes           String?
+  documents       Json?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  doctorProfile   DoctorProfile     @relation("DoctorProfileAppointments", fields: [doctorId], references: [userId], onDelete: Cascade)
+  patient         Patient           @relation("PatientAppointments", fields: [patientId], references: [userId], onDelete: Cascade)
+  Transaction     Transaction[]
+}
+
+model DoctorAvailability {
+  id            Int           @id @default(autoincrement())
+  doctorId      Int
+  dayOfWeek     Int
+  startTime     DateTime
+  endTime       DateTime
+  isRecurring   Boolean       @default(true)
+  validFrom     DateTime      @default(now())
+  validUntil    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  doctorProfile DoctorProfile @relation("DoctorProfileAvailability", fields: [doctorId], references: [userId], onDelete: Cascade)
+
+  @@unique([doctorId, dayOfWeek, startTime, endTime])
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  senderId    Int
+  recipientId Int
+  content     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Wallet {
+  userId    Int      @id
+  balance   Decimal  @default(0.00)
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation("WalletToUser", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id            Int               @id @default(autoincrement())
+  userId        Int
+  appointmentId Int?
+  amount        Decimal
+  type          TransactionType
+  status        TransactionStatus @default(pending)
+  description   String?
+  metadata      Json?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+}
 
 enum Role {
   patient
@@ -31,6 +237,7 @@ enum AppointmentStatus {
   completed
   canceled
   no_show
+  pending
 }
 
 enum PaymentStatus {
@@ -53,213 +260,3 @@ enum TransactionStatus {
   completed
   failed
 }
-
-model User {
-  id                Int        @id @default(autoincrement())
-  email             String     @unique
-  passwordHash      String
-  role              Role
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-  firstName         String
-  lastName          String
-  phone             String?
-  avatarUrl         String?
-  dateOfBirth       DateTime?
-  gender            String?
-  preferredLanguage String     @default("en")
-  timezone          String?
-  bio               String?
-  isVerified        Boolean    @default(false)
-  isActive          Boolean    @default(true)
-  lastLogin         DateTime?
-
-  patientProfile    Patient?       @relation("PatientToUser")
-  doctorProfile     DoctorProfile? @relation("DoctorProfileToUser")
-  wallet            Wallet?        @relation("WalletToUser")
-
-  doctorVerificationsRequested DoctorVerification[] @relation("DoctorVerificationRequester")
-  doctorVerificationsReviewed  DoctorVerification[] @relation("DoctorVerificationReviewer")
-
-  messagesSent      Message[]  @relation("SentMessages")
-  messagesReceived  Message[]  @relation("ReceivedMessages")
-  notifications     Notification[]
-  transactions      Transaction[]
-}
-
-model Patient {
-  userId                Int     @id
-  emergencyContactName  String?
-  emergencyContactPhone String?
-  insuranceProvider     String?
-  insurancePolicyNumber String?
-
-  user                  User    @relation("PatientToUser", fields: [userId], references: [id], onDelete: Cascade)
-  reviewsGiven          Review[]  @relation("PatientReviews")
-  appointmentsAsPatient Appointment[] @relation("PatientAppointments")
-}
-
-model DoctorProfile {
-  userId                 Int     @id
-  title                  String
-  specialization         String
-  yearsOfExperience      Int
-  consultationFee        Decimal
-  languages              String[]
-  isAcceptingNewPatients Boolean  @default(true)
-  stripeAccountId        String?
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-
-  user                   User     @relation("DoctorProfileToUser", fields: [userId], references: [id], onDelete: Cascade)
-  articles               Article[]  @relation("DoctorProfileArticles")
-  reviewsReceived        Review[]   @relation("DoctorProfileReviews")
-  appointmentsAsDoctor   Appointment[] @relation("DoctorProfileAppointments")
-  availabilities         DoctorAvailability[] @relation("DoctorProfileAvailability")
-}
-
-model DoctorVerification {
-  id                     Int      @id @default(autoincrement())
-  userId                 Int
-  licenseNumber          String
-  licensePhotoUrl        String
-  degree                 String
-  university             String
-  graduationYear         Int
-  specialization         String
-  idProofUrl             String
-  cvUrl                  String?
-  additionalCertificates Json?
-  status                 VerificationStatus @default(pending)
-  reviewedBy             Int?
-  reviewedAt             DateTime?
-  rejectionReason        String?
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-
-  user                   User     @relation("DoctorVerificationRequester", fields: [userId], references: [id], onDelete: Cascade)
-  reviewer               User?    @relation("DoctorVerificationReviewer", fields: [reviewedBy], references: [id])
-}
-
-model Article {
-  id        Int      @id @default(autoincrement())
-  doctorId  Int
-  content   String
-  media     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  doctorProfile DoctorProfile @relation("DoctorProfileArticles", fields: [doctorId], references: [userId], onDelete: Cascade)
-}
-
-model Review {
-  id            Int      @id @default(autoincrement())
-  patientId     Int
-  doctorId      Int
-  rating        Int
-  comment       String?
-  isAnonymous   Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  patient       Patient       @relation("PatientReviews", fields: [patientId], references: [userId], onDelete: Cascade)
-  doctorProfile DoctorProfile @relation("DoctorProfileReviews", fields: [doctorId], references: [userId], onDelete: Cascade)
-}
-
-model Appointment {
-  id              Int               @id @default(autoincrement())
-  patientId       Int
-  doctorId        Int
-  startTime       DateTime
-  endTime         DateTime
-  status          AppointmentStatus @default(scheduled)
-  cancelReason    String?
-  meetingUrl      String?
-  meetingId       String?
-  meetingPassword String?
-  price           Decimal
-  platformFee     Decimal
-  paymentStatus   PaymentStatus     @default(pending)
-  paymentIntentId String?
-  diagnosis       String?
-  prescription    String?
-  notes           String?
-  documents       Json?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  patient         Patient       @relation("PatientAppointments", fields: [patientId], references: [userId], onDelete: Cascade)
-  doctorProfile   DoctorProfile @relation("DoctorProfileAppointments", fields: [doctorId], references: [userId], onDelete: Cascade)
-
-  Transaction Transaction[]
-}
-
-model DoctorAvailability {
-  id            Int      @id @default(autoincrement())
-  doctorId      Int
-  dayOfWeek     Int
-  startTime     DateTime
-  endTime       DateTime
-  isRecurring   Boolean  @default(true)
-  validFrom     DateTime @default(now())
-  validUntil    DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  doctorProfile DoctorProfile @relation("DoctorProfileAvailability", fields: [doctorId], references: [userId], onDelete: Cascade)
-
-  @@unique([doctorId, dayOfWeek, startTime, endTime])
-}
-
-model Message {
-  id           Int      @id @default(autoincrement())
-  senderId     Int
-  recipientId  Int
-  content      String
-  isRead       Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  sender       User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  recipient    User     @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
-}
-
-model Notification {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  title       String
-  message     String
-  isRead      Boolean  @default(false)
-  referenceId Int?
-  createdAt   DateTime @default(now())
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Wallet {
-  userId    Int     @id
-  balance   Decimal @default(0.00)
-  currency  String  @default("USD")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user      User     @relation("WalletToUser", fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Transaction {
-  id          Int               @id @default(autoincrement())
-  userId      Int
-  appointmentId Int?  
-  amount      Decimal
-  type        TransactionType
-  status      TransactionStatus @default(pending)
-  description String?
-  metadata    Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  appointment   Appointment?      @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
-}
-
-

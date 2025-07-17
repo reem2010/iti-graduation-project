@@ -6,7 +6,6 @@ import {
   //   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { CreateDoctorVerificationDto } from './dto/create-doctor-verification.dto';
 import { UpdateDoctorVerificationDto } from './dto/update-doctor-verification.dto';
 
 @Injectable()
@@ -40,33 +39,62 @@ export class DoctorVerificationService {
     };
   }
 
-  async createDoctorVerification(user: any, dto: CreateDoctorVerificationDto) {
-    const { userId, role } = user;
-
-    if (role !== 'doctor') {
-      throw new ForbiddenException('Only doctors can create verification');
-    }
-
-    const existing = await this.prisma.doctorVerification.findFirst({
-      where: { userId },
+  async getVerificationByDoctorId(doctorId: number) {
+    const verification = await this.prisma.doctorVerification.findFirst({
+      where: { userId: doctorId },
+      include: { user: true },
     });
 
-    if (existing) {
-      throw new BadRequestException('Verification already exists');
+    if (!verification) {
+      throw new NotFoundException('Doctor verification not found');
     }
 
-    const newVerification = await this.prisma.doctorVerification.create({
-      data: {
-        userId,
-        ...dto,
-      },
-    });
-
-    return {
-      message: 'Doctor verification created successfully',
-      data: newVerification,
-    };
+    return verification;
   }
+
+async createDefaultVerification(userId: number) {
+  const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  if (user.role !== 'doctor') {
+    throw new ForbiddenException('Only doctors can have a verification record');
+  }
+
+  const exists = await this.prisma.doctorVerification.findFirst({
+    where: { userId },
+  });
+
+  if (exists) {
+    throw new BadRequestException('Verification already exists');
+  }
+
+  const newVerification = await this.prisma.doctorVerification.create({
+    data: {
+      user: {
+        connect: { id: userId },
+      },
+      licenseNumber: '',
+      licensePhotoUrl: '',
+      degree: '',
+      university: '',
+      graduationYear: 2000,
+      specialization: '',
+      idProofUrl: '',
+      cvUrl: '',
+      additionalCertificates: {}, // or `null` if allowed
+    },
+  });
+
+  return {
+    message: 'Default verification created successfully',
+    data: newVerification,
+  };
+}
+
+
 
   async updateDoctorVerification(user: any, dto: UpdateDoctorVerificationDto) {
     const { userId, role } = user;

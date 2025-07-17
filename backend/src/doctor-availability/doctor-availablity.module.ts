@@ -6,5 +6,6 @@ import { DoctorAvailabilityController } from './doctor-availablity.controller';
 @Module({
   controllers: [DoctorAvailabilityController],
   providers: [DoctorAvailabilityService, PrismaService],
+  exports: [DoctorAvailabilityService],
 })
 export class DoctorAvailabilityModule {}
