@@ -1,12 +1,14 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useEffect, useState, useRef } from "react";
+import { connectSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
 import {
   appointmentApi,
   doctorAvailabilityApi,
   doctorProfileApi,
 } from "@/lib/api";
+import { useAuth } from "@/contexts/authContext";
 
 type Slot = {
   startTime: string;
@@ -32,31 +34,37 @@ function groupSlotsByDay(slots: Slot[]): SlotsByDay {
       month: "short",
       day: "numeric",
     });
-
     if (!acc[day]) acc[day] = [];
     acc[day].push(slot);
-
     return acc;
   }, {});
 }
 
 export default function BookingPage() {
-  const router = useRouter();
   const { id } = useParams();
-
   const [slots, setSlots] = useState<Slot[]>([]);
   const [doctor, setDoctor] = useState<DoctorBasic | null>(null);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [method, setMethod] = useState("card");
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const paymentWindowRef = useRef<Window | null>(null);
+  const paymentTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
+  const socketRef: any = useRef<any>(null);
+  const { user } = useAuth();
+  const [trigger, setTrigger] = useState(true);
+  if (!user) router.push("/auth");
+
+  useEffect(() => {
+    if (id) fetchSlotsAndDoctor();
+  }, [id, trigger]);
 
   const fetchSlotsAndDoctor = async () => {
     try {
-      if (!id) return;
-
       const doctorId = parseInt(id as string, 10);
-
       const [slotsData, doctorData] = await Promise.all([
         doctorAvailabilityApi.getWeeklySlots(doctorId),
         doctorProfileApi.getDoctorProfileById(doctorId),
@@ -79,7 +87,6 @@ export default function BookingPage() {
 
   const bookAppointment = async () => {
     if (!selectedSlot || !doctor) return;
-
     setLoading(true);
     try {
       const gatewayId =
@@ -96,40 +103,73 @@ export default function BookingPage() {
       });
 
       if (res.status === "payment_required") {
-        // redirect to payment iframe
-        router.push(`/payment?url=${encodeURIComponent(res.data.paymentUrl)}&appointmentId=${res.data.appointmentId}`);
-      } else {
+        toast.success(
+          "Great! Now proceed with the payment. You'll get notified once done."
+        );
         setSuccessMessage("Appointment booked successfully!");
-        setSelectedSlot(null);
-        setSelectedDay(null);
+        setPaymentUrl(res.data.paymentUrl);
+        if (!user) return;
+
+        const socket = connectSocket(user.id);
+        socketRef.current = socket;
+        const topic = `payment-status:${res.data.appointmentId}`;
+
+        socket.on(topic, (data) => {
+          onUpdate(data.status);
+        });
+        if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
+        paymentTimerRef.current = setTimeout(() => {
+          if (paymentWindowRef.current && !paymentWindowRef.current.closed) {
+            paymentWindowRef.current.close();
+          }
+          setPaymentUrl(null);
+          toast("Payment session expired. Refreshing...");
+          router.push("/doctor");
+        }, 15 * 60 * 1000);
+      } else {
+        toast.success("Appointment booked successfully!");
+        setSuccessMessage("Appointment booked successfully!");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Booking error:", err);
-      alert(
-        `Booking failed: ${err?.response?.data?.message || "Unknown error"}`
-      );
+      toast.error("Booking failed.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchSlotsAndDoctor();
-  }, [id]);
-  const [method, setMethod] = useState("card");
+  const handleProceedToPayment = () => {
+    if (paymentUrl) {
+      const newWindow = window.open(paymentUrl, "_blank");
+      if (newWindow) {
+        paymentWindowRef.current = newWindow;
+      } else {
+        toast.error("Failed to open payment window. Please allow pop-ups.");
+      }
+    }
+  };
+  function onUpdate(status: string) {
+    if (status == "failed") {
+      toast.error("Payment Failed.");
+      setTrigger(!trigger);
+    } else {
+      toast.success("Appointment booked successfully!");
+      router.push("/doctor");
+    }
+  }
   return (
-    <div className="min-h-screen flex justify-center items-center w-full">
+    <div className="min-h-screen flex justify-center items-center w-full mt-[70px] mb-[40px]">
       <div className="max-w-2xl mx-auto px-6 py-10 bg-white rounded-3xl shadow-lg w-[490px]">
         <h1 className="text-3xl font-bold text-emerald-700 mb-8 text-center">
           Book a Therapy Session
         </h1>
 
         {doctor && (
-          <div className="flex items-center gap-5 mb-8 border-b-2 border-emerald-500 pb-4">
+          <div className="flex items-center gap-5 my-8 border-b-2 border-emerald-500 pb-4">
             <img
               src={doctor.avatarUrl || "/avatar1.png"}
               alt="Doctor avatar"
-              className="w-16 h-16 rounded-full object-cover  "
+              className="w-16 h-16 rounded-full object-cover"
             />
             <div className="flex justify-between items-start w-full">
               <div>
@@ -159,7 +199,6 @@ export default function BookingPage() {
           </p>
         ) : (
           <div className="space-y-6">
-            {/* Day Selector */}
             <div>
               <label className="block font-medium text-gray-800 mb-1">
                 Choose a day
@@ -170,7 +209,8 @@ export default function BookingPage() {
                   setSelectedDay(e.target.value);
                   setSelectedSlot(null);
                 }}
-                className="w-full border border-emerald-300 px-3 py-2 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                disabled={!!successMessage}
+                className="w-full border border-emerald-300 px-3 py-2 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-100"
               >
                 <option value="" disabled>
                   -- Select Day --
@@ -183,7 +223,6 @@ export default function BookingPage() {
               </select>
             </div>
 
-            {/* Time Selector */}
             {selectedDay && (
               <div>
                 <label className="block font-medium text-gray-800 mb-1">
@@ -197,7 +236,8 @@ export default function BookingPage() {
                     );
                     setSelectedSlot(slot || null);
                   }}
-                  className="w-full border border-emerald-300 px-3 py-2 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                  disabled={!!successMessage}
+                  className="w-full border border-emerald-300 px-3 py-2 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-100"
                 >
                   <option value="" disabled>
                     -- Select Time Slot --
@@ -207,22 +247,24 @@ export default function BookingPage() {
                       {new Date(slot.startTime).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "UTC",
                       })}{" "}
                       -{" "}
                       {new Date(slot.endTime).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "UTC",
                       })}
                     </option>
                   ))}
                 </select>
               </div>
             )}
+
             <div className="space-y-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Choose Payment Method
               </label>
-
               <div className="flex flex-col gap-2">
                 <label
                   className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer ${
@@ -237,13 +279,13 @@ export default function BookingPage() {
                     value="card"
                     checked={method === "card"}
                     onChange={(e) => setMethod(e.target.value)}
+                    disabled={!!successMessage}
                     className="accent-emerald-600"
                   />
                   <span className="text-sm text-gray-800">
                     💳 Credit / Debit Card
                   </span>
                 </label>
-
                 <label
                   className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer ${
                     method === "wallet"
@@ -257,6 +299,7 @@ export default function BookingPage() {
                     value="wallet"
                     checked={method === "wallet"}
                     onChange={(e) => setMethod(e.target.value)}
+                    disabled={!!successMessage}
                     className="accent-emerald-600"
                   />
                   <span className="text-sm text-gray-800">
@@ -266,8 +309,7 @@ export default function BookingPage() {
               </div>
             </div>
 
-            {/* Confirm Button */}
-            {selectedSlot && (
+            {!successMessage && selectedSlot && (
               <div className="mt-4">
                 <button
                   onClick={bookAppointment}
@@ -279,10 +321,21 @@ export default function BookingPage() {
               </div>
             )}
 
-            {/* Success Message */}
             {successMessage && (
-              <div className="text-green-600 font-semibold mt-4 text-center">
-                {successMessage}
+              <div className="text-emerald-500  text-sm mt-4 text-center">
+                Now proceed with your payment You will be notified once
+                completed.
+              </div>
+            )}
+
+            {paymentUrl && (
+              <div className="mt-4">
+                <button
+                  onClick={handleProceedToPayment}
+                  className="w-full cursor-pointer bg-emerald-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-600 transition"
+                >
+                  Proceed to Payment
+                </button>
               </div>
             )}
           </div>

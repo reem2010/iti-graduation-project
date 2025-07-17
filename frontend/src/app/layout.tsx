@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "SIRAJ",
   description: "Mental health comunity ",
+  icons: {
+    icon: { url: "/siraj_logo.svg", type: "image/svg+xml", sizes: "any" },
+  },
 };
 
 export default function RootLayout({

@@ -8,10 +8,12 @@ import {
   doctorAvailabilityApi,
   authApi,
 } from "@/lib/api";
+import { useAuth } from "@/contexts/authContext";
 
 export default function PublicDoctorProfilePage() {
   const { id } = useParams();
   const doctorId = parseInt(id as string);
+  const { user } = useAuth();
 
   const [verification, setVerification] = useState<DoctorVerification | null>(
     null
@@ -106,7 +108,8 @@ export default function PublicDoctorProfilePage() {
           <div className="ml-auto">
             <button
               onClick={() => router.push(`/chat?with=${doctorUser?.id}`)}
-              className="px-4 py-2 bg-siraj-emerald-600 text-white rounded-lg hover:bg-siraj-emerald-700 transition-colors">
+              className="px-4 py-2 bg-siraj-emerald-600 text-white rounded-lg hover:bg-siraj-emerald-700 transition-colors"
+            >
               Send message
             </button>
           </div>
@@ -364,47 +367,6 @@ export default function PublicDoctorProfilePage() {
                     </p>
                   </div>
                 ))}
-              </div>
-            </section>
-          )}
-
-          {/* Contact Section */}
-          {doctorUser && (
-            <section className="bg-siraj-gray-50 rounded-lg p-6 border border-siraj-gray-200">
-              <h2 className="text-xl font-bold text-siraj-emerald-600 mb-4 flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-                Contact Information
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-siraj-gray-900">
-                <div>
-                  <p className="text-sm font-medium text-siraj-gray-600">
-                    Email
-                  </p>
-                  <p className="font-medium">{doctorUser.email}</p>
-                </div>
-
-                {doctorUser.phone && (
-                  <div>
-                    <p className="text-sm font-medium text-siraj-gray-600">
-                      Phone
-                    </p>
-                    <p className="font-medium">{doctorUser.phone}</p>
-                  </div>
-                )}
               </div>
             </section>
           )}
