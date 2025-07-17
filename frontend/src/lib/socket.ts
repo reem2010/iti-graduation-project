@@ -8,6 +8,7 @@ export const connectSocket = (userId: number, token?: string): Socket => {
       auth: { token },
       query: { userId },
       transports: ['websocket'],
+      secure: true,
       autoConnect: true,
     });
 
