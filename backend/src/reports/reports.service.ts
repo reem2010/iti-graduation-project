@@ -1,26 +1,87 @@
-import { Injectable } from '@nestjs/common';
-import { CreateReportDto } from './dto/create-report.dto';
+// src/reports/reports.service.ts
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class ReportsService {
-  create(createReportDto: CreateReportDto) {
-    return 'This action adds a new report';
+  constructor(private prisma: PrismaService) {}
+
+  async updateAppointmentReport(
+    doctorId: number,
+    appointmentId: number,
+    dto: UpdateReportDto,
+  ) {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      select: { doctorId: true },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (appointment.doctorId !== doctorId) {
+      throw new ForbiddenException(
+        'You are not authorized to update this appointment',
+      );
+    }
+
+    return this.prisma.appointment.update({
+      where: { id: appointmentId },
+      data: dto,
+    });
   }
 
-  findAll() {
-    return `This action returns all reports`;
-  }
+  async getDoctorPatientsReports(doctorId: number) {
+    const appointments = await this.prisma.appointment.findMany({
+      where: { doctorId },
+      select: {
+        diagnosis: true,
+        prescription: true,
+        notes: true,
+        documents: true,
+        patient: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} report`;
-  }
+    const grouped = appointments.reduce((acc, appointment) => {
+      if (!appointment.patient) return acc;
 
-  update(id: number, updateReportDto: UpdateReportDto) {
-    return `This action updates a #${id} report`;
-  }
+      const patientId = appointment.patient.userId;
 
-  remove(id: number) {
-    return `This action removes a #${id} report`;
+      if (!acc[patientId]) {
+        acc[patientId] = {
+          patientId,
+          patientName: `${appointment.patient.user.firstName} ${appointment.patient.user.lastName}`,
+          reports: [],
+        };
+      }
+
+      acc[patientId].reports.push({
+        diagnosis: appointment.diagnosis,
+        prescription: appointment.prescription,
+        notes: appointment.notes,
+        documents: appointment.documents,
+      });
+
+      return acc;
+    }, {});
+
+    return Object.values(grouped);
   }
 }

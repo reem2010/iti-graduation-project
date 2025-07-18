@@ -9,8 +9,7 @@ import React, {
 } from "react";
 import { Send, Paperclip, MoreVertical, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { connectSocket } from "@/lib/socket";
-import { authApi, doctorProfileApi, messagesApi } from "@/lib/api";
+import { authApi, messagesApi } from "@/lib/api";
 import { useAuth } from "@/contexts/authContext";
 import ClientParams from "@/components/chat/ClientParams";
 
@@ -39,20 +38,21 @@ interface ChatSummary {
 
 const SirajChat = () => {
   const router = useRouter();
+
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [chatList, setChatList] = useState<ChatSummary[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatSummary | null>(null);
-  const [currentUser, setCurrentUser] = useState<{ id: number } | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const socketRef = useRef<any>(null);
+  // const socketRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
 
-  const { refreshUnreadCount } = useAuth();
+  const { socketRef, user, refreshUnreadCount } = useAuth();
+
   // Utility Functions
   const formatTime = (iso: string) =>
     new Date(iso).toLocaleTimeString([], {
@@ -71,6 +71,25 @@ const SirajChat = () => {
       .slice(0, 2)
       .toUpperCase();
 
+  const scrollToBottom = () => {
+    const container = messagesEndRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  };
+
+  // Scroll whenever messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    // instant scroll on chat switch
+    if (!isLoading) {
+      scrollToBottom();
+    }
+  }, [selectedChat, isLoading]);
+
   const selectChat = async (chat: ChatSummary) => {
     setSelectedChat(chat);
     setIsLoading(true);
@@ -78,11 +97,20 @@ const SirajChat = () => {
     router.push(`/chat?with=${chat.userId}`);
 
     try {
-      const res = await messagesApi.getConversation(
-        currentUser?.id!,
-        chat.userId
-      );
-      setMessages(res);
+      const res = await messagesApi.getConversation(user?.id!, chat.userId);
+      // setMessages(res);
+      const seen = new Set<string>();
+
+      const uniqueMessages = res.filter((msg) => {
+        const key = `${msg.senderId}-${msg.content}-${new Date(
+          msg.createdAt
+        ).getTime()}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      setMessages(uniqueMessages);
 
       await messagesApi.clearUnreadMessages(chat.userId);
       await refreshUnreadCount();
@@ -119,43 +147,17 @@ const SirajChat = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!currentMessage.trim() || !selectedChat || !currentUser) return;
+    if (!currentMessage.trim() || !selectedChat || !user) return;
 
     const newMsg = {
       content: currentMessage,
-      senderId: currentUser.id,
+      senderId: user.id,
       recipientId: selectedChat.userId,
     };
 
     try {
-      console.log("Sending message:", newMsg);
-      const sent = await messagesApi.createMessage(newMsg);
-      console.log("Message sent:", sent);
-
-      // Add message to current conversation
-      setMessages((prev) => [...prev, sent]);
-
-      // Update chat list with new message
-      setChatList((prev) => {
-        const index = prev.findIndex((c) => c.userId === selectedChat.userId);
-        const updated = [...prev];
-
-        if (index > -1) {
-          updated[index] = {
-            ...updated[index],
-            lastMessage: {
-              content: sent.content,
-              createdAt: sent.createdAt,
-            },
-          };
-
-          // Move to top of chat list
-          const [updatedChat] = updated.splice(index, 1);
-          updated.unshift(updatedChat);
-        }
-
-        return updated;
-      });
+      // Emit to server via socket
+      socketRef.current?.emit("sendMessage", newMsg);
 
       setCurrentMessage("");
     } catch (err) {
@@ -170,6 +172,123 @@ const SirajChat = () => {
     }
   };
 
+  const onMessageSent = (response: Message) => {
+    // console.log("Message sent confirmation:", response);
+
+    // Add to message list only if not already there
+    setMessages((prev) => {
+      const exists = prev.some(
+        (m) =>
+          m.content === response.content &&
+          m.senderId === response.senderId &&
+          new Date(m.createdAt).getTime() ===
+            new Date(response.createdAt).getTime()
+      );
+      return exists ? prev : [...prev, response];
+    });
+
+    // Update chat list
+    setChatList((prev) => {
+      const index = prev.findIndex((c) => c.userId === response.recipientId);
+      const updated = [...prev];
+
+      if (index > -1) {
+        updated[index] = {
+          ...updated[index],
+          lastMessage: {
+            content: response.content,
+            createdAt: response.createdAt,
+          },
+        };
+
+        // Move to top
+        const [updatedChat] = updated.splice(index, 1);
+        updated.unshift(updatedChat);
+      }
+
+      return updated;
+    });
+  };
+
+  const onNewMessage = async (message: Message) => {
+    // console.log("Incoming message:", message);
+
+    const fromUserId = message.senderId;
+    const isChatOpen = selectedChat?.userId === fromUserId;
+
+    await refreshUnreadCount();
+
+    // Update chat list
+    setChatList((prev) => {
+      const index = prev.findIndex((c) => c.userId === fromUserId);
+      const updated = [...prev];
+
+      if (index > -1) {
+        const chat = updated[index];
+        updated[index] = {
+          ...chat,
+          lastMessage: {
+            content: message.content,
+            createdAt: message.createdAt,
+          },
+          unreadCount: isChatOpen ? 0 : chat.unreadCount + 1,
+        };
+
+        const [updatedChat] = updated.splice(index, 1);
+        updated.unshift(updatedChat);
+      } else {
+        // New conversation
+        updated.unshift({
+          userId: fromUserId,
+          username: `${message.sender.firstName} ${message.sender.lastName}`,
+          unreadCount: isChatOpen ? 0 : 1,
+          lastMessage: {
+            content: message.content,
+            createdAt: message.createdAt,
+          },
+        });
+      }
+
+      return updated;
+    });
+
+    // Update messages if it's the open chat
+    if (isChatOpen) {
+      setMessages((prev) => {
+        const exists = prev.some(
+          (m) =>
+            m.content === message.content &&
+            m.senderId === message.senderId &&
+            new Date(m.createdAt).getTime() ===
+              new Date(message.createdAt).getTime()
+        );
+        return exists ? prev : [...prev, message];
+      });
+
+      await refreshUnreadCount();
+    }
+  };
+
+  useEffect(() => {
+    if (!user || !socketRef.current) return;
+
+    const socket = socketRef.current;
+
+    socket.off("connect").on("connect", () => setIsConnected(true));
+    socket.off("disconnect").on("disconnect", () => setIsConnected(false));
+    socket.off("messageSent").on("messageSent", onMessageSent);
+    socket.off("newMessage").on("newMessage", onNewMessage);
+
+    if (socket.connected) setIsConnected(true);
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("messageSent");
+      socket.off("newMessage");
+    };
+  }, [user, selectedChat, refreshUnreadCount]);
+
   const fetchChats = useCallback(async () => {
     try {
       const res = await messagesApi.getUserChats();
@@ -183,21 +302,13 @@ const SirajChat = () => {
 
   // Initialize user and fetch chats
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const user = await authApi.getUser();
-        setCurrentUser(user);
-      } catch (err) {
-        console.error("Failed to fetch current user:", err);
-      }
-    };
-
-    fetchCurrentUser();
-    fetchChats();
-  }, [fetchChats]);
+    if (user) {
+      fetchChats();
+    }
+  }, [user, fetchChats]);
 
   useEffect(() => {
-    if (!selectedChatId || !currentUser || selectedChat) return;
+    if (!selectedChatId || !user || selectedChat) return;
 
     const id = parseInt(selectedChatId);
     const existingChat = chatList.find((c) => c.userId === id);
@@ -205,6 +316,7 @@ const SirajChat = () => {
     if (existingChat) {
       selectChat(existingChat);
     } else {
+      // Fetch User name from API if not known
       const fetchUser = async () => {
         try {
           const user = await authApi.getUserById(id);
@@ -225,71 +337,7 @@ const SirajChat = () => {
 
       fetchUser();
     }
-  }, [selectedChatId, chatList, selectedChat, currentUser]);
-
-  // Socket connection and message handling
-  useEffect(() => {
-    if (!currentUser) return;
-
-    const socket = connectSocket(currentUser.id);
-    socketRef.current = socket;
-
-    socket.on("connect", () => setIsConnected(true));
-    socket.on("disconnect", () => setIsConnected(false));
-
-    console.log(isConnected);
-    socket.on("newMessage", async (message: Message) => {
-      console.log("Received message via WebSocket:", message);
-      const fromUserId = message.senderId;
-      const isSelected = selectedChat?.userId === fromUserId;
-
-      await refreshUnreadCount();
-
-      // Update chat list
-      setChatList((prev) => {
-        const index = prev.findIndex((c) => c.userId === fromUserId);
-        const updated = [...prev];
-
-        if (index > -1) {
-          const chat = updated[index];
-          updated[index] = {
-            ...chat,
-            lastMessage: {
-              content: message.content,
-              createdAt: message.createdAt,
-            },
-            unreadCount: isSelected ? 0 : chat.unreadCount + 1,
-          };
-
-          // Move to top of list
-          const [updatedChat] = updated.splice(index, 1);
-          updated.unshift(updatedChat);
-        } else {
-          // New chat
-          updated.unshift({
-            userId: fromUserId,
-            username: `${message.sender.firstName} ${message.sender.lastName}`,
-            unreadCount: isSelected ? 0 : 1,
-            lastMessage: {
-              content: message.content,
-              createdAt: message.createdAt,
-            },
-          });
-        }
-
-        return updated;
-      });
-
-      // Add message to current conversation if it's selected
-      if (isSelected) {
-        setMessages((prev) => [...prev, message]);
-      }
-    });
-
-    return () => {
-      // socket.disconnect();
-    };
-  }, [currentUser, selectedChat]);
+  }, [selectedChatId, chatList, selectedChat, user]);
 
   return (
     <>
@@ -297,7 +345,7 @@ const SirajChat = () => {
         <ClientParams onParams={setSelectedChatId} />
       </Suspense>
 
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-white">
         {/* Sidebar - Chat List */}
         <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
           {/* Header */}
@@ -347,7 +395,7 @@ const SirajChat = () => {
                     </div>
                     {chat.unreadCount > 0 && (
                       <div className="w-6 h-6 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                        {chat.unreadCount}
+                        {chat.unreadCount - 1}
                       </div>
                     )}
                   </div>
@@ -358,7 +406,7 @@ const SirajChat = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col h-[91%]">
           {selectedChat ? (
             <>
               {/* Chat Header */}
@@ -384,7 +432,10 @@ const SirajChat = () => {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              <div
+                className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
+                ref={messagesEndRef}
+              >
                 {isLoading ? (
                   <div className="flex justify-center items-center h-full">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
@@ -395,15 +446,15 @@ const SirajChat = () => {
                       <div
                         key={msg.id}
                         className={`flex ${
-                          msg.senderId === currentUser?.id
+                          msg.senderId === user?.id
                             ? "justify-end"
                             : "justify-start"
                         }`}
                       >
                         <div
                           className={`p-3 rounded-2xl shadow-sm max-w-md ${
-                            msg.senderId === currentUser?.id
-                              ? "bg-emerald-500 text-white"
+                            msg.senderId === user?.id
+                              ? "bg-emerald-600 text-white"
                               : "bg-white text-gray-800 "
                           }`}
                         >
@@ -414,16 +465,16 @@ const SirajChat = () => {
                         </div>
                       </div>
                     ))}
-                    <div ref={messagesEndRef} />
+                    {/* <div ref={messagesEndRef} /> */}
                   </>
                 )}
               </div>
 
               {/* Message Input */}
               <div className="bg-white border-t border-gray-200 p-4 flex items-center space-x-3">
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
+                {/* <button className="p-2 hover:bg-gray-100 rounded-lg">
                   <Paperclip className="w-5 h-5 text-gray-600" />
-                </button>
+                </button> */}
                 <input
                   ref={messageInputRef}
                   type="text"
