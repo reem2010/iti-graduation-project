@@ -252,12 +252,14 @@ export const appointmentApi = {
   },
 
   getMyAppointments: async () => {
-    const response = await api.get("/appointments/");
+    const response = await api.get("/appointments/my-appointments");
     return response.data.appointments || response.data.data;
   },
 
-  cancelAppointment: async (appointmentId: number, cancelReason?:string) => {
-    const response = await api.patch(`/appointments/${appointmentId}/cancel`,{ cancelReason,});
+  cancelAppointment: async (appointmentId: number, cancelReason?: string) => {
+    const response = await api.delete(`/appointments/${appointmentId}`, {
+      data: { cancelReason: cancelReason || "User cancelled" }
+    });
     return response.data;
   },
   // Mark an appointment as completed
@@ -276,6 +278,10 @@ export const appointmentApi = {
     });
     return response.data;
   },
+  getDoctorAppointments: async () => {
+  const response = await api.get("/appointments/my-appointments?role=doctor");
+  return response.data.appointments || response.data.data;
+},
 };
 
 // Messages API
