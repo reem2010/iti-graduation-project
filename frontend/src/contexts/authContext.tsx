@@ -6,6 +6,7 @@ import type { User } from "@/types/index";
 import { connectSocket } from "@/lib/socket";
 
 interface AuthContextType {
+  socketRef: any;
   user: User | null;
   loading: boolean;
   setUser: (user: User | null) => void;
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const refreshUnreadCount = async () => {
     try {
       const count = await messagesApi.getUnreadCount();
-      setUnreadCount(Number(count));
+      setUnreadCount(Number(count)-1);
     } catch (err) {
       console.error("Error fetching unread count:", err);
     }
@@ -61,18 +62,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const socket = connectSocket(user.id);
     socketRef.current = socket;
 
-    socket.on("newMessage", async (message: any) => {
-      await refreshUnreadCount();
-    });
+    // socket.off("newMessage");
+    // socket.on("newMessage", async (message: any) => {
+    //   console.log("New message received:", message);
+    //   await refreshUnreadCount();
+    // });
 
     return () => {
+      // socket.off("newMessage");
       socket.disconnect();
     };
   }, [user]);
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, setUser, unreadCount, refreshUnreadCount }}
+      value={{ socketRef, user, loading, setUser, unreadCount, refreshUnreadCount }}
     >
       {children}
     </AuthContext.Provider>
