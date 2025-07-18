@@ -255,6 +255,27 @@ export const appointmentApi = {
     const response = await api.get("/appointments/");
     return response.data.appointments || response.data.data;
   },
+
+  cancelAppointment: async (appointmentId: number, cancelReason?:string) => {
+    const response = await api.patch(`/appointments/${appointmentId}/cancel`,{ cancelReason,});
+    return response.data;
+  },
+  // Mark an appointment as completed
+  completeAppointment: async (appointmentId: number) => {
+    const response = await api.patch(`/appointments/${appointmentId}/complete`);
+    return response.data;
+  },
+
+  getAppointmentsByStatus: async (status: string) => {
+    const response = await api.get(`/appointments?status=${status}`);
+    return response.data;
+  },
+  updateAppointmentStatus: async (appointmentId: number, status: string) => {
+    const response = await api.patch(`/appointments/${appointmentId}/status`, {
+      status,
+    });
+    return response.data;
+  },
 };
 
 // Messages API
