@@ -22,7 +22,9 @@ import {
   ApiUpdateProfile,
   ApiDeleteProfile,
 } from './doctor-profile.swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Doctors')
 @Controller('doctors')
 export class DoctorProfileController {
   constructor(private readonly doctorService: DoctorProfileService) {}

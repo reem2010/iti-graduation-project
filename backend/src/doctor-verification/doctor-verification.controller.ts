@@ -23,7 +23,9 @@ import {
   ApiDeleteVerification,
   ApiReviewVerification,
 } from './doctor-verification.swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Doctors')
 @Controller('doctor-verification')
 export class DoctorVerificationController {
   constructor(

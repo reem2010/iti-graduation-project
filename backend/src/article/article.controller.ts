@@ -25,7 +25,9 @@ import {
   ApiUpdateArticle,
   ApiDeleteArticle,
 } from './article.swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Articles')
 @Controller('article')
 export class ArticlesController {
   constructor(private articlesService: ArticlesService) {}

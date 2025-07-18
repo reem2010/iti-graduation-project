@@ -12,25 +12,23 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { NotificationService } from './notification.service';
-import {
-  NotificationQueryDto,
-  NotificationType,
-} from './dto/notification.dto';
+import { NotificationQueryDto, NotificationType } from './dto/notification.dto';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationController {
-  constructor(
-    private readonly notificationService: NotificationService,
-  ) {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   @Get()
   async getUserNotifications(
     @Request() req,
-    @Query(new ValidationPipe({ 
-      transform: true,
-      transformOptions: { enableImplicitConversion: true }
-    })) query: NotificationQueryDto,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+      }),
+    )
+    query: NotificationQueryDto,
   ) {
     return this.notificationService.getUserNotifications(
       req.user.userId,

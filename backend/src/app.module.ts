@@ -21,6 +21,7 @@ import { RealtimeModule } from './realtime/realtime.module';
 import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
 import { JwtStrategy } from './auth/jwt/jwt.strategy';
+import { ReportsModule } from './reports/reports.module';
 import { MonitorModule } from './monitor/monitor.module';
 
 @Module({
@@ -48,6 +49,7 @@ import { MonitorModule } from './monitor/monitor.module';
     NotificationModule,
     RealtimeModule,
     AdminModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
