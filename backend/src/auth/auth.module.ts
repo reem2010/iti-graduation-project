@@ -9,6 +9,7 @@ import { DoctorAvailabilityModule } from 'src/doctor-availability/doctor-availab
 import { DoctorVerificationModule } from 'src/doctor-verification/doctor-verification.module';
 import { WalletModule } from 'src/wallet/wallet.module';
 import { PatientModule } from 'src/patient-profile/patient-profile.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { PatientModule } from 'src/patient-profile/patient-profile.module';
     DoctorAvailabilityModule,
     DoctorVerificationModule,
     WalletModule,
-    PatientModule
+    PatientModule,
+    NotificationModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

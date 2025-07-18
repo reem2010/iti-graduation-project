@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/contexts/authContext";
+import { NotificationProvider } from "@/contexts/notificationContext";
 import { Toaster } from "react-hot-toast";
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,9 +35,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
         <AuthProvider>
-          <Header />
-
-          <div className="mt-15">{children}</div>
+          <NotificationProvider userId={typeof window !== 'undefined' && localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!).id : 0}>
+            <Header />
+            <div className="mt-15">{children}</div>
+          </NotificationProvider>
           <Toaster position="top-center" />
           <Footer />
         </AuthProvider>

@@ -14,6 +14,7 @@ import { DoctorAvailabilityService } from 'src/doctor-availability/doctor-availa
 import { WalletService } from 'src/wallet/wallet.service';
 import { PatientService } from 'src/patient-profile/patient-profile.service';
 import { log } from 'console';
+import { NotificationFacade } from '../notification/notification.facade';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,7 @@ export class AuthService {
     private doctorAvailabilityService: DoctorAvailabilityService, // Assuming this is needed
     private walletService: WalletService,
     private patientService: PatientService, // Assuming this is needed
+    private readonly notificationFacade: NotificationFacade,
   ) {}
 
   async register(data: RegisterDto) {
@@ -65,9 +67,12 @@ export class AuthService {
       );
       await this.doctorAvailabilityService.createEmptyAvailability(newUser.id);
       await this.walletService.create({ userId: newUser.id, balance: 0 });
+      await this.notificationFacade.notifyUserRegistered(newUser.id, 'doctor');
     } else if (newUser.role === 'patient') {
       await this.patientService.createPatientProfile(newUser.id);
+      await this.notificationFacade.notifyUserRegistered(newUser.id, 'patient');
     }
+    await this.notificationFacade.notifyWelcome(newUser.id);
     const { passwordHash: _, ...userWithoutPassword } = newUser;
     return {
       message: 'User registered successfully',

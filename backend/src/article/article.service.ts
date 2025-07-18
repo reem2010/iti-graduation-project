@@ -5,9 +5,13 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateArticleDto, UpdateArticleDto } from './dto/article.dto';
+import { NotificationFacade } from '../notification/notification.facade';
 @Injectable()
 export class ArticlesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly notificationFacade: NotificationFacade,
+  ) {}
   //1-Get All articles
   async findAll() {
     const articles = await this.prisma.article.findMany({
@@ -112,6 +116,7 @@ export class ArticlesService {
         },
       },
     });
+    await this.notificationFacade.notifyNewArticle(doctorId, newArticle.id, [], '');
     return newArticle;
   }
   //5-Update artile
@@ -133,6 +138,7 @@ export class ArticlesService {
       where: { id },
       data: updateArticleDto,
     });
+    await this.notificationFacade.notifyArticleUpdated(doctorId, id);
     return updatdArticle;
   }
   //6-Delete article
@@ -149,6 +155,7 @@ export class ArticlesService {
       );
     }
     await this.prisma.article.delete({ where: { id } });
+    await this.notificationFacade.notifyArticleDeleted(doctorId, id);
     return { message: 'Article deleted successfuly' };
   }
 }
