@@ -48,7 +48,7 @@ const SirajChat = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // const socketRef = useRef<any>(null);
-  // const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
 
   const { socketRef, user, refreshUnreadCount } = useAuth();
@@ -70,6 +70,25 @@ const SirajChat = () => {
       .join("")
       .slice(0, 2)
       .toUpperCase();
+
+  const scrollToBottom = () => {
+    const container = messagesEndRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  };
+
+  // Scroll whenever messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    // instant scroll on chat switch
+    if (!isLoading) {
+      scrollToBottom();
+    }
+  }, [selectedChat, isLoading]);
 
   const selectChat = async (chat: ChatSummary) => {
     setSelectedChat(chat);
@@ -245,8 +264,9 @@ const SirajChat = () => {
         );
         return exists ? prev : [...prev, message];
       });
-    }
 
+      await refreshUnreadCount();
+    }
   };
 
   useEffect(() => {
@@ -325,7 +345,7 @@ const SirajChat = () => {
         <ClientParams onParams={setSelectedChatId} />
       </Suspense>
 
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-white">
         {/* Sidebar - Chat List */}
         <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
           {/* Header */}
@@ -386,7 +406,7 @@ const SirajChat = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col h-[91%]">
           {selectedChat ? (
             <>
               {/* Chat Header */}
@@ -412,7 +432,10 @@ const SirajChat = () => {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              <div
+                className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
+                ref={messagesEndRef}
+              >
                 {isLoading ? (
                   <div className="flex justify-center items-center h-full">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
@@ -431,7 +454,7 @@ const SirajChat = () => {
                         <div
                           className={`p-3 rounded-2xl shadow-sm max-w-md ${
                             msg.senderId === user?.id
-                              ? "bg-emerald-500 text-white"
+                              ? "bg-emerald-600 text-white"
                               : "bg-white text-gray-800 "
                           }`}
                         >
@@ -449,9 +472,9 @@ const SirajChat = () => {
 
               {/* Message Input */}
               <div className="bg-white border-t border-gray-200 p-4 flex items-center space-x-3">
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
+                {/* <button className="p-2 hover:bg-gray-100 rounded-lg">
                   <Paperclip className="w-5 h-5 text-gray-600" />
-                </button>
+                </button> */}
                 <input
                   ref={messageInputRef}
                   type="text"
