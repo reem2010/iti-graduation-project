@@ -2,21 +2,23 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LogOut, MessageCircle, User } from "lucide-react";
+import { LogOut, MessageCircle, User, Menu } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
+import { useState } from "react";
 
 export default function Header() {
   const router = useRouter();
-
-  const { user, loading, unreadCount } = useAuth();
+  const { user, setUser, loading, unreadCount } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (loading) return null;
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    setUser(null);
     router.replace("/auth");
   };
 
@@ -24,8 +26,11 @@ export default function Header() {
     <div className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-emerald-100 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link
+            href={String(user?.role) !== "admin" ? "/" : "#"}
+            className="flex items-center cursor-pointer"
+            onClick={() => setMenuOpen(false)}
+          >
             <div className="w-15 h-15 rounded-lg flex items-center justify-center">
               <Image
                 src={"/siraj_logo.svg"}
@@ -40,69 +45,76 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex space-x-8">
-            <a
-              href="/#services"
-              className="text-gray-700 hover:text-emerald-700 transition-colors"
-            >
-              Services
-            </a>
-            <a
-              href="/#how-it-works"
-              className="text-gray-700 hover:text-emerald-700 transition-colors"
-            >
-              How It Works
-            </a>
-            <a
-              href="/#testimonials"
-              className="text-gray-700 hover:text-emerald-700 transition-colors"
-            >
-              Testimonials
-            </a>
-            <Link
-              href="/articles"
-              className="text-gray-700 hover:text-emerald-700 transition-colors"
-            >
-              Blogs
-            </Link>
-            <Link
-              href="/doctor"
-              className="text-gray-700 hover:text-emerald-700 transition-colors"
-            >
-              Therapists
-            </Link>
-          </nav>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden hover:text-emerald-700 transition-colors cursor-pointer"
+          >
+            <Menu size={28} color="#059669" />
+          </button>
 
-          {/* Auth buttons or user icons */}
-          <div className="flex items-center space-x-4">
+          {String(user?.role) !== "admin" && (
+            <nav className="hidden md:flex space-x-8">
+              <Link
+                href="/#services"
+                className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+              >
+                Services
+              </Link>
+              <Link
+                href="/#how-it-works"
+                className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+              >
+                How It Works
+              </Link>
+              <Link
+                href="/#testimonials"
+                className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+              >
+                Testimonials
+              </Link>
+              <Link
+                href="/articles"
+                className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+              >
+                Blogs
+              </Link>
+              <Link
+                href="/doctor"
+                className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+              >
+                Therapists
+              </Link>
+            </nav>
+          )}
+
+          <div className="hidden md:flex items-center space-x-4">
             {!loading && user ? (
-              <nav className="hidden md:flex space-x-6 items-center">
-                <div className="relative">
-                  <Link
-                    href="/chat"
-                    className="text-gray-700 hover:text-emerald-700 transition-colors"
-                  >
-                    <MessageCircle color="#2ecc71" size={24} />
-                  </Link>
-
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-600 rounded-full">
-                      {unreadCount}
-                    </span>
-                  )}
-                </div>
-
-                <Link
-                  href={
-                    String(user.role) === "doctor"
-                      ? "/doctor/profile"
-                      : "/patient/profile"
-                  }
-                  className="text-gray-700 hover:text-emerald-700 transition-colors"
-                >
-                  <User color="#2ecc71" size={24} />
-                </Link>
+              <nav className="flex space-x-6 items-center">
+                {String(user?.role) !== "admin" && (
+                  <>
+                    <Link
+                      href="/chat"
+                      className="relative text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                    >
+                      <MessageCircle color="#2ecc71" size={24} />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-600 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                    <Link
+                      href={
+                        String(user.role) === "doctor"
+                          ? "/doctor/profile"
+                          : "/patient/profile"
+                      }
+                      className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                    >
+                      <User color="#2ecc71" size={24} />
+                    </Link>
+                  </>
+                )}
                 <button
                   onClick={handleLogout}
                   className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
@@ -111,14 +123,101 @@ export default function Header() {
                 </button>
               </nav>
             ) : (
-              !loading && (
-                <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg">
-                  <Link href="/auth">Get Started</Link>
-                </Button>
-              )
+              <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg">
+                <Link href="/auth" className="cursor-pointer">
+                  Get Started
+                </Link>
+              </Button>
             )}
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <div className="md:hidden flex flex-col space-y-4 py-4">
+            {String(user?.role) !== "admin" && (
+              <>
+                <Link
+                  href="/#services"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                >
+                  Services
+                </Link>
+                <Link
+                  href="/#how-it-works"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                >
+                  How It Works
+                </Link>
+                <Link
+                  href="/#testimonials"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                >
+                  Testimonials
+                </Link>
+                <Link
+                  href="/articles"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                >
+                  Blogs
+                </Link>
+                <Link
+                  href="/doctor"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                >
+                  Therapists
+                </Link>
+              </>
+            )}
+
+            {!loading && user ? (
+              <>
+                {String(user?.role) !== "admin" && (
+                  <Link
+                    href="/chat"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                  >
+                    Messages {unreadCount > 0 && `(${unreadCount})`}
+                  </Link>
+                )}
+                <Link
+                  href={
+                    String(user.role) === "doctor"
+                      ? "/doctor/profile"
+                      : "/patient/profile"
+                  }
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                  className="text-gray-700 hover:text-emerald-700 transition-colors text-left cursor-pointer"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/auth"
+                onClick={() => setMenuOpen(false)}
+                className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg px-4 py-2 rounded text-center cursor-pointer"
+              >
+                Get Started
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { useAuth } from "@/contexts/authContext";
 
 export default function TherapistsPage() {
   const [therapists, setTherapists] = useState<any[]>([]);
@@ -23,6 +24,7 @@ export default function TherapistsPage() {
   const LIMIT = 6;
 
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -126,7 +128,7 @@ export default function TherapistsPage() {
               className="cursor-pointer border border-emerald-100 hover:shadow-lg transition-shadow duration-300 h-[420px] flex flex-col justify-center"
               onClick={() => router.push(`/doctor/${therapist.id}`)}
             >
-              <CardContent className="p-4 space-y-3">
+              <CardContent className="p-4 space-y-3 flex flex-col justify-around h-full w-full">
                 <div className="flex items-center gap-4">
                   <img
                     src={therapist.avatarUrl || "/avatar.png"}
@@ -163,24 +165,29 @@ export default function TherapistsPage() {
                     Accepting new patients
                   </p>
                 )}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation(); // prevent card click event
-                    router.push(`/doctor/${therapist.id}/book`);
-                  }}
-                  className="w-full cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-center px-4 py-2 rounded-md font-medium transition-colors"
-                >
-                  Book Appointment
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/chat?with=${therapist.id}`);
-                  }}
-                  className="w-full cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-center px-4 py-2 rounded-md font-medium transition-colors"
-                >
-                  Send message
-                </button>
+                {user && (
+                  <>
+                    {" "}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent card click event
+                        router.push(`/doctor/${therapist.id}/book`);
+                      }}
+                      className="w-full cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-center px-4 py-2 rounded-md font-medium transition-colors"
+                    >
+                      Book Appointment
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/chat?with=${therapist.id}`);
+                      }}
+                      className="w-full cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-center px-4 py-2 rounded-md font-medium transition-colors"
+                    >
+                      Send message
+                    </button>
+                  </>
+                )}
               </CardContent>
             </Card>
           ))}

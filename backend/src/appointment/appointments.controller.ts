@@ -12,10 +12,12 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { AppointmentsService } from './appointments.service';
+import { AppointmentsService, paymentResult } from './appointments.service';
 import { TransactionService } from 'src/transaction/transaction.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
+
 
 // Extend the Request interface to include user from JWT
 interface AuthenticatedRequest extends Request {
@@ -23,6 +25,7 @@ interface AuthenticatedRequest extends Request {
     userId: number;
     email: string;
     phone?: string;
+    role: string;
   };
 }
 
@@ -63,14 +66,6 @@ export class PaymentWebhookDto {
   metadata?: any;
 }
 
-interface RefundResponse {
-  success: boolean;
-  message: string;
-  refundMethod: 'wallet' | 'bank';
-  refundAmount: number;
-  refundId?: string;
-}
-
 @Controller('appointments')
 export class AppointmentsController {
   //Inject TransactionService for payment status checks
@@ -85,54 +80,20 @@ export class AppointmentsController {
   async createAppointment(
     @Body() createAppointmentDto: any,
     @Req() req: AuthenticatedRequest,
-  ) {
-    try {
-      const user = req.user;
-      if (!user) {
-        return {
-          status: 'error',
-          message: 'User not authenticated',
-        };
-      }
-      const appointmentData = {
-        ...createAppointmentDto,
-        patientId: user.userId,
-        patientEmail: user.email,
-        patientPhone: user.phone || '', // Handle case where phone might not be in JWT
-        platformFee: 20,
-      };
-
-      const result =
-        await this.appointmentsService.createAppointmentWithPayment(
-          appointmentData,
-        );
-      if (result.success) {
-        return {
-          status: 'success',
-          message: result.message,
-          data: {
-            appointmentId: result.appointmentId,
-            paymentUrl: result.paymentUrl,
-            paymentMethod: 'wallet',
-          },
-        };
-      } else {
-        return {
-          status: 'payment_required',
-          message: result.message,
-          data: {
-            appointmentId: result.appointmentId,
-            paymentUrl: result.paymentUrl,
-            paymentMethod: 'paymob',
-          },
-        };
-      }
-    } catch (error) {
-      return {
-        status: 'error',
-        message: error.message,
-      };
-    }
+  ): Promise<paymentResult> {
+    const appointmentData = {
+      ...createAppointmentDto,
+      patientId: req.user.userId,
+      patientEmail: req.user.email,
+      patientPhone: req.user.phone || '',
+      platformFee: 20,
+    };
+    console.log('Received startTime:', createAppointmentDto.startTime);
+    console.log('Received endTime:', createAppointmentDto.endTime);
+    return await this.appointmentsService.createAppointmentWithPayment(
+      appointmentData,
+      req.user.role,
+    );
   }
 
   //post-booking status insight
@@ -223,6 +184,8 @@ export class AppointmentsController {
       };
     }
   }
+
+  @UseGuards(JwtAuthGuard)
   @Get('my-appointments')
   async getMyAppointments(
     @Query('role') role: string,
@@ -278,15 +241,19 @@ export class AppointmentsController {
     };
     return this.appointmentsService.updateAppointment(+id, updateData);
   }
+
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async cancelAppointment(
     @Param('id') id: string,
     @Body() data: { cancelReason: string },
+    @Req() req: AuthenticatedRequest,
   ) {
     try {
       const result = await this.appointmentsService.cancelAppointment(
         +id,
         data.cancelReason,
+        req.user.role,
       );
       return {
         status: 'success',
@@ -301,11 +268,17 @@ export class AppointmentsController {
     }
   }
   @Post(':id/refund')
-  async processRefund(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard)
+  @ApiExcludeEndpoint()
+  async processRefund(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     try {
       const result = await this.appointmentsService.cancelAppointment(
         +id,
         'Refund requested',
+        req.user.role,
       );
       return {
         status: 'success',

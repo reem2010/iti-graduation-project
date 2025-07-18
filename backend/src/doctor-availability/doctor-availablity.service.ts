@@ -7,7 +7,6 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateDoctorAvailabilityDto } from './dto/create-doctor-availability.dto';
 import { UpdateDoctorAvailabilityDto } from './dto/update-doctor-availability.dto';
-import { isBefore, addMinutes, addDays, startOfDay } from 'date-fns';
 
 @Injectable()
 export class DoctorAvailabilityService {
@@ -183,8 +182,23 @@ export class DoctorAvailabilityService {
   }
 
   async getNext7DaysAvailableSlots(doctorId: number) {
-    const today = startOfDay(new Date());
-    const endOfRange = addDays(today, 7);
+    const now = new Date();
+
+    const today = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    );
+
+    const endOfRange = new Date(today);
+    endOfRange.setUTCDate(today.getUTCDate() + 7);
+
     const slots: { date: string; startTime: string; endTime: string }[] = [];
 
     const availabilities = await this.prisma.doctorAvailability.findMany({
@@ -200,10 +214,7 @@ export class DoctorAvailabilityService {
     const appointments = await this.prisma.appointment.findMany({
       where: {
         doctorId,
-        startTime: {
-          gte: today,
-          lt: endOfRange,
-        },
+        startTime: { gte: today, lt: endOfRange },
         status: { notIn: ['canceled', 'no_show'] },
       },
     });
@@ -211,44 +222,62 @@ export class DoctorAvailabilityService {
     const bookedTimes = appointments.map((a) => a.startTime.toISOString());
 
     for (let i = 0; i < 7; i++) {
-      const date = addDays(today, i);
-      const dateStr = date.toISOString().split('T')[0];
-      const dayOfWeek = date.getDay();
+      const currentDate = new Date(today);
+      currentDate.setUTCDate(today.getUTCDate() + i);
 
-      const dayAvailabilities = availabilities.filter((a) => {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const dayOfWeek = currentDate.getUTCDay(); // 0 (Sun) to 6 (Sat)
+
+      const dayAvailabilities = availabilities.filter((av) => {
+        const validFrom = new Date(av.validFrom);
+        const validUntil = av.validUntil ? new Date(av.validUntil) : null;
+
         return (
-          a.dayOfWeek === dayOfWeek &&
-          new Date(dateStr) >= new Date(a.validFrom) &&
-          (!a.validUntil || new Date(dateStr) <= new Date(a.validUntil))
+          av.dayOfWeek === dayOfWeek &&
+          currentDate >= validFrom &&
+          (!validUntil || currentDate <= validUntil)
         );
       });
 
       for (const availability of dayAvailabilities) {
-        const startHour = availability.startTime.getHours();
-        const startMinute = availability.startTime.getMinutes();
-        const endHour = availability.endTime.getHours();
-        const endMinute = availability.endTime.getMinutes();
+        const availabilityStart = new Date(availability.startTime);
+        const availabilityEnd = new Date(availability.endTime);
 
-        let current = new Date(
-          `${dateStr}T${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}:00`,
+        const startTime = new Date(
+          Date.UTC(
+            currentDate.getUTCFullYear(),
+            currentDate.getUTCMonth(),
+            currentDate.getUTCDate(),
+            availabilityStart.getUTCHours(),
+            availabilityStart.getUTCMinutes(),
+          ),
         );
-        const end = new Date(
-          `${dateStr}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`,
+
+        const endTime = new Date(
+          Date.UTC(
+            currentDate.getUTCFullYear(),
+            currentDate.getUTCMonth(),
+            currentDate.getUTCDate(),
+            availabilityEnd.getUTCHours(),
+            availabilityEnd.getUTCMinutes(),
+          ),
         );
 
-        while (isBefore(current, end)) {
-          const next = new Date(current.getTime() + 60 * 60 * 1000); // 1 hour
-          const slotTaken = bookedTimes.includes(current.toISOString());
+        const isToday =
+          currentDate.getUTCFullYear() === now.getUTCFullYear() &&
+          currentDate.getUTCMonth() === now.getUTCMonth() &&
+          currentDate.getUTCDate() === now.getUTCDate();
 
-          if (!slotTaken) {
-            slots.push({
-              date: dateStr,
-              startTime: current.toISOString(),
-              endTime: next.toISOString(),
-            });
-          }
+        if (isToday && startTime <= now) {
+          continue;
+        }
 
-          current = next;
+        if (!bookedTimes.includes(startTime.toISOString())) {
+          slots.push({
+            date: dateStr,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+          });
         }
       }
     }
