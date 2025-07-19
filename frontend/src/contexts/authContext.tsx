@@ -40,11 +40,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const res = await authApi.getUser();
         if (res && res.id) {
           setUser(res);
+          await refreshUnreadCount();
         } else {
           setUser(null);
         }
 
-        await refreshUnreadCount();
       } catch (err) {
         setUser(null);
         console.error("Error:", err);

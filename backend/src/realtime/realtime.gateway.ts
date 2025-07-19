@@ -62,7 +62,7 @@ export class RealtimeGateway
     this.connectedUsers.set(client.id, userId);
 
     // Join messages room (same as old gateway)
-    client.join(userId.toString());
+    await client.join(userId.toString());
     console.log(`User ${userId} connected with socket ID ${client.id}`);
     await this.messagesService.setUserOnline(userId.toString());
 
