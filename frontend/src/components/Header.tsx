@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
 import { useState } from "react";
+import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const router = useRouter();
@@ -47,13 +48,13 @@ export default function Header() {
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden hover:text-emerald-700 transition-colors cursor-pointer"
+            className="lg:hidden hover:text-emerald-700 transition-colors cursor-pointer"
           >
             <Menu size={28} color="#059669" />
           </button>
 
           {String(user?.role) !== "admin" && (
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden lg:flex space-x-8">
               <Link
                 href="/#services"
                 className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
@@ -87,39 +88,40 @@ export default function Header() {
             </nav>
           )}
 
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             {!loading && user ? (
-              <nav className="flex space-x-6 items-center">
+              <nav className="flex space-x-1 items-center">
                 {String(user?.role) !== "admin" && (
                   <>
                     <Link
                       href="/chat"
-                      className="relative text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                      className="relative text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer p-2 rounded-full hover:bg-emerald-50"
                     >
-                      <MessageCircle color="#2ecc71" size={24} />
+                      <MessageCircle color="#059669" size={20} />
                       {unreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-600 rounded-full">
                           {unreadCount}
                         </span>
                       )}
                     </Link>
+                    <NotificationBell />
                     <Link
                       href={
                         String(user.role) === "doctor"
                           ? "/doctor/profile"
                           : "/patient/profile"
                       }
-                      className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                      className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer p-2 rounded-full hover:bg-emerald-50"
                     >
-                      <User color="#2ecc71" size={24} />
+                      <User color="#059669" size={20} />
                     </Link>
                   </>
                 )}
                 <button
                   onClick={handleLogout}
-                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                  className="text-gray-700 hover:text-emerald-700 transition-colors cursor-pointer p-2 rounded-full hover:bg-emerald-50"
                 >
-                  <LogOut color="#2ecc71" size={24} />
+                  <LogOut color="#059669" size={20} />
                 </button>
               </nav>
             ) : (
@@ -134,7 +136,7 @@ export default function Header() {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div className="md:hidden flex flex-col space-y-4 py-4">
+          <div className="lg:hidden flex flex-col space-y-4 py-4">
             {String(user?.role) !== "admin" && (
               <>
                 <Link

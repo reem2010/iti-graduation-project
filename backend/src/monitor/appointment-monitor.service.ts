@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'prisma/prisma.service';
 import { AppointmentsService } from 'src/appointment/appointments.service';
 import { AppointmentStatus, TransactionStatus } from '@prisma/client';
+import { NotificationFacade } from '../notification/notification.facade';
 
 @Injectable()
 export class AppointmentMonitorService {
@@ -11,6 +12,7 @@ export class AppointmentMonitorService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly appointmentsService: AppointmentsService,
+    private readonly notificationFacade: NotificationFacade,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -54,6 +56,61 @@ export class AppointmentMonitorService {
           description: 'Automatically failed due to appointment expiration',
         },
       });
+    }
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async sendRemindersTwoDaysBefore() {
+    const now = new Date();
+    const twoDaysLater = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const fiveMinutesLater = new Date(now.getTime() + 5 * 60 * 1000);
+
+    // 2 days before
+    const appointmentsInTwoDays = await this.prisma.appointment.findMany({
+      where: {
+        status: AppointmentStatus.scheduled,
+        startTime: {
+          gte: new Date(twoDaysLater.getTime() - 60 * 1000), // 1 min window
+          lt: new Date(twoDaysLater.getTime() + 60 * 1000),
+        },
+      },
+      include: {
+        patient: true,
+        doctorProfile: { include: { user: true } },
+      },
+    });
+    for (const appointment of appointmentsInTwoDays) {
+      await this.notificationFacade.notifyAppointmentReminder(
+        appointment.patientId,
+        appointment.doctorId,
+        appointment.id,
+        appointment.startTime,
+        appointment.doctorProfile?.user?.firstName || 'Doctor',
+      );
+    }
+
+    // 5 minutes before
+    const appointmentsInFiveMinutes = await this.prisma.appointment.findMany({
+      where: {
+        status: AppointmentStatus.scheduled,
+        startTime: {
+          gte: new Date(fiveMinutesLater.getTime() - 60 * 1000),
+          lt: new Date(fiveMinutesLater.getTime() + 60 * 1000),
+        },
+      },
+      include: {
+        patient: true,
+        doctorProfile: { include: { user: true } },
+      },
+    });
+    for (const appointment of appointmentsInFiveMinutes) {
+      await this.notificationFacade.notifyAppointmentReminder(
+        appointment.patientId,
+        appointment.doctorId,
+        appointment.id,
+        appointment.startTime,
+        appointment.doctorProfile?.user?.firstName || 'Doctor',
+      );
     }
   }
 }

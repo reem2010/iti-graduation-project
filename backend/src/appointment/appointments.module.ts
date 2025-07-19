@@ -7,11 +7,13 @@ import { WalletService } from '../wallet/wallet.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { TransactionModule } from 'src/transaction/transaction.module';
 import { WalletModule } from 'src/wallet/wallet.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
  imports: [
   forwardRef(() => TransactionModule), // Add this
-  WalletModule
+  WalletModule,
+  NotificationModule
 ],
   controllers: [AppointmentsController],
   providers: [AppointmentsService, ZoomService, PrismaService],

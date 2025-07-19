@@ -8,10 +8,14 @@ import {
 import { CreateDoctorProfileDto } from './dto/create-doctor-profile.dto';
 import { UpdateDoctorProfileDto } from './dto/update-doctor-profile.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { NotificationFacade } from '../notification/notification.facade';
 
 @Injectable()
 export class DoctorProfileService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly notificationFacade: NotificationFacade,
+  ) {}
 
   //   anyone can access doctor profile, but only doctors can create or update their own profiles
   async getDoctorProfile(user: any) {
@@ -101,7 +105,7 @@ export class DoctorProfileService {
         stripeAccountId: null,
       },
     });
-
+    await this.notificationFacade.notifyDoctorProfileCreated(userId);
     return {
       message: 'Doctor profile created successfully',
       createdProfile,
@@ -129,7 +133,7 @@ export class DoctorProfileService {
         ...dto,
       },
     });
-
+    await this.notificationFacade.notifyDoctorProfileUpdated(userId);
     return {
       message: 'Doctor profile updated successfully',
       data: updatedProfile,
@@ -154,7 +158,7 @@ export class DoctorProfileService {
     await this.prisma.doctorProfile.delete({
       where: { userId },
     });
-
+    await this.notificationFacade.notifyDoctorProfileDeleted(userId);
     return { message: 'Doctor profile deleted successfully' };
   }
 }

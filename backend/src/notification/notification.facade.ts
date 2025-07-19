@@ -306,4 +306,264 @@ export class NotificationFacade {
     await this.sendNotificationAndUpdateCount(userId, notification);
     return notification;
   }
+
+  // ========================================
+  // USER NOTIFICATIONS
+  // ========================================
+
+  async notifyUserRegistered(userId: number, role: string) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Registration Successful',
+      message: `Your account as a ${role} has been created successfully.`,
+      type: NotificationType.SUCCESS,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  async notifyUserDeleted(userId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Account Deleted',
+      message: 'Your account has been deleted.',
+      type: NotificationType.WARNING,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  async notifyUserUpdated(userId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Account Updated',
+      message: 'Your account information has been updated.',
+      type: NotificationType.INFO,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  // ========================================
+  // DOCTOR PROFILE & VERIFICATION NOTIFICATIONS
+  // ========================================
+
+  async notifyDoctorProfileCreated(doctorId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId: doctorId,
+      title: 'Profile Created',
+      message: 'Your doctor profile has been created.',
+      type: NotificationType.SUCCESS,
+    });
+    await this.sendNotificationAndUpdateCount(doctorId, notification);
+    return notification;
+  }
+
+  async notifyDoctorProfileUpdated(doctorId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId: doctorId,
+      title: 'Profile Updated',
+      message: 'Your doctor profile has been updated.',
+      type: NotificationType.INFO,
+    });
+    await this.sendNotificationAndUpdateCount(doctorId, notification);
+    return notification;
+  }
+
+  async notifyDoctorProfileDeleted(doctorId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId: doctorId,
+      title: 'Profile Deleted',
+      message: 'Your doctor profile has been deleted.',
+      type: NotificationType.WARNING,
+    });
+    await this.sendNotificationAndUpdateCount(doctorId, notification);
+    return notification;
+  }
+
+
+  // ========================================
+  // PATIENT PROFILE NOTIFICATIONS
+  // ========================================
+
+  async notifyPatientProfileCreated(patientId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId: patientId,
+      title: 'Profile Created',
+      message: 'Your patient profile has been created.',
+      type: NotificationType.SUCCESS,
+    });
+    await this.sendNotificationAndUpdateCount(patientId, notification);
+    return notification;
+  }
+
+  async notifyPatientProfileUpdated(patientId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId: patientId,
+      title: 'Profile Updated',
+      message: 'Your patient profile has been updated.',
+      type: NotificationType.INFO,
+    });
+    await this.sendNotificationAndUpdateCount(patientId, notification);
+    return notification;
+  }
+
+  async notifyPatientProfileDeleted(patientId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId: patientId,
+      title: 'Profile Deleted',
+      message: 'Your patient profile has been deleted.',
+      type: NotificationType.WARNING,
+    });
+    await this.sendNotificationAndUpdateCount(patientId, notification);
+    return notification;
+  }
+
+  // ========================================
+  // WALLET NOTIFICATIONS
+  // ========================================
+
+  async notifyWalletDeposit(userId: number, amount: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Wallet Deposit',
+      message: `An amount of $${amount} has been added to your wallet.`,
+      type: NotificationType.PAYMENT,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  async notifyWalletWithdraw(userId: number, amount: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Wallet Withdrawal',
+      message: `An amount of $${amount} has been withdrawn from your wallet.`,
+      type: NotificationType.PAYMENT,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  // ========================================
+  // ARTICLE NOTIFICATIONS (publish/update/delete)
+  // ========================================
+
+  async notifyArticleUpdated(doctorId: number, articleId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId: doctorId,
+      title: 'Article Updated',
+      message: 'Your article has been updated.',
+      type: NotificationType.ARTICLE,
+      referenceId: articleId,
+    });
+    await this.sendNotificationAndUpdateCount(doctorId, notification);
+    return notification;
+  }
+
+  async notifyArticleDeleted(doctorId: number, articleId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId: doctorId,
+      title: 'Article Deleted',
+      message: 'Your article has been deleted.',
+      type: NotificationType.ARTICLE,
+      referenceId: articleId,
+    });
+    await this.sendNotificationAndUpdateCount(doctorId, notification);
+    return notification;
+  }
+
+  // ========================================
+  // REVIEW NOTIFICATIONS (update)
+  // ========================================
+
+  async notifyDoctorReviewUpdated(doctorId: number, reviewId: number, rating: number) {
+    const stars = '⭐'.repeat(rating);
+    const notification = await this.notificationService.createNotification({
+      userId: doctorId,
+      title: 'Review Updated',
+      message: `A review has been updated to ${rating}-star ${stars}`,
+      type: NotificationType.REVIEW,
+      referenceId: reviewId,
+    });
+    await this.sendNotificationAndUpdateCount(doctorId, notification);
+    return notification;
+  }
+
+  // ========================================
+  // REPORT NOTIFICATIONS
+  // ========================================
+
+  async notifyReportCreated(userId: number, reportId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Report Submitted',
+      message: 'Your report has been submitted successfully.',
+      type: NotificationType.INFO,
+      referenceId: reportId,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  async notifyReportUpdated(userId: number, reportId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Report Updated',
+      message: 'Your report has been updated.',
+      type: NotificationType.INFO,
+      referenceId: reportId,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  async notifyReportDeleted(userId: number, reportId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Report Deleted',
+      message: 'Your report has been deleted.',
+      type: NotificationType.WARNING,
+      referenceId: reportId,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  // ========================================
+  // ADMIN NOTIFICATIONS
+  // ========================================
+
+  async notifyAccountActivated(userId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Account Activated',
+      message: 'Your account has been activated by the admin.',
+      type: NotificationType.SUCCESS,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  async notifyAccountDeactivated(userId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Account Deactivated',
+      message: 'Your account has been deactivated by the admin.',
+      type: NotificationType.WARNING,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
+
+  async notifyAccountBanned(userId: number) {
+    const notification = await this.notificationService.createNotification({
+      userId,
+      title: 'Account Banned',
+      message: 'Your account has been banned by the admin.',
+      type: NotificationType.ERROR,
+    });
+    await this.sendNotificationAndUpdateCount(userId, notification);
+    return notification;
+  }
 } 

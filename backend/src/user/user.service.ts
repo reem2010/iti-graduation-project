@@ -7,16 +7,22 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from '../auth/dto/register.dto';
+import { NotificationFacade } from '../notification/notification.facade';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationFacade: NotificationFacade,
+  ) {}
 
-  updateUser(userId: number, updateData: Partial<RegisterDto>) {
-    return this.prisma.user.update({
+  async updateUser(userId: number, updateData: Partial<RegisterDto>) {
+    const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: updateData,
     });
+    await this.notificationFacade.notifyUserUpdated(userId);
+    return updatedUser;
   }
 
   async deleteUser(userId: number) {
@@ -24,7 +30,7 @@ export class UserService {
     if (!user) throw new NotFoundException('User not found');
 
     await this.prisma.user.delete({ where: { id: userId } });
-
+    await this.notificationFacade.notifyUserDeleted(userId);
     return { message: 'User deleted successfully' };
   }
 

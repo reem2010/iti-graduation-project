@@ -7,7 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { AppointmentsModule } from 'src/appointment/appointments.module';
 import { RealtimeGateway } from 'src/realtime/realtime.gateway';
-import { NotificationModule } from 'src/notification/notification.module';
+import { NotificationModule } from '../notification/notification.module';
 import { MessagesModule } from 'src/messages/messages.module';
 
 @Module({

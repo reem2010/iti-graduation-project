@@ -94,7 +94,7 @@ export default function Post({
         {showReadMore && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="ml-2 text-siraj-emerald-600 hover:text-siraj-emerald-700 font-medium transition"
+            className="ml-2 text-siraj-emerald-600 hover:text-siraj-emerald-700 font-medium transition cursor-pointer"
           >
             {isExpanded ? "Read less" : "Read more"}
           </button>
@@ -126,7 +126,7 @@ export default function Post({
         <div className="flex justify-end gap-3 mt-6">
           <Link
             href={`/articles/${id}/edit`}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-muted transition"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-muted transition cursor-pointer"
             title="Edit post"
           >
             {svgs.pencil}
@@ -134,7 +134,7 @@ export default function Post({
           </Link>
           <button
             onClick={() => handleDelete(id)}
-            className="btn-subtle"
+            className="btn-subtle cursor-pointer"
             title="Delete post"
           >
             {svgs.eraser}

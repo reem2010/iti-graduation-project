@@ -414,6 +414,23 @@ export const adminApi = {
   },
 };
 
+// Notification API
+export const notificationApi = {
+  getAll: async () => {
+    const res = await api.get('/notifications');
+    return Array.isArray(res.data) ? res.data : res.data.notifications || [];
+  },
+  markAsRead: async (id: number) => {
+    await api.put(`/notifications/${id}/read`);
+  },
+  markAllAsRead: async () => {
+    await api.put('/notifications/mark-all-read');
+  },
+  delete: async (id: number) => {
+    await api.delete(`/notifications/${id}`);
+  },
+};
+
 // Export all individual API services for easier import
 
 export default api;

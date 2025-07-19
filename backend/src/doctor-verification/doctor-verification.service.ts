@@ -7,10 +7,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { UpdateDoctorVerificationDto } from './dto/update-doctor-verification.dto';
+import { NotificationFacade } from '../notification/notification.facade';
 
 @Injectable()
 export class DoctorVerificationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly notificationFacade: NotificationFacade,
+  ) {}
 
   async getDoctorVerification(user: any) {
     const { userId /*, role */ } = user;
@@ -121,7 +125,7 @@ async createDefaultVerification(userId: number) {
       where: { userId },
       data: { ...dto, status: 'pending' },
     });
-
+    await this.notificationFacade.notifyAccountStatusChanged(userId, 'pending');
     return {
       message: 'Doctor verification updated successfully',
       data: updated,
@@ -192,7 +196,14 @@ async createDefaultVerification(userId: number) {
         reviewedAt: new Date(),
       },
     });
-
+    const verificationAfter = await this.prisma.doctorVerification.findFirst({ where: { id } });
+    if (dto.status === 'approved') {
+      await this.notificationFacade.notifyDoctorVerified(verificationAfter.userId);
+    } else if (dto.status === 'rejected') {
+      await this.notificationFacade.notifyDoctorVerificationRejected(verificationAfter.userId, dto.rejectionReason);
+    } else {
+      await this.notificationFacade.notifyAccountStatusChanged(verificationAfter.userId, dto.status);
+    }
     return {
       message: 'Doctor verification reviewed successfully',
       data: updated,
