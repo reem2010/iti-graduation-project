@@ -256,8 +256,10 @@ export const appointmentApi = {
     return response.data.appointments || response.data.data;
   },
 
-  cancelAppointment: async (appointmentId: number, cancelReason?:string) => {
-    const response = await api.patch(`/appointments/${appointmentId}/cancel`,{ cancelReason,});
+  cancelAppointment: async (appointmentId: number, cancelReason?: string) => {
+    const response = await api.patch(`/appointments/${appointmentId}/cancel`, {
+      cancelReason,
+    });
     return response.data;
   },
   // Mark an appointment as completed
@@ -417,17 +419,24 @@ export const adminApi = {
 // Notification API
 export const notificationApi = {
   getAll: async () => {
-    const res = await api.get('/notifications');
+    const res = await api.get("/notifications");
     return Array.isArray(res.data) ? res.data : res.data.notifications || [];
   },
   markAsRead: async (id: number) => {
     await api.put(`/notifications/${id}/read`);
   },
   markAllAsRead: async () => {
-    await api.put('/notifications/mark-all-read');
+    await api.put("/notifications/mark-all-read");
   },
   delete: async (id: number) => {
     await api.delete(`/notifications/${id}`);
+  },
+};
+//Reports
+export const reportsApi = {
+  getAllReports: async () => {
+    const response = await api.get(`/reports`);
+    return response.data;
   },
 };
 
