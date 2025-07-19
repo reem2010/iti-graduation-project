@@ -15,9 +15,11 @@ import {
   BookOpenCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/authContext";
 
 export default function Home() {
   const router = useRouter();
+  const { user } = useAuth();
 
   const services = [
     {
@@ -94,7 +96,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-emerald-50">
-
       {/* Hero Section */}
       <section className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,7 +120,13 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
-                onClick={() => router.push("/auth")}
+                onClick={() => {
+                  if (!user) {
+                    router.push("/auth");
+                  } else {
+                    router.push("/doctor");
+                  }
+                }}
                 size="lg"
                 className="cursor-pointer bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
               >
@@ -305,7 +312,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

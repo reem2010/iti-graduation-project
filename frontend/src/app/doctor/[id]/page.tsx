@@ -24,6 +24,7 @@ export default function PublicDoctorProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchDoctorData() {
@@ -105,6 +106,7 @@ export default function PublicDoctorProfilePage() {
             </p>
           </div>
 
+          { user && user.id !== doctorUser?.id && (
           <div className="ml-auto">
             <button
               onClick={() => router.push(`/chat?with=${doctorUser?.id}`)}
@@ -112,7 +114,7 @@ export default function PublicDoctorProfilePage() {
             >
               Send message
             </button>
-          </div>
+          </div>)}
         </div>
 
         {/* Verification Details */}
