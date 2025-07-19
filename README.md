@@ -18,7 +18,7 @@ By creating a secure and user-friendly environment, Siraj aims to:
 - Empower therapists with tools to manage their practice efficiently
 - Provide educational resources to raise mental health awareness
 
-![Siraj Platform Overview](frontend\public\screenshots\siraj-landingPage.png)
+![Siraj Platform Overview](frontend/public/screenshots/siraj-landingPage.png)
 
 ## Features
 
