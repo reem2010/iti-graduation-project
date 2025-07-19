@@ -124,7 +124,7 @@ Siraj is built using modern web technologies:
 
 ## Project Status
 
-The Siraj Mental Health Platform is currently **Active** and under continuous development. We regularly deploy updates to improve functionality and user experience based on feedback from both therapists and patients.
+The Siraj Mental Health Platform is currently deployed and under continuous development. We regularly deploy updates to improve functionality and user experience based on feedback from both therapists and patients.
 
 ## Contributing
 
@@ -142,7 +142,7 @@ This project is licensed under the MIT License.
 
 ## 🚀 Demo
 
-Check out the demo video: [Siraj Demo Video Link](https://your-demo-url.com)
+Check out the demo video: [Siraj Demo Video Link](https://drive.google.com/file/d/1EY4pw57_TdtSKXUDyZ6Lofrlja_rObD7/view?usp=sharing)
 
 #
 <p align="center">
