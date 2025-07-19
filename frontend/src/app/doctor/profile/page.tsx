@@ -6,6 +6,7 @@ import DoctorVerificationDetails from "@/components/doctor/DoctorVerificationDet
 import PersonalInfo from "@/components/doctor/PersonalInfo";
 import DoctorAvailabilityDetails from "@/components/doctor/DoctorAvailabilityDetails";
 import DoctorAppointments from "@/components/doctor/DoctorAppointments";
+import PatientReports from "@/components/doctor/PatientReports";
 import { authApi } from "@/lib/api";
 import { User, Role } from "@/types";
 
@@ -14,7 +15,7 @@ export default function DoctorProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "profile" | "availability" | "verification" | "appointments"
+    "profile" | "availability" | "verification" | "appointments" | "Patient"
   >("profile");
 
   useEffect(() => {
@@ -105,15 +106,25 @@ export default function DoctorProfilePage() {
                   Availability
                 </button>
                 <button
-                onClick={() => setActiveTab("appointments")}
-                className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                  activeTab === "appointments"
-                    ? "bg-siraj-emerald-600 text-siraj-white shadow-lg transform scale-105"
-                    : "text-siraj-gray-600 hover:bg-siraj-gray-200 hover:text-siraj-gray-900"
-                }`}
-              >
-                Appointments
-              </button>
+                  onClick={() => setActiveTab("appointments")}
+                  className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                    activeTab === "appointments"
+                      ? "bg-siraj-emerald-600 text-siraj-white shadow-lg transform scale-105"
+                      : "text-siraj-gray-600 hover:bg-siraj-gray-200 hover:text-siraj-gray-900"
+                  }`}
+                >
+                  Appointments
+                </button>
+                <button
+                  onClick={() => setActiveTab("Patient")}
+                  className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                    activeTab === "Patient"
+                      ? "bg-siraj-emerald-600 text-siraj-white shadow-lg transform scale-105"
+                      : "text-siraj-gray-600 hover:bg-siraj-gray-200 hover:text-siraj-gray-900"
+                  }`}
+                >
+                  Patients’ Reports
+                </button>
               </div>
             )}
           </div>
@@ -412,37 +423,90 @@ export default function DoctorProfilePage() {
 
               {/* Appoinbtnments tab */}
               {activeTab === "appointments" && (
-              <div className="bg-siraj-white rounded-3xl shadow-xl border border-siraj-gray-200 p-8 transition-all duration-300 hover:shadow-2xl">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 bg-siraj-emerald-500/10 rounded-2xl">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-siraj-emerald-600"
-                    >
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
+                <div className="bg-siraj-white rounded-3xl shadow-xl border border-siraj-gray-200 p-8 transition-all duration-300 hover:shadow-2xl">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-siraj-emerald-500/10 rounded-2xl">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-siraj-emerald-600"
+                      >
+                        <rect
+                          x="3"
+                          y="4"
+                          width="18"
+                          height="18"
+                          rx="2"
+                          ry="2"
+                        ></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-siraj-gray-900">
+                        My Appointments
+                      </h2>
+                      <p className="text-siraj-gray-500 mt-1">
+                        Upcoming and past meetings with patients
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-siraj-gray-900">My Appointments</h2>
-                    <p className="text-siraj-gray-500 mt-1">Upcoming and past meetings with patients</p>
-                  </div>
+
+                  <DoctorAppointments />
                 </div>
+              )}
 
-                <DoctorAppointments />
-              </div>
-            )}
-
+              {/*Patient reports */}
+              {activeTab === "Patient" && (
+                <div className="bg-siraj-white rounded-3xl shadow-xl border border-siraj-gray-200 p-8 transition-all duration-300 hover:shadow-2xl">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-siraj-emerald-500/10 rounded-2xl">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-siraj-emerald-600"
+                      >
+                        <rect
+                          x="3"
+                          y="4"
+                          width="18"
+                          height="18"
+                          rx="2"
+                          ry="2"
+                        ></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-siraj-gray-900">
+                        Patient Reports
+                      </h2>
+                      <p className="text-siraj-gray-500 mt-1">
+                        Set your working hours and appointment availability
+                      </p>
+                    </div>
+                  </div>
+                  <PatientReports />
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -487,7 +551,7 @@ export default function DoctorProfilePage() {
                   </svg>
                 </div>
               </div>
-              
+
               <h2 className="text-2xl font-bold text-siraj-gray-900 mb-3">
                 Hello {userInfo?.firstName || "there"}! 👋
               </h2>
@@ -504,8 +568,8 @@ export default function DoctorProfilePage() {
                   Need Help?
                 </h3>
                 <p className="text-siraj-gray-500 text-sm">
-                  Contact our support team if you&#39;re a doctor and need access to
-                  this section.
+                  Contact our support team if you&#39;re a doctor and need
+                  access to this section.
                 </p>
               </div>
 

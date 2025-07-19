@@ -12,6 +12,7 @@ import { ZoomService } from 'src/zoom/zoom.service';
 import { AppointmentStatus } from '@prisma/client';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TransactionService } from 'src/transaction/transaction.service';
+import { NotificationFacade } from '../notification/notification.facade';
 
 export interface paymentResult {
   success: boolean;
@@ -28,6 +29,7 @@ export class AppointmentsService {
     private walletService: WalletService,
     @Inject(forwardRef(() => TransactionService))
     private transactionService: TransactionService,
+    private readonly notificationFacade: NotificationFacade,
   ) {}
 
   async createAppointmentWithPayment(
@@ -70,7 +72,7 @@ export class AppointmentsService {
           price: data.price,
           platformFee: data.platformFee,
         });
-
+        await this.notificationFacade.notifyAppointmentBooked(data.patientId, data.doctorId, appointment.id, appointment.startTime, appointment.doctorProfile?.user?.firstName || 'Doctor');
         return {
           status: 'success',
           message: 'Appointment created successfully using wallet balance',
@@ -365,6 +367,11 @@ export class AppointmentsService {
     try {
       const appointment = await this.prisma.appointment.findUnique({
         where: { id: appointmentId },
+        include: {
+          doctorProfile: {
+            include: { user: true },
+          },
+        },
       });
       if (!appointment) {
         throw new Error('Appointment not found');
@@ -379,6 +386,9 @@ export class AppointmentsService {
           start_time: data.startTime.toISOString(),
           duration: duration,
         });
+      }
+      if (data.startTime && data.endTime) {
+        await this.notificationFacade.notifyAppointmentRescheduled(appointment.patientId, appointment.doctorId, appointment.id, appointment.startTime, data.startTime, appointment.doctorProfile?.user?.firstName || 'Doctor');
       }
       return this.prisma.appointment.update({
         where: { id: appointmentId },
@@ -415,6 +425,11 @@ export class AppointmentsService {
     try {
       const appointment = await this.prisma.appointment.findUnique({
         where: { id: appointmentId },
+        include: {
+          doctorProfile: {
+            include: { user: true },
+          },
+        },
       });
       if (!appointment) {
         throw new Error('Appointment not found');
@@ -426,7 +441,7 @@ export class AppointmentsService {
       if (appointment.meetingId) {
         await this.zoomService.deleteMeeting(appointment.meetingId);
       }
-
+      await this.notificationFacade.notifyAppointmentCancelled(appointment.patientId, appointment.doctorId, appointment.id, appointment.startTime, appointment.doctorProfile?.user?.firstName || 'Doctor');
       return this.prisma.appointment.update({
         where: { id: appointmentId },
         data: {

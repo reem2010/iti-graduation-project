@@ -5,16 +5,22 @@ import {
 } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { NotificationFacade } from '../notification/notification.facade';
 
 @Injectable()
 export class WalletService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationFacade: NotificationFacade,
+  ) {}
 
   async create(createWalletDto: CreateWalletDto) {
     try {
-      return await this.prisma.wallet.create({
+      const wallet = await this.prisma.wallet.create({
         data: createWalletDto,
       });
+      await this.notificationFacade.notifyWalletDeposit(createWalletDto.userId, createWalletDto.balance);
+      return wallet;
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ConflictException('Wallet already exists for this user.');
@@ -64,7 +70,7 @@ export class WalletService {
   }
 
   async refund(amount: number, userId: number) {
-    return this.prisma.wallet.upsert({
+    const wallet = await this.prisma.wallet.upsert({
       where: { userId },
       update: {
         balance: {
@@ -76,5 +82,7 @@ export class WalletService {
         balance: amount,
       },
     });
+    await this.notificationFacade.notifyWalletDeposit(userId, amount);
+    return wallet;
   }
 }

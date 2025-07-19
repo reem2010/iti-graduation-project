@@ -7,9 +7,13 @@ import {
 } from '@nestjs/common';
 import { UpdateReviewsDto, CreateReviewsDto } from './dto/review.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { NotificationFacade } from '../notification/notification.facade';
 @Injectable()
 export class ReviewService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationFacade: NotificationFacade,
+  ) {}
   //Get All Doctor's Reviews
   async findAllByDoctorId(doctorId: number) {
     if (!doctorId || doctorId <= 0) {
@@ -82,7 +86,7 @@ export class ReviewService {
         },
       },
     });
-
+    await this.notificationFacade.notifyDoctorReview(doctorId, review.id, rating);
     return {
       ...review,
       patientId: review.isAnonymous ? null : review.patientId,
@@ -117,7 +121,7 @@ export class ReviewService {
         },
       },
     });
-
+    await this.notificationFacade.notifyDoctorReviewUpdated(existedReview.doctorId, id, rating);
     return {
       ...updatedReview,
       patientId: updatedReview.isAnonymous ? null : updatedReview.patientId,

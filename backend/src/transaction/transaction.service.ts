@@ -9,6 +9,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { TransactionStatus, TransactionType } from '@prisma/client';
 import { AppointmentsService } from 'src/appointment/appointments.service';
 import { RealtimeGateway } from 'src/realtime/realtime.gateway';
+import { NotificationFacade } from '../notification/notification.facade';
 
 @Injectable()
 export class TransactionService {
@@ -17,6 +18,7 @@ export class TransactionService {
     private readonly prisma: PrismaService,
     private readonly appointmentsService: AppointmentsService,
     private readonly gateWay: RealtimeGateway,
+    private readonly notificationFacade: NotificationFacade,
   ) {}
 
   async bookSession(
@@ -79,7 +81,7 @@ export class TransactionService {
         description: 'Pending payment via Paymob',
       },
     });
-
+    // No notification here, only after payment result
     return `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${newToken}`;
   }
 
@@ -188,6 +190,7 @@ export class TransactionService {
         await this.appointmentsService.confirmAppointmentPayment(
           pending.appointmentId,
         );
+        await this.notificationFacade.notifyPaymentSuccess(pending.userId, pending.amount.toNumber(), pending.appointmentId);
         console.log(
           `Appointment ${pending.appointmentId} confirmed after successful payment`,
         );
@@ -196,6 +199,7 @@ export class TransactionService {
         await this.appointmentsService.handleFailedPayment(
           pending.appointmentId,
         );
+        await this.notificationFacade.notifyPaymentFailed(pending.userId, pending.amount.toNumber(), pending.appointmentId);
         console.log(
           `Appointment ${pending.appointmentId} cancelled due to failed payment`,
         );

@@ -258,7 +258,7 @@ export const appointmentApi = {
 
   cancelAppointment: async (appointmentId: number, cancelReason?: string) => {
     const response = await api.delete(`/appointments/${appointmentId}`, {
-      data: { cancelReason: cancelReason || "User cancelled" }
+      data: { cancelReason: cancelReason || "User cancelled" },
     });
     return response.data;
   },
@@ -279,9 +279,9 @@ export const appointmentApi = {
     return response.data;
   },
   getDoctorAppointments: async () => {
-  const response = await api.get("/appointments/my-appointments?role=doctor");
-  return response.data.appointments || response.data.data;
-},
+    const response = await api.get("/appointments/my-appointments?role=doctor");
+    return response.data.appointments || response.data.data;
+  },
 };
 
 // Messages API
@@ -416,6 +416,30 @@ export const adminApi = {
     const response = await api.get(
       `/admin/appointments?${queryParams.toString()}`
     );
+    return response.data;
+  },
+};
+
+// Notification API
+export const notificationApi = {
+  getAll: async () => {
+    const res = await api.get("/notifications");
+    return Array.isArray(res.data) ? res.data : res.data.notifications || [];
+  },
+  markAsRead: async (id: number) => {
+    await api.put(`/notifications/${id}/read`);
+  },
+  markAllAsRead: async () => {
+    await api.put("/notifications/mark-all-read");
+  },
+  delete: async (id: number) => {
+    await api.delete(`/notifications/${id}`);
+  },
+};
+//Reports
+export const reportsApi = {
+  getAllReports: async () => {
+    const response = await api.get(`/reports`);
     return response.data;
   },
 };

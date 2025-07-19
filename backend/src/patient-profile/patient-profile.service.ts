@@ -8,10 +8,14 @@ import {
 import { CreatePatientDto } from './dto/create-patient-profile.dto';
 import { UpdatePatientDto } from './dto/update-patient-profile.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { NotificationFacade } from '../notification/notification.facade';
 
 @Injectable()
 export class PatientService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly notificationFacade: NotificationFacade,
+  ) {}
 
   async getPatientProfile(user: any) {
     const { userId /*,role*/ } = user;
@@ -85,7 +89,7 @@ export class PatientService {
     insurancePolicyNumber: null,
   },
 });
-
+    await this.notificationFacade.notifyPatientProfileCreated(userId);
 
     return {
       message: 'Patient profile created successfully',
@@ -120,6 +124,7 @@ export class PatientService {
         ...dto,
       },
     });
+    await this.notificationFacade.notifyPatientProfileUpdated(userId);
 
     return {
       message: 'Patient profile updated successfully',
@@ -151,6 +156,7 @@ export class PatientService {
     await this.prisma.patient.delete({
       where: { userId },
     });
+    await this.notificationFacade.notifyPatientProfileDeleted(userId);
 
     return {
       message: 'Patient profile deleted successfully',

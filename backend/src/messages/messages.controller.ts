@@ -21,7 +21,9 @@ import {
   ApiGetUnreadCount,
   ApiClearUnreadMessages,
 } from './message.swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Messages')
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}

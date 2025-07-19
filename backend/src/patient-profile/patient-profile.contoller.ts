@@ -21,7 +21,9 @@ import {
   ApiUpdatePatientProfile,
   ApiDeletePatientProfile,
 } from './patient.swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Patients')
 @Controller('patients')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
