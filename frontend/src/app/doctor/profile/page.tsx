@@ -112,7 +112,7 @@ export default function DoctorProfilePage() {
                       : "text-siraj-gray-600 hover:bg-siraj-gray-200 hover:text-siraj-gray-900"
                   }`}
                 >
-                  Patient
+                  Patients’ Reports
                 </button>
               </div>
             )}
